@@ -16,6 +16,7 @@ export const auth = betterAuth({
   baseURL,
   secret,
   trustedOrigins: [process.env.WEB_ORIGIN ?? "http://localhost:3000"],
+  advanced: { ipAddress: { ipAddressHeaders: ["x-direct-client-ip"] } },
   database: drizzleAdapter(getDb(), { provider: "pg", schema: authSchema }),
   emailAndPassword: {
     enabled: true,

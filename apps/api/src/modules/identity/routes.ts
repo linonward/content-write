@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { getConnInfo } from "@hono/node-server/conninfo";
 import { Hono } from "hono";
 import { auth } from "./auth";
 
@@ -21,7 +22,15 @@ identityRoutes.on(["GET", "POST"], "/auth/*", async (context) => {
       );
     }
   }
-  return auth.handler(context.req.raw);
+  const headers = new Headers(context.req.raw.headers);
+  headers.delete("x-direct-client-ip");
+  try {
+    const address = getConnInfo(context).remote.address;
+    if (address) headers.set("x-direct-client-ip", address);
+  } catch {
+    // In-process tests have no socket; never trust a caller-supplied IP header.
+  }
+  return auth.handler(new Request(context.req.raw, { headers }));
 });
 
 identityRoutes.get("/me", async (context) => {
