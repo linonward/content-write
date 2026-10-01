@@ -1,6 +1,6 @@
 import { setTimeout } from "node:timers/promises";
-import { getPool } from "./server/db/client";
-import { checkDatabase } from "./server/db/health";
+import { getPool } from "@content-write/db/client";
+import { checkDatabase } from "@content-write/db/health";
 
 const shutdown = new AbortController();
 process.on("SIGINT", () => shutdown.abort());

@@ -1,3 +1,5 @@
+const apiOrigin = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+
 export default function Home() {
   return (
     <main className="shell">
@@ -18,8 +20,8 @@ export default function Home() {
           <p>服务状态与开发入口</p>
         </div>
         <div className="status-links">
-          <a href="/api/healthz">应用健康检查</a>
-          <a href="/api/readyz">数据库就绪检查</a>
+          <a href={`${apiOrigin}/api/healthz`}>API 健康检查</a>
+          <a href={`${apiOrigin}/api/readyz`}>数据库就绪检查</a>
         </div>
       </section>
       <p className="note">尚未开放账号注册或文章生成。</p>

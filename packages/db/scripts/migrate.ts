@@ -1,5 +1,5 @@
 import { migrate } from "drizzle-orm/node-postgres/migrator";
-import { getDb, getPool } from "../src/server/db/client";
+import { getDb, getPool } from "../src/client";
 
 try {
   await migrate(getDb(), { migrationsFolder: "./drizzle" });

@@ -1,5 +1,5 @@
 {
-  "name": "content-write",
+  "name": "content-write-monorepo",
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@12.4.1",
@@ -7,40 +7,27 @@
     "node": ">=24"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "dev": "turbo run dev --filter=@content-write/web --filter=@content-write/api",
+    "build": "turbo run build",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "typecheck": "next typegen && tsc --noEmit",
-    "test": "vitest run --exclude tests/integration/**",
-    "test:integration": "node --env-file-if-exists=.env.local node_modules/vitest/vitest.mjs run tests/integration",
-    "db:migrate": "node --env-file-if-exists=.env.local --import tsx scripts/migrate.ts",
-    "db:generate": "drizzle-kit generate",
-    "worker:dev": "node --watch --env-file-if-exists=.env.local --import tsx src/worker.ts",
-    "worker:start": "node --env-file-if-exists=.env.local --import tsx src/worker.ts",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:integration": "pnpm --filter @content-write/db test:integration",
+    "db:migrate": "pnpm --filter @content-write/db db:migrate",
+    "db:generate": "pnpm --filter @content-write/db db:generate",
+    "worker:dev": "pnpm --filter @content-write/worker dev",
+    "worker:start": "pnpm --filter @content-write/worker start",
+    "api:dev": "pnpm --filter @content-write/api dev",
+    "web:dev": "pnpm --filter @content-write/web dev",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:integration && pnpm build"
   },
-  "dependencies": {
-    "@tailwindcss/postcss": "4.3.3",
-    "drizzle-orm": "0.45.3",
-    "next": "16.3.8",
-    "pg": "8.23.1",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
-    "tailwindcss": "4.3.3",
-    "zod": "4.6.5"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
-    "@types/node": "24.10.4",
-    "@types/pg": "8.15.5",
-    "@types/react": "19.3.0",
-    "@types/react-dom": "19.3.0",
-    "drizzle-kit": "0.31.11",
-    "tsx": "4.23.15",
     "typescript": "5.9.3",
-    "vitest": "4.0.16"
+    "vitest": "4.0.16",
+    "turbo": "2.11.6"
   },
   "type": "module"
 }

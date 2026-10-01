@@ -1,0 +1,23 @@
+{
+  "name": "@content-write/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "node --watch --env-file-if-exists=../../.env.local --import tsx src/index.ts",
+    "start": "node --env-file-if-exists=../../.env.local --import tsx src/index.ts",
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@content-write/db": "workspace:*",
+    "tsx": "4.23.15"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.4",
+    "typescript": "5.9.3"
+  }
+}

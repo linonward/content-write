@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
-import { getDb, getPool } from "../../src/server/db/client";
-import { serviceState } from "../../src/server/db/schema";
+import { getDb, getPool } from "../../src/client";
+import { serviceState } from "../../src/schema";
 
 describe("PostgreSQL baseline", () => {
   afterAll(async () => {

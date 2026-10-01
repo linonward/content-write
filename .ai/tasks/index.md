@@ -1,18 +1,18 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-01 13:53 CST
-已完成：1 / 24
+更新时间：2026-10-01 15:00 CST
+已完成：1 / 25
 待合并：0
 阻塞：0
-当前任务：无
-下一项：T002 account-access
+当前任务：T025 turborepo-hono
+下一项：T002 account-access（需适配 T025）
 真实模型验收：未开始
 线上验收：未开始
 
 | ID | 用户结果 | 状态 | 依赖 | 分支 | worktree | 实现 SHA | 合并 SHA | 证据 |
 |---|---|---|---|---|---|---|---|---|
 | T001 | 基础工程、数据库、健康页、检查命令、文档、看板、CI 基线 | 已完成 | 无 | chore/T001-bootstrap | 已清理 | 0751508 | 7d669a9 | .ai/verifications/T001.md |
-| T002 | 邀请账号登录、退出、保护页面和身份隔离 | 待开始 | T001 | feat/T002-account-access | 未创建 | 无 | 无 | 无 |
+| T002 | 邀请账号登录、退出、保护页面和身份隔离 | 开发中（独立 worktree 未提交） | T001；合并前适配 T025 | feat/T002-account-access | content-write-account-access | 无 | 无 | 无 |
 | T003 | 保存、查看、编辑、删除文字素材，版本与权限完整 | 待开始 | T002 | feat/T003-capture-text | 未创建 | 无 | 无 | 无 |
 | T004 | 上传 Markdown，解析、限制、持久化和失败反馈 | 待开始 | T003 | feat/T004-import-markdown | 未创建 | 无 | 无 | 无 |
 | T005 | 保存 URL、安全抓取、失败粘贴正文与开关 | 待开始 | T003 | feat/T005-capture-link | 未创建 | 无 | 无 | 无 |
@@ -35,12 +35,15 @@
 | T022 | 完整 E2E、安全与故障回归、10 组质量评估 | 待开始 | T020、T021；授权素材 | feat/T022-quality-and-regression | 未创建 | 无 | 无 | 无 |
 | T023 | 生产镜像、完整 CI、部署、HTTPS、迁移和备份恢复 | 待开始 | T022；环境授权 | feat/T023-staging-delivery | 未创建 | 无 | 无 | 无 |
 | T024 | 试用交付、七天实验、说明和最终验收 | 待开始 | T023 | feat/T024-trial-handoff | 未创建 | 无 | 无 | 无 |
+| T025 | Web/API/worker 分离与 Turborepo 编排 | 待合并 | T001 | chore/T025-turborepo-hono | content-write-turborepo-hono | 待提交 | 无 | .ai/verifications/T025.md |
 
 ## 当前阻塞
 
-暂无已确认阻塞。
+T002 已在另一 worktree 有未提交改动；本分支从 `origin/main` 独立创建。T002 合并前须适配本次目录与服务边界。
 
 ## 最近更新
 
 - 2026-10-01 13:44 CST：启动 T001，计划在平级 worktree 实现基础工程。
 - 2026-10-01 13:53 CST：T001 已合并并完成主分支检查；记录 `next typegen` 和数据库健康等待修正。
+
+- 2026-10-01 15:00 CST：按用户要求启动 T025；Web、Hono API、worker 分离并完成初步验证，待提交 PR。

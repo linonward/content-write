@@ -1,6 +1,6 @@
 # 公众号内容工作台
 
-Phase 0 开发中。当前 T001 提供可运行的 Web 基础工程、PostgreSQL 连接、迁移、健康检查和 CI 基线。登录、素材与写作能力尚未开放。
+Phase 0 开发中。工程采用 pnpm workspace + Turborepo：`apps/web` 提供 Next.js 页面，`apps/api` 提供模块化 Hono API，`apps/worker` 独立运行后台任务，`packages/db` 仅供服务端使用。当前可用功能仍是基础页面、数据库迁移和健康检查。
 
 ## 本地运行
 
@@ -14,7 +14,7 @@ pnpm db:migrate
 pnpm dev
 ```
 
-检查 `http://localhost:3000/api/healthz` 和 `http://localhost:3000/api/readyz`。独立 worker 可用 `pnpm worker:dev` 启动。
+Web 位于 `http://localhost:3000`，API 位于 `http://localhost:3001`。浏览器直接调用 API；Web 不提供 `/api/*` 路由。独立 worker 使用 `pnpm worker:dev` 启动。
 
 ## 检查
 
