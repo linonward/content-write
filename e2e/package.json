@@ -1,0 +1,20 @@
+{
+  "name": "@content-write/e2e",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "e2e": "playwright test",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@content-write/db": "workspace:*",
+    "@playwright/test": "1.63.0",
+    "@types/node": "24.10.4",
+    "drizzle-orm": "0.45.3",
+    "typescript": "5.9.3"
+  }
+}

@@ -8,3 +8,9 @@ coverage/
 .DS_Store
 next-env.d.ts
 .turbo/
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+.playwright-cli/
