@@ -1,12 +1,18 @@
 import { randomUUID } from "node:crypto";
 import { getDb } from "@content-write/db/client";
-import { materialRevisions, materials } from "@content-write/db/schema";
-import { and, desc, eq } from "drizzle-orm";
+import {
+  linkFetchLimits,
+  materialRevisions,
+  materials,
+} from "@content-write/db/schema";
+import { and, desc, eq, sql } from "drizzle-orm";
 
 export type MaterialInput = { title: string; content: string };
 export type MaterialCreation = MaterialInput & {
-  kind?: "text" | "markdown";
+  kind?: "text" | "markdown" | "link";
   sourceFilename?: string;
+  sourceUrl?: string;
+  fetchStatus?: "fetched" | "failed" | "disabled" | "manual";
 };
 
 export async function listMaterials(userId: string) {
@@ -16,6 +22,8 @@ export async function listMaterials(userId: string) {
       title: materials.title,
       kind: materials.kind,
       sourceFilename: materials.sourceFilename,
+      sourceUrl: materials.sourceUrl,
+      fetchStatus: materials.fetchStatus,
       currentVersion: materials.currentVersion,
       createdAt: materials.createdAt,
       updatedAt: materials.updatedAt,
@@ -67,6 +75,7 @@ export async function updateMaterial(
       .update(materials)
       .set({
         ...input,
+        fetchStatus: sql`case when ${materials.kind} = 'link' then 'manual' else ${materials.fetchStatus} end`,
         currentVersion: expectedVersion + 1,
         updatedAt: new Date(),
       })
@@ -95,10 +104,29 @@ export async function updateMaterial(
       version: item.currentVersion,
       kind: item.kind,
       sourceFilename: item.sourceFilename,
+      sourceUrl: item.sourceUrl,
+      fetchStatus: item.fetchStatus,
       ...input,
     });
     return { status: "updated" as const, item };
   });
+}
+
+export async function allowLinkFetch(userId: string) {
+  const now = new Date();
+  const cutoff = new Date(now.getTime() - 60 * 60 * 1000);
+  const [entry] = await getDb()
+    .insert(linkFetchLimits)
+    .values({ userId, count: 1, windowStart: now })
+    .onConflictDoUpdate({
+      target: linkFetchLimits.userId,
+      set: {
+        count: sql`case when ${linkFetchLimits.windowStart} <= ${cutoff} then 1 else ${linkFetchLimits.count} + 1 end`,
+        windowStart: sql`case when ${linkFetchLimits.windowStart} <= ${cutoff} then ${now} else ${linkFetchLimits.windowStart} end`,
+      },
+    })
+    .returning({ count: linkFetchLimits.count });
+  return entry.count <= 10;
 }
 
 export async function deleteMaterial(userId: string, id: string) {

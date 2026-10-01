@@ -3,7 +3,9 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { auth } from "../identity/auth";
 import { parseImport } from "./import-file";
+import { fetchLink, validatePublicUrl } from "./link-fetch";
 import {
+  allowLinkFetch,
   createMaterial,
   deleteMaterial,
   getMaterial,
@@ -18,6 +20,10 @@ const materialInput = z.strictObject({
 const updateInput = materialInput.extend({
   expectedVersion: z.int().positive(),
 });
+const linkInput = z.strictObject({
+  url: z.string().trim().min(1).max(2048),
+  fetch: z.boolean().optional(),
+});
 
 export const materialRoutes = new Hono<{
   Variables: { materialUserId: string };
@@ -26,7 +32,7 @@ export const materialRoutes = new Hono<{
 function error(
   code: string,
   message: string,
-  status: 400 | 401 | 403 | 404 | 409 | 413 | 422,
+  status: 400 | 401 | 403 | 404 | 409 | 413 | 422 | 429,
 ) {
   return new Response(
     JSON.stringify({
@@ -117,6 +123,56 @@ materialRoutes.post("/materials/import", async (context) => {
     context.get("materialUserId"),
     parsed.value,
   );
+  return context.json({ material: item }, 201);
+});
+materialRoutes.get("/materials/link-capabilities", (context) =>
+  context.json({
+    remoteFetchEnabled: process.env.REMOTE_FETCH_ENABLED === "true",
+  }),
+);
+materialRoutes.post("/materials/link", async (context) => {
+  const body = await readBody(context.req.raw);
+  if (body.status === "large")
+    return error("MATERIAL_TOO_LARGE", "链接过长。", 413);
+  if (body.status === "invalid")
+    return error("INVALID_JSON", "请求内容不是有效 JSON。", 400);
+  const parsed = linkInput.safeParse(body.value);
+  if (!parsed.success) return error("INVALID_LINK", "请输入有效的链接。", 422);
+  let url: URL;
+  try {
+    url = validatePublicUrl(parsed.data.url);
+  } catch {
+    return error(
+      "INVALID_LINK",
+      "仅支持公开的 HTTP/HTTPS 地址及 80/443 端口。",
+      422,
+    );
+  }
+  const shouldFetch =
+    parsed.data.fetch === true && process.env.REMOTE_FETCH_ENABLED === "true";
+  if (shouldFetch && !(await allowLinkFetch(context.get("materialUserId")))) {
+    return error(
+      "LINK_FETCH_LIMIT",
+      "抓取次数过多，请一小时后再试；也可先保存链接。",
+      429,
+    );
+  }
+  const fetched = shouldFetch ? await fetchLink(url.href) : null;
+  const item = await createMaterial(context.get("materialUserId"), {
+    title:
+      fetched?.status === "fetched"
+        ? fetched.title
+        : url.hostname.slice(0, 200),
+    content: fetched?.status === "fetched" ? fetched.content : "",
+    kind: "link",
+    sourceUrl: url.href,
+    fetchStatus:
+      fetched?.status === "fetched"
+        ? "fetched"
+        : shouldFetch
+          ? "failed"
+          : "disabled",
+  });
   return context.json({ material: item }, 201);
 });
 materialRoutes.get("/materials/:id", async (context) => {
