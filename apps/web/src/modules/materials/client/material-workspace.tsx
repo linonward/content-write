@@ -39,6 +39,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { MaterialAnalysisPanel } from "./material-analysis-panel";
 
 type Material = {
   id: string;
@@ -400,6 +401,7 @@ export function MaterialWorkspace() {
                   {selected.kind === "markdown" ? "Markdown" : "纯文本"}
                 </p>
               )}
+
               {selected.sourceUrl && (
                 <p className="mt-2 text-xs text-muted-foreground wrap-anywhere">
                   来源链接：
@@ -438,6 +440,11 @@ export function MaterialWorkspace() {
                   </EmptyHeader>
                 </Empty>
               ) : null}
+              <MaterialAnalysisPanel
+                key={`${selected.id}:${selected.currentVersion}`}
+                materialId={selected.id}
+                version={selected.currentVersion}
+              />
               <div className="mt-6 flex items-center gap-3">
                 <Button
                   type="button"

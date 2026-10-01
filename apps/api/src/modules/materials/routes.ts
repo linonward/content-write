@@ -4,6 +4,7 @@ import { z } from "zod";
 import { auth } from "../identity/auth";
 import { parseImport } from "./import-file";
 import { fetchLink, validatePublicUrl } from "./link-fetch";
+import { getAnalysis, getJob, startAnalysis } from "./process";
 import {
   allowLinkFetch,
   createMaterial,
@@ -32,7 +33,7 @@ export const materialRoutes = new Hono<{
 function error(
   code: string,
   message: string,
-  status: 400 | 401 | 403 | 404 | 409 | 413 | 422 | 429,
+  status: 400 | 401 | 403 | 404 | 409 | 413 | 422 | 429 | 503,
 ) {
   return new Response(
     JSON.stringify({
@@ -183,6 +184,64 @@ materialRoutes.get("/materials/:id", async (context) => {
   if (!item) return error("MATERIAL_NOT_FOUND", "素材不存在。", 404);
   return context.json({ material: item });
 });
+materialRoutes.get("/materials/:id/analysis", async (context) => {
+  const item = await getAnalysis(
+    context.get("materialUserId"),
+    context.req.param("id"),
+  );
+  if (!item) return error("MATERIAL_NOT_FOUND", "素材不存在。", 404);
+  return context.json({
+    currentVersion: item.current_version,
+    processingAvailable: process.env.AI_MODE === "mock",
+    hasContent: item.has_content,
+    job: item.job_id ? { id: item.job_id, status: item.job_status } : null,
+    analysis: item.result
+      ? {
+          materialVersion: item.material_version,
+          result: item.result,
+          mode: item.mode,
+        }
+      : null,
+  });
+});
+materialRoutes.post("/materials/:id/process", async (context) => {
+  const key = context.req.header("idempotency-key");
+  if (!key || key.length > 128 || !/^[\x21-\x7e]+$/.test(key))
+    return error(
+      "INVALID_IDEMPOTENCY_KEY",
+      "请提供有效的 Idempotency-Key。",
+      422,
+    );
+  const result = await startAnalysis(
+    context.get("materialUserId"),
+    context.req.param("id"),
+    key,
+  );
+  if (result.status === "missing")
+    return error("MATERIAL_NOT_FOUND", "素材不存在。", 404);
+  if (result.status === "no_content")
+    return error(
+      "MATERIAL_CONTENT_REQUIRED",
+      "请先为链接素材粘贴正文，再整理素材。",
+      422,
+    );
+  if (result.status === "conflict")
+    return error("IDEMPOTENCY_CONFLICT", "请求键已用于不同素材版本。", 409);
+  if (result.status === "already_done")
+    return error("ALREADY_ANALYZED", "当前版本已有整理结果。", 409);
+  if (result.status === "quota")
+    return error("AI_DAILY_LIMIT", "今日处理次数已用完。", 429);
+  if (result.status === "concurrency")
+    return error("AI_CONCURRENCY_LIMIT", "同时处理的任务已达上限。", 429);
+  if (result.status === "unavailable")
+    return error("AI_NOT_CONFIGURED", "当前尚未配置可用模型服务。", 503);
+  if (result.status !== "created" && result.status !== "existing")
+    return error("INTERNAL_ERROR", "任务创建失败。", 503);
+  return context.json(
+    { jobId: result.jobId, status: "queued", mode: "mock" },
+    202,
+  );
+});
 materialRoutes.patch("/materials/:id", async (context) => {
   const body = await readBody(context.req.raw);
   if (body.status === "large")
@@ -220,4 +279,32 @@ materialRoutes.delete("/materials/:id", async (context) => {
   );
   if (!deleted) return error("MATERIAL_NOT_FOUND", "素材不存在。", 404);
   return context.body(null, 204);
+});
+
+export const jobRoutes = new Hono<{ Variables: { jobUserId: string } }>();
+jobRoutes.use("/jobs/*", async (context, next) => {
+  const session = await auth.api.getSession({
+    headers: context.req.raw.headers,
+  });
+  if (!session) return error("UNAUTHORIZED", "请先登录。", 401);
+  context.set("jobUserId", session.user.id);
+  await next();
+});
+jobRoutes.get("/jobs/:id", async (context) => {
+  const job = await getJob(context.get("jobUserId"), context.req.param("id"));
+  if (!job) return error("JOB_NOT_FOUND", "任务不存在。", 404);
+  return context.json({
+    job: {
+      id: job.id,
+      materialId: job.material_id,
+      materialVersion: job.material_version,
+      status: job.status,
+      errorCode: job.error_code,
+      updatedAt: job.updated_at,
+      analysis:
+        job.status === "succeeded"
+          ? { result: job.result, mode: job.mode }
+          : null,
+    },
+  });
 });

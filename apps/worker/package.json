@@ -10,14 +10,17 @@
     "dev": "node --watch --env-file-if-exists=../../.env.local --import tsx src/index.ts",
     "start": "node --env-file-if-exists=../../.env.local --import tsx src/index.ts",
     "build": "tsc --noEmit",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run src"
   },
   "dependencies": {
     "@content-write/db": "workspace:*",
-    "tsx": "4.23.15"
+    "tsx": "4.23.15",
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@types/node": "24.10.4",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vitest": "4.0.16"
   }
 }

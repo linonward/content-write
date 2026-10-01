@@ -1,6 +1,6 @@
 # 公众号内容工作台
 
-Phase 0 开发中。工程采用 pnpm workspace + Turborepo：`apps/web` 仅提供 Next.js 页面，`apps/api` 提供独立的模块化 Hono API，`apps/worker` 独立运行后台任务，`packages/db` 仅供服务端使用。受邀账号登录和管理已实现；素材与写作能力尚未开放。
+Phase 0 开发中。工程采用 pnpm workspace + Turborepo：`apps/web` 仅提供 Next.js 页面，`apps/api` 提供独立的模块化 Hono API，`apps/worker` 独立运行后台任务，`packages/db` 仅供服务端使用。受邀账号登录、文字和 Markdown 素材保存、编辑、删除，以及确定性 mock 素材整理已实现；写作流程仍在开发。
 
 ## 本地运行
 

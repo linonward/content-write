@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { healthRoutes } from "./modules/health/routes";
 import { identityRoutes } from "./modules/identity/routes";
-import { materialRoutes } from "./modules/materials/routes";
+import { jobRoutes, materialRoutes } from "./modules/materials/routes";
 
 export const app = new Hono();
 
@@ -16,6 +16,7 @@ app.use(
 app.route("/api", healthRoutes);
 app.route("/api", identityRoutes);
 app.route("/api", materialRoutes);
+app.route("/api", jobRoutes);
 
 app.notFound((context) =>
   context.json(
