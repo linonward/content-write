@@ -19,7 +19,7 @@ T007 新增：
 
 - `GET /api/materials`：本人素材列表。可选 `q`（标题、正文、来源 URL 子串，最多 100 字）、`kind`（text/markdown/link）、`status`（unprocessed/processing/failed/analyzed）和 `tag`（当前版本分析的完整标签，最多 50 字）。过滤在数据库执行，最多返回最近 100 条匹配素材，并附 `hasMore`。每条包含当前版本分析状态和标签；旧版本分析不参与过滤。
 - `POST /api/jobs/:id/retry`：仅本人失败任务可重试，需可信 Origin 与 `Idempotency-Key`。使用原任务绑定的素材版本重新创建逻辑任务；重复键返回同一新任务。版本变化或任务非失败返回 409；空正文 422，配额或并发超额 429，模型不可用 503。成功返回 202 `{jobId,status:"queued",mode:"mock"}`。
-- 删除素材后，其历史版本、分析、任务和运行记录随数据库外键级联删除；已领取任务无法再提交结果。
+- 删除素材后，其历史版本、分析和任务随数据库外键级联删除；已领取任务无法再提交结果。模型运行记录自 T026 起保留（见下）。
 
 T008 新增：
 
@@ -38,3 +38,11 @@ T009 新增：
 - `PUT /api/articles/:id/outline`：携带 `expectedVersion` 和完整结构化 `outline`；校验标题、读者、主张、2～10 节，以及 `materialId:evidenceId` 是否属于文章绑定的来源片段。成功版本加一并撤销确认。
 - `POST /api/articles/:id/outline/confirm`：携带 `expectedVersion`；只允许确认完整且来源仍存在的大纲，成功版本加一并记录确认时间。无大纲或来源不完整返回 422。
 - 所有写请求校验会话与可信 Origin，跨用户读取和修改返回 404。文章来源保留创建时的素材版本；原素材修改不自动替换它。删除素材会同步删除引用它的文章、大纲任务及选题，避免保留已删除来源的派生文字。
+
+T026 调整：
+
+- `GET /api/jobs/:id` 增加 `kind`（`material_analysis`、`idea_generation`、`outline_generation`）。只有素材整理任务返回 `materialId`、`materialVersion` 和 `analysis`，其他类型为 null。
+- `POST /api/jobs/:id/retry` 只接受失败的素材整理任务；选题和大纲任务返回 409 `JOB_NOT_RETRYABLE`，由各自页面重新生成。
+- `GET /api/materials/:id/analysis` 与素材列表的处理状态只反映素材整理任务，不受以该素材为来源的选题或大纲任务影响。
+- 每日逻辑生成额度记入独立账本，按 Asia/Shanghai 自然日累计；删除素材、选题或文章不回退额度。模型运行记录在任务删除后保留，`job_id` 置空，仍随用户删除。
+- 统一错误中 `retryable`：500、503 与 `AI_CONCURRENCY_LIMIT` 为 true；每日额度和其余 4xx 为 false。

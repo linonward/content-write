@@ -332,7 +332,7 @@ describe("material processing", () => {
     expect((await retry(owner, randomUUID())).status).toBe(409);
   });
 
-  it("searches and filters only current owned analysis; deleting removes jobs, analyses and runs", async () => {
+  it("searches and filters only current owned analysis; deleting removes jobs and analyses but keeps usage", async () => {
     const owner = await signIn("find-owner");
     const other = await signIn("find-other");
     const id = await material(owner, "独特的正文检索词");
@@ -390,6 +390,72 @@ describe("material processing", () => {
     expect(
       await getDb().select().from(aiRuns).where(eq(aiRuns.jobId, jobId)),
     ).toHaveLength(0);
+    const me = (await (
+      await app.request("/api/me", { headers: { cookie: owner } })
+    ).json()) as { user: { id: string } };
+    const usage = await getPool().query<{ job_id: string | null }>(
+      "SELECT job_id FROM ai_runs WHERE user_id = $1",
+      [me.user.id],
+    );
+    expect(usage.rows).toEqual([{ job_id: null }]);
+  });
+
+  it("does not restore the daily limit when a processed material is deleted", async () => {
+    const owner = await signIn("quota-delete");
+    const prior = process.env.AI_DAILY_JOB_LIMIT;
+    process.env.AI_DAILY_JOB_LIMIT = "1";
+    try {
+      const first = await material(owner, "第一条额度素材");
+      expect((await startRequest(first, owner)).status).toBe(202);
+      const removed = await app.request(`/api/materials/${first}`, {
+        method: "DELETE",
+        headers: { cookie: owner, origin },
+      });
+      expect(removed.status).toBe(204);
+      const second = await material(owner, "第二条额度素材");
+      const limited = await startRequest(second, owner);
+      expect(limited.status).toBe(429);
+      expect(
+        ((await limited.json()) as { error: { code: string } }).error.code,
+      ).toBe("AI_DAILY_LIMIT");
+    } finally {
+      if (prior === undefined) delete process.env.AI_DAILY_JOB_LIMIT;
+      else process.env.AI_DAILY_JOB_LIMIT = prior;
+    }
+  });
+
+  it("fails a job without further attempts when the model is not configured", async () => {
+    const owner = await signIn("not-configured");
+    const id = await material(owner, "未配置模型素材");
+    const started = await startRequest(id, owner);
+    const jobId = ((await started.json()) as { jobId: string }).jobId;
+    const prior = process.env.AI_MODE;
+    process.env.AI_MODE = "real";
+    try {
+      for (let attempt = 0; attempt < 20; attempt++) {
+        const state = await getPool().query<{ status: string }>(
+          "SELECT status FROM ai_jobs WHERE id = $1",
+          [jobId],
+        );
+        if (state.rows[0]?.status !== "queued") break;
+        await processOneJob();
+      }
+    } finally {
+      if (prior === undefined) delete process.env.AI_MODE;
+      else process.env.AI_MODE = prior;
+    }
+    const job = await getPool().query<{
+      status: string;
+      error_code: string;
+      attempts: number;
+    }>("SELECT status, error_code, attempts FROM ai_jobs WHERE id = $1", [
+      jobId,
+    ]);
+    expect(job.rows[0]).toEqual({
+      status: "failed",
+      error_code: "AI_NOT_CONFIGURED",
+      attempts: 1,
+    });
   });
 
   it("invalidates a claimed job when its source is deleted", async () => {

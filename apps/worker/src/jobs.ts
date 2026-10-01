@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
 import { getPool } from "@content-write/db/client";
 import { createMockAnalysis, validateAnalysis } from "./analysis";
+import { describeFailure, TerminalJobError } from "./failures";
 import { completeIdeaJob, loadIdeaSources } from "./idea-jobs";
 import { createMockIdeas } from "./ideas";
 import { createMockOutline } from "./outline";
@@ -10,8 +11,8 @@ import { completeOutlineJob, loadOutlineContext } from "./outline-jobs";
 export type Claimed = {
   id: string;
   user_id: string;
-  material_id: string;
-  material_version: number;
+  material_id: string | null;
+  material_version: number | null;
   source_count: number;
   article_id: string | null;
   article_version: number | null;
@@ -33,7 +34,7 @@ export async function claimJob(): Promise<Claimed | null> {
     const result = await client.query<Claimed>(
       `WITH next_job AS (
          SELECT id FROM ai_jobs
-          WHERE kind IN ('material_analysis', 'idea_generation', 'outline_generation') AND deadline_at > now()
+          WHERE kind = ANY($2::text[]) AND deadline_at > now()
             AND attempts < 3 AND (status = 'queued' OR (status = 'running' AND lease_until < now()))
           ORDER BY created_at, id FOR UPDATE SKIP LOCKED LIMIT 1
        )
@@ -41,7 +42,7 @@ export async function claimJob(): Promise<Claimed | null> {
          attempts = attempts + 1, updated_at = now()
        FROM next_job WHERE j.id = next_job.id
        RETURNING j.id, j.user_id, j.material_id, j.material_version, j.source_count, j.article_id, j.article_version, j.kind, j.claim_token, j.attempts`,
-      [randomUUID()],
+      [randomUUID(), claimableKinds],
     );
     await client.query("COMMIT");
     return result.rows[0] ?? null;
@@ -126,12 +127,12 @@ export async function completeJob(
   }
 }
 
-export async function failJob(job: Claimed, code: string) {
+export async function failJob(job: Claimed, code: string, terminal = false) {
   await getPool().query(
-    `UPDATE ai_jobs SET status = CASE WHEN attempts < 3 AND deadline_at > now() THEN 'queued' ELSE 'failed' END,
+    `UPDATE ai_jobs SET status = CASE WHEN NOT $4 AND attempts < 3 AND deadline_at > now() THEN 'queued' ELSE 'failed' END,
       error_code = $3, claim_token = NULL, lease_until = NULL, updated_at = now()
      WHERE id = $1 AND claim_token = $2 AND status = 'running'`,
-    [job.id, job.claim_token, code],
+    [job.id, job.claim_token, code, terminal],
   );
 }
 
@@ -142,6 +143,77 @@ export async function staleJob(job: Claimed) {
   );
 }
 
+function requireModel() {
+  if (process.env.AI_MODE !== "mock")
+    throw new TerminalJobError("AI_NOT_CONFIGURED");
+}
+
+async function runAnalysis(job: Claimed, started: number) {
+  if (!job.material_id || job.material_version === null) {
+    await staleJob(job);
+    return;
+  }
+  const material = await getPool().query<{
+    content: string;
+    current_version: number;
+  }>(
+    "SELECT content, current_version FROM materials WHERE id = $1 AND user_id = $2",
+    [job.material_id, job.user_id],
+  );
+  if (
+    !material.rows[0] ||
+    material.rows[0].current_version !== job.material_version
+  ) {
+    await staleJob(job);
+    return;
+  }
+  requireModel();
+  await completeJob(
+    job,
+    createMockAnalysis(material.rows[0].content),
+    performance.now() - started,
+  );
+}
+
+async function runIdeas(job: Claimed, started: number) {
+  const sources = await loadIdeaSources(job);
+  if (!sources || sources.length !== job.source_count) {
+    await staleJob(job);
+    return;
+  }
+  requireModel();
+  await completeIdeaJob(
+    job,
+    createMockIdeas(sources),
+    performance.now() - started,
+  );
+}
+
+async function runOutline(job: Claimed, started: number) {
+  const context = await loadOutlineContext(job);
+  if (!context) {
+    await staleJob(job);
+    return;
+  }
+  requireModel();
+  await completeOutlineJob(
+    job,
+    createMockOutline(context.brief, context.sources),
+    performance.now() - started,
+  );
+}
+
+// Every claimable kind has exactly one handler; claimJob only selects these kinds.
+const handlers: Record<
+  string,
+  (job: Claimed, started: number) => Promise<void>
+> = {
+  material_analysis: runAnalysis,
+  idea_generation: runIdeas,
+  outline_generation: runOutline,
+};
+export const claimableKinds = Object.keys(handlers);
+
 export async function processOneJob() {
   const job = await claimJob();
   if (!job) return false;
@@ -150,69 +222,20 @@ export async function processOneJob() {
     void renewLease(job).catch(() => undefined);
   }, 10_000);
   try {
-    if (job.kind === "outline_generation") {
-      const context = await loadOutlineContext(job);
-      if (!context) {
-        await staleJob(job);
-        return true;
-      }
-      if (process.env.AI_MODE !== "mock") {
-        await failJob(job, "AI_NOT_CONFIGURED");
-        return true;
-      }
-      await completeOutlineJob(
-        job,
-        createMockOutline(context.brief, context.sources),
-        performance.now() - started,
-      );
-      return true;
-    }
-    if (job.kind === "idea_generation") {
-      const sources = await loadIdeaSources(job);
-      if (!sources || sources.length !== job.source_count) {
-        await staleJob(job);
-        return true;
-      }
-      if (process.env.AI_MODE !== "mock") {
-        await failJob(job, "AI_NOT_CONFIGURED");
-        return true;
-      }
-      await completeIdeaJob(
-        job,
-        createMockIdeas(sources),
-        performance.now() - started,
-      );
-      return true;
-    }
-    const material = await getPool().query<{
-      content: string;
-      current_version: number;
-    }>(
-      "SELECT content, current_version FROM materials WHERE id = $1 AND user_id = $2",
-      [job.material_id, job.user_id],
-    );
-    if (
-      !material.rows[0] ||
-      material.rows[0].current_version !== job.material_version
-    ) {
-      await staleJob(job);
-      return true;
-    }
-    if (process.env.AI_MODE !== "mock") {
-      await failJob(job, "AI_NOT_CONFIGURED");
-      return true;
-    }
-    const analysis = createMockAnalysis(material.rows[0].content);
-    await completeJob(job, analysis, performance.now() - started);
-  } catch {
-    await failJob(
-      job,
-      job.kind === "idea_generation"
-        ? "IDEA_GENERATION_FAILED"
-        : job.kind === "outline_generation"
-          ? "OUTLINE_GENERATION_FAILED"
-          : "ANALYSIS_FAILED",
-    );
+    const handler = handlers[job.kind];
+    if (!handler) throw new TerminalJobError("UNSUPPORTED_JOB_KIND");
+    await handler(job, started);
+  } catch (error) {
+    const failure = describeFailure(job.kind, error);
+    console.error("worker: job failed", {
+      jobId: job.id,
+      kind: job.kind,
+      attempt: job.attempts,
+      code: failure.code,
+      reason: failure.reason,
+      terminal: failure.terminal,
+    });
+    await failJob(job, failure.code, failure.terminal);
   } finally {
     clearInterval(renewal);
   }

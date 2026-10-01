@@ -1,5 +1,12 @@
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { getPool, type PoolClient } from "@content-write/db/client";
+import { aiAvailable } from "../../config";
+import {
+  enqueueJob,
+  findIdempotentJob,
+  hashInput,
+  lockUserQueue,
+} from "../ai-jobs/queue";
 
 export type Outline = {
   workingTitle: string;
@@ -13,11 +20,6 @@ export type Outline = {
     missingEvidence: string[];
   }[];
 };
-
-function limit(name: string, fallback: number) {
-  const value = Number(process.env[name]);
-  return Number.isSafeInteger(value) && value > 0 ? value : fallback;
-}
 
 export async function createArticle(userId: string, ideaId: string) {
   const client = await getPool().connect();
@@ -322,11 +324,11 @@ export async function startOutlineGeneration(
   expectedVersion: number,
   key: string,
 ) {
-  if (process.env.AI_MODE !== "mock") return { status: "unavailable" as const };
+  if (!aiAvailable()) return { status: "unavailable" as const };
   const client = await getPool().connect();
   try {
     await client.query("BEGIN");
-    await client.query("SELECT pg_advisory_xact_lock(hashtext($1))", [userId]);
+    await lockUserQueue(client, userId);
     const article = await client.query<{
       version: number;
       source_count: number;
@@ -355,74 +357,41 @@ export async function startOutlineGeneration(
       await client.query("ROLLBACK");
       return { status: "sources_missing" as const };
     }
-    const hash = createHash("sha256")
-      .update(
-        JSON.stringify({
-          kind: "outline_generation",
-          id,
-          expectedVersion,
-          sources: sources.rows,
-          mode: "mock",
-        }),
-      )
-      .digest("hex");
-    const prior = await client.query<{ id: string; input_hash: string }>(
-      "SELECT id, input_hash FROM ai_jobs WHERE user_id = $1 AND idempotency_key = $2",
-      [userId, key],
-    );
-    if (prior.rows[0]) {
+    const hash = hashInput({
+      kind: "outline_generation",
+      id,
+      expectedVersion,
+      sources: sources.rows,
+      mode: "mock",
+    });
+    const prior = await findIdempotentJob(client, userId, key, hash);
+    if (prior) {
       await client.query("COMMIT");
-      return prior.rows[0].input_hash === hash
-        ? { status: "existing" as const, jobId: prior.rows[0].id }
-        : { status: "conflict" as const };
+      return prior;
     }
     if (article.rows[0].version !== expectedVersion) {
       await client.query("ROLLBACK");
       return { status: "version_conflict" as const };
     }
-    await client.query(
-      "UPDATE ai_jobs SET status = 'failed', error_code = 'DEADLINE_EXCEEDED', claim_token = NULL, lease_until = NULL, updated_at = now() WHERE user_id = $1 AND status IN ('queued','running') AND deadline_at <= now()",
-      [userId],
-    );
-    const usage = await client.query<{ daily: string; active: string }>(
-      `SELECT count(*) FILTER (WHERE created_at >= date_trunc('day', now() AT TIME ZONE 'Asia/Shanghai') AT TIME ZONE 'Asia/Shanghai')::text AS daily,
-              count(*) FILTER (WHERE status IN ('queued','running'))::text AS active FROM ai_jobs WHERE user_id = $1`,
-      [userId],
-    );
-    if (Number(usage.rows[0]?.daily) >= limit("AI_DAILY_JOB_LIMIT", 20)) {
-      await client.query("COMMIT");
-      return { status: "quota" as const };
-    }
-    if (Number(usage.rows[0]?.active) >= limit("AI_USER_CONCURRENCY", 2)) {
-      await client.query("COMMIT");
-      return { status: "concurrency" as const };
-    }
     const active = await client.query(
-      "SELECT 1 FROM ai_jobs WHERE article_id = $1 AND kind = 'outline_generation' AND status IN ('queued','running') LIMIT 1",
+      "SELECT 1 FROM ai_jobs WHERE article_id = $1 AND kind = 'outline_generation' AND status IN ('queued','running') AND deadline_at > now() LIMIT 1",
       [id],
     );
     if (active.rowCount) {
       await client.query("COMMIT");
       return { status: "active" as const };
     }
-    const jobId = randomUUID();
-    await client.query(
-      `INSERT INTO ai_jobs (id, user_id, material_id, material_version, source_count, article_id, article_version, kind, status, idempotency_key, input_hash, deadline_at)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,'outline_generation','queued',$8,$9,now() + interval '5 minutes')`,
-      [
-        jobId,
-        userId,
-        sources.rows[0].material_id,
-        sources.rows[0].material_version,
-        sources.rows.length,
-        id,
-        expectedVersion,
-        key,
-        hash,
-      ],
-    );
+    const result = await enqueueJob(client, {
+      kind: "outline_generation",
+      userId,
+      idempotencyKey: key,
+      inputHash: hash,
+      sourceCount: sources.rows.length,
+      articleId: id,
+      articleVersion: expectedVersion,
+    });
     await client.query("COMMIT");
-    return { status: "created" as const, jobId };
+    return result;
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;

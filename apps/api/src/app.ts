@@ -1,17 +1,20 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { webOrigin } from "./config";
+import { apiError } from "./http";
+import { jobRoutes } from "./modules/ai-jobs/routes";
 import { articleRoutes } from "./modules/articles/routes";
 import { healthRoutes } from "./modules/health/routes";
 import { ideaRoutes } from "./modules/ideas/routes";
 import { identityRoutes } from "./modules/identity/routes";
-import { jobRoutes, materialRoutes } from "./modules/materials/routes";
+import { materialRoutes } from "./modules/materials/routes";
 
 export const app = new Hono();
 
 app.use(
   "/api/*",
   cors({
-    origin: process.env.WEB_ORIGIN ?? "http://localhost:3000",
+    origin: (origin) => (origin === webOrigin() ? origin : null),
     credentials: true,
   }),
 );
@@ -22,31 +25,9 @@ app.route("/api", jobRoutes);
 app.route("/api", ideaRoutes);
 app.route("/api", articleRoutes);
 
-app.notFound((context) =>
-  context.json(
-    {
-      error: {
-        code: "NOT_FOUND",
-        message: "接口不存在。",
-        requestId: crypto.randomUUID(),
-        retryable: false,
-      },
-    },
-    404,
-  ),
-);
+app.notFound(() => apiError("NOT_FOUND", "接口不存在。", 404));
 
-app.onError((error, context) => {
+app.onError((error) => {
   console.error("api: request failed", error);
-  return context.json(
-    {
-      error: {
-        code: "INTERNAL_ERROR",
-        message: "服务暂时不可用，请稍后重试。",
-        requestId: crypto.randomUUID(),
-        retryable: true,
-      },
-    },
-    500,
-  );
+  return apiError("INTERNAL_ERROR", "服务暂时不可用，请稍后重试。", 500);
 });
