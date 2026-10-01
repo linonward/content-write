@@ -18,9 +18,7 @@ export default async function HomePage() {
       <section className="intro app-intro">
         <p className="stage">写作空间</p>
         <h1>你好，{session.user.name}。</h1>
-        <p className="lead">
-          你的账号已可以使用。素材箱与写作流程将在后续任务开放。
-        </p>
+        <p className="lead">你的账号已可以使用。现在可以保存和整理文字素材。</p>
       </section>
       <section
         className="status account-status"
@@ -38,7 +36,14 @@ export default async function HomePage() {
           <span className="status-muted">受邀作者</span>
         )}
       </section>
-      <p className="note">当前仅开放账号访问，不会自动调用模型。</p>
+      <p className="note">
+        <Link className="outline-link" href="/inbox">
+          打开素材箱
+        </Link>
+      </p>
+      <p className="note">
+        选题与写作流程将在后续开放；打开首页不会自动调用模型。
+      </p>
     </main>
   );
 }

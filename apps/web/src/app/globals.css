@@ -207,6 +207,18 @@ h1 {
   font: inherit;
   font-size: 16px;
 }
+.auth-form textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #a9b9ad;
+  border-radius: 8px;
+  background: #fff;
+  color: #192321;
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.7;
+  resize: vertical;
+}
 .auth-form input:focus-visible {
   border-color: #174a42;
   outline: 2px solid #a6c8b8;
@@ -254,6 +266,114 @@ h1 {
   color: #66716c;
   font-size: 13px;
   line-height: 1.7;
+}
+.inbox-intro {
+  padding: 80px 0 48px;
+}
+.inbox-intro h1 {
+  font-size: clamp(36px, 5vw, 54px);
+}
+.inbox-intro .lead {
+  margin-top: 18px;
+  font-size: 16px;
+}
+.material-workspace {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+.material-list,
+.material-detail {
+  border: 1px solid #c8d0ca;
+  border-radius: 12px;
+  background: #fff;
+  padding: 24px;
+  min-height: 330px;
+}
+.material-list-head,
+.material-detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.material-list h2,
+.material-detail h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.material-list-head button {
+  border: 0;
+  background: transparent;
+  color: #174a42;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.material-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0 0;
+}
+.material-list li + li {
+  border-top: 1px solid #e2e7e2;
+}
+.material-list li button {
+  display: grid;
+  width: 100%;
+  gap: 6px;
+  padding: 14px 8px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.material-list li button.selected,
+.material-list li button:hover {
+  background: #eaf1eb;
+}
+.material-list li strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.material-list li span,
+.material-meta {
+  color: #66716c;
+  font-size: 13px;
+}
+.material-body {
+  margin-top: 28px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.8;
+}
+.material-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+}
+.material-actions .primary-button {
+  margin-top: 0;
+}
+.danger-button {
+  padding: 12px 18px;
+  border: 1px solid #bd6a5b;
+  border-radius: 8px;
+  background: #fff;
+  color: #8c2f23;
+  font: inherit;
+  cursor: pointer;
+}
+@media (max-width: 680px) {
+  .material-workspace {
+    grid-template-columns: 1fr;
+  }
+  .inbox-intro {
+    padding-top: 70px;
+  }
 }
 @media (max-width: 680px) {
   .form-intro {

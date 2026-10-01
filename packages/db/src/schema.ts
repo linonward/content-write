@@ -1,4 +1,12 @@
-import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  index,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
+import { user } from "./auth-schema";
 
 // Minimal operational table. Business tables arrive with their user-facing slices.
 export const serviceState = pgTable("service_state", {
@@ -8,3 +16,51 @@ export const serviceState = pgTable("service_state", {
     .notNull()
     .defaultNow(),
 });
+
+export const materials = pgTable(
+  "materials",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull().default("text"),
+    title: text("title").notNull(),
+    content: text("content").notNull(),
+    currentVersion: integer("current_version").notNull().default(1),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("materials_user_updated_idx").on(table.userId, table.updatedAt),
+  ],
+);
+
+export const materialRevisions = pgTable(
+  "material_revisions",
+  {
+    id: text("id").primaryKey(),
+    materialId: text("material_id")
+      .notNull()
+      .references(() => materials.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    version: integer("version").notNull(),
+    title: text("title").notNull(),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("material_revisions_material_version_idx").on(
+      table.materialId,
+      table.version,
+    ),
+  ],
+);
