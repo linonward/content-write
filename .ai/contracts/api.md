@@ -56,3 +56,8 @@ T010 新增：
 - `POST /api/articles/:id/drafts/:draftId/discard`：丢弃候选，返回 204，不改动文章；非候选 409，跨用户 404。
 - `GET /api/jobs/:id` 的 `kind` 增加 `draft_generation`；初稿任务不能通过 `/api/jobs/:id/retry` 重试，由文章页重新生成。
 - 删除素材时，引用它的文章连同初稿与候选一起删除。
+
+T011 新增：
+
+- `PUT /api/articles/:id/body`：携带 `expectedVersion`、`title`（去除首尾空格后 1～200 字）、`body`（Markdown，最多 50,000 字符），返回 `{version}`。需要会话与可信 Origin，跨用户 404。按版本条件原子更新，成功版本加一，同一事务写入 `article_revisions`（`source: "edit"`）。版本冲突 409 `ARTICLE_VERSION_CONFLICT`，不覆盖正文；正文过长 413 `ARTICLE_BODY_TOO_LARGE`；标题无效 422 `INVALID_ARTICLE_BODY`。标题和正文都与当前一致时不改版本、不写历史，直接返回当前版本。
+- 初稿直接成为正文、应用候选时，同一事务写入 `source: "draft"` 历史。迁移 0010 为已有正文的文章补写当前版本的历史。查看与恢复历史在 T012。

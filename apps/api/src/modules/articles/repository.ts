@@ -219,6 +219,8 @@ export async function lockArticle(db: Executor, userId: string, id: string) {
       sourceCount: articles.sourceCount,
       outline: articles.outline,
       outlineConfirmedAt: articles.outlineConfirmedAt,
+      title: articles.title,
+      body: articles.body,
     })
     .from(articles)
     .where(and(eq(articles.id, id), eq(articles.userId, userId)))
