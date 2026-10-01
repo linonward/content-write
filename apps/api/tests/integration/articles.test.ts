@@ -462,4 +462,138 @@ describe("article brief and outline", () => {
         .status,
     ).toBe(404);
   });
+
+  it("maps each rejected article action to its error code", async () => {
+    const owner = await signIn("article-errors");
+    const failure = async (response: Response) => ({
+      status: response.status,
+      ...((await response.json()) as { error: object }).error,
+    });
+
+    const stale = await makeIdea(owner);
+    expect(
+      (
+        await write(
+          owner,
+          `/materials/${stale.materialId}`,
+          { title: "改过的素材", content: "新正文", expectedVersion: 1 },
+          "PATCH",
+        )
+      ).status,
+    ).toBe(200);
+    expect(
+      await failure(await write(owner, "/articles", { ideaId: stale.ideaId })),
+    ).toMatchObject({ status: 409, code: "IDEA_SOURCES_STALE" });
+    expect(
+      await failure(await write(owner, "/articles", { ideaId: randomUUID() })),
+    ).toMatchObject({ status: 404, code: "IDEA_NOT_FOUND" });
+    expect(
+      await failure(
+        await app.request(`/api/articles/${randomUUID()}`, {
+          headers: { cookie: owner },
+        }),
+      ),
+    ).toMatchObject({ status: 404, code: "ARTICLE_NOT_FOUND" });
+
+    const { articleId } = await makeArticle(owner);
+    expect(
+      await failure(
+        await write(owner, `/articles/${articleId}/outline/confirm`, {
+          expectedVersion: 1,
+        }),
+      ),
+    ).toMatchObject({ status: 422, code: "OUTLINE_REQUIRED" });
+    expect(
+      await failure(
+        await write(
+          owner,
+          `/articles/${articleId}/brief`,
+          { expectedVersion: 9, workingTitle: "t", audience: "a", thesis: "t" },
+          "PATCH",
+        ),
+      ),
+    ).toMatchObject({
+      status: 409,
+      code: "ARTICLE_VERSION_CONFLICT",
+      message: "文章已有新版本，请刷新后再修改。",
+    });
+    expect(
+      await failure(
+        await write(
+          owner,
+          `/articles/${articleId}/outline/generate`,
+          { expectedVersion: 9 },
+          "POST",
+          origin,
+          randomUUID(),
+        ),
+      ),
+    ).toMatchObject({
+      status: 409,
+      code: "ARTICLE_VERSION_CONFLICT",
+      message: "文章已有新版本，请刷新后再生成。",
+    });
+
+    const key = randomUUID();
+    expect(
+      (
+        await write(
+          owner,
+          `/articles/${articleId}/outline/generate`,
+          { expectedVersion: 1 },
+          "POST",
+          origin,
+          key,
+        )
+      ).status,
+    ).toBe(202);
+    // Idempotency is checked before the article version.
+    expect(
+      await failure(
+        await write(
+          owner,
+          `/articles/${articleId}/outline/generate`,
+          { expectedVersion: 9 },
+          "POST",
+          origin,
+          key,
+        ),
+      ),
+    ).toMatchObject({ status: 409, code: "IDEMPOTENCY_CONFLICT" });
+    expect(
+      await failure(
+        await write(
+          owner,
+          `/articles/${articleId}/outline/generate`,
+          { expectedVersion: 1 },
+          "POST",
+          origin,
+          randomUUID(),
+        ),
+      ),
+    ).toMatchObject({ status: 409, code: "OUTLINE_JOB_ACTIVE" });
+
+    await getPool().query("DELETE FROM article_sources WHERE article_id = $1", [
+      articleId,
+    ]);
+    expect(
+      await failure(
+        await write(
+          owner,
+          `/articles/${articleId}/outline/generate`,
+          { expectedVersion: 1 },
+          "POST",
+          origin,
+          randomUUID(),
+        ),
+      ),
+    ).toMatchObject({ status: 422, code: "ARTICLE_SOURCES_MISSING" });
+    expect(
+      await failure(
+        await write(owner, `/articles/${articleId}/outline/confirm`, {
+          expectedVersion: 1,
+        }),
+      ),
+    ).toMatchObject({ status: 422, code: "ARTICLE_SOURCES_MISSING" });
+  });
 });

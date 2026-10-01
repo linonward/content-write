@@ -1,3 +1,4 @@
+import { citesOnlySourceEvidence } from "@content-write/db/article-sources";
 import { z } from "zod";
 
 const text = (max: number) => z.string().trim().min(1).max(max);
@@ -31,20 +32,7 @@ export type Brief = Pick<Outline, "workingTitle" | "audience" | "thesis">;
 export function validateOutline(input: unknown, sources: OutlineSource[]) {
   const parsed = outlineSchema.safeParse(input);
   if (!parsed.success) return parsed;
-  const available = new Set(
-    sources.flatMap((source) =>
-      source.evidenceIds.map((id) => `${source.id}:${id}`),
-    ),
-  );
-  if (
-    parsed.data.sections.some((section) =>
-      section.evidenceIds.some(
-        (id) =>
-          !available.has(id) ||
-          new Set(section.evidenceIds).size !== section.evidenceIds.length,
-      ),
-    )
-  ) {
+  if (!citesOnlySourceEvidence(parsed.data.sections, sources)) {
     return {
       success: false as const,
       error: new Error("Outline cites unknown evidence"),
