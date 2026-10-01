@@ -595,7 +595,7 @@ worktree creator-capture-text
 - 一个独立分支。
 - 一个独立 worktree。
 - 一个可单独审阅的变更集合。
-主目录负责集成。
+主目录用于核对主分支与集成验收，不直接提交或合并任务分支。任务变更通过 PR 进入 `main`。
 业务代码在任务 worktree 实现。
 空仓库首次初始化：
 - 在主目录建立最小 Git 基线提交。
@@ -610,7 +610,8 @@ git log -1 --oneline
 ```
 创建 T003：
 ```bash
-git worktree add -b feat/T003-capture-text ../creator-capture-text main
+git fetch origin
+git worktree add -b feat/T003-capture-text ../creator-capture-text origin/main
 cd ../creator-capture-text
 pnpm install --frozen-lockfile
 ```
@@ -693,8 +694,8 @@ git rev-parse HEAD
 待开始 → 开发中 → 待验证 → 待合并 → 已完成
 规则：
 - 实现结束进入待验证。
-- 分支验证通过且提交完成进入待合并。
-- 合并主分支且集成验证通过才进入已完成。
+- 分支验证通过、提交并创建 PR 后进入待合并。
+- PR 合并主分支且集成验证通过才进入已完成。
 - 验证失败回开发中。
 - 阻塞记录原状态和解除条件。
 - 取消保留原因与历史。
@@ -704,27 +705,20 @@ git rev-parse HEAD
 缺凭证不能把真实模型任务标为完成。
 mock 任务可以独立验收。
 ## 18. 看板与详情分工
-主分支：
-.ai/tasks/index.md
-这是全局集成进度的唯一看板。
-任务 worktree：
-.ai/tasks/T003.md
-.ai/verifications/T003.md
-保存具体实施与验证记录。
+`.ai/tasks/index.md` 是全局进度的唯一看板。任务分支在自己的 worktree 更新看板、任务详情和验证记录，并通过同一个 PR 提交。
 降低冲突：
-- 任务分支不修改全局 index。
-- 主目录不同时修改正在开发的任务详情。
-- 主目录负责看板和合并后的集成记录。
+- 同一时间只推进一个开发中任务。
+- 不在主目录直接修改或提交看板。
+- PR 合并后的状态和集成结果通过后续文档 PR 更新，不直接提交 `main`。
 - 重要状态以带任务 ID 的文档提交同步。
 开始前：
-1. 主看板标记开发中。
-2. 记录计划分支与 worktree。
-3. 提交该任务调度文档。
-4. 从此基线创建 worktree。
-5. 在任务详情记录实际基线 SHA。
+1. 从已合并依赖的 `origin/main` 创建任务分支与平级 worktree。
+2. 在任务分支标记看板为开发中，记录分支与 worktree。
+3. 在任务详情记录实际基线 SHA。
+4. 完成实现与验证后提交任务分支，并创建 PR。
 主目录不干净时：
 - 不破坏用户改动。
-- 在任务详情记录看板同步阻塞。
+- 在任务详情记录集成阻塞。
 - 向用户报告真实状态差异。
 状态更新节点：
 - 开始。
@@ -803,33 +797,40 @@ worktree：启动时填写平级绝对路径
 完成率是任务数比例，不是工时比例。
 取消单独统计。
 拆分时更新分母并记录原因。
-## 21. 合并与清理
-合并步骤：
+## 21. PR、集成与清理
+每项后续任务必须通过 PR；`main` 不接受本地直接提交、合并或推送任务改动。T001 在此规则提出前已于本地集成，其远端补交使用单独 PR。
+
+集成步骤：
 1. 在任务 worktree 完成必要验证。
 2. 独立提交。
-3. 状态进入待合并。
-4. 主分支前进时，在任务分支合并最新 main。
-5. 处理冲突并重跑受影响检查。
-6. 主目录使用 --no-ff 合并。
-7. 运行集成验证。
-8. 通过后更新已完成。
-9. 提交任务集成记录。
+3. 更新看板与任务详情为待合并，并推送任务分支。
+4. 创建面向 `main` 的 PR，记录 URL、验证证据与风险。
+5. 主分支前进时，在任务分支处理冲突，重跑受影响检查并更新 PR。
+6. PR 经评审与检查后合并；不在本地 `main` 执行 `git merge`。
+7. 更新本地 `main` 并运行集成验证。
+8. 通过后，用后续文档 PR 将看板与任务详情标为已完成，记录合并 SHA 和验收证据。
 示例：
 ```bash
 cd ~/Projects/creator
 git status --short
-git diff main...feat/T003-capture-text --stat
-git merge --no-ff feat/T003-capture-text -m "merge(T003): 集成文字素材流程"
+git fetch origin
+git diff origin/main...feat/T003-capture-text --stat
+git -C ../creator-capture-text push -u origin feat/T003-capture-text
+# 先将 PR 描述写入 /tmp/T003-pr.md
+gh pr create --base main --head feat/T003-capture-text --title "T003: 文字素材" --body-file /tmp/T003-pr.md
+# PR 合并后再更新本地 main；如果分叉，不重置用户提交
+git pull --ff-only origin main
 pnpm install --frozen-lockfile
 pnpm typecheck
 pnpm test:integration
 ```
 命令逐条检查，不忽略失败。
 实际测试范围按任务决定。
-合并后集成失败：
+本地 `main` 如果因历史提交与远端分叉，不强行重置；后续任务仍从 `origin/main` 创建分支，并记录本地偏差。
+PR 合并后集成失败：
 - 不标完成。
 - 记录已合并但验收失败。
-- 同任务修复并重新验证。
+- 在修复分支提交后续 PR 并重新验证。
 清理前：
 - 已合并。
 - 已验收。
@@ -839,17 +840,17 @@ pnpm test:integration
 cd ~/Projects/creator-capture-text
 git status --short
 cd ../creator
-git merge-base --is-ancestor feat/T003-capture-text main
+gh pr view feat/T003-capture-text --json state,mergedAt,mergeCommit
 git worktree remove ../creator-capture-text
-git branch -d feat/T003-capture-text
 git worktree list
 ```
+确认 PR 已合并且 worktree 干净后才移除。分支删除单独处理；squash 合并时不要仅凭 `merge-base` 判断是否已集成。
 上一步失败不继续删除。
 不强制删除。
 不使用硬重置或 rm -rf 清理未保存工作。
 阻塞任务保留 worktree。
 历史记录保留分支、路径和 SHA。
-远端 push、PR 和部署按已有授权及仓库规则执行。
+远端 push 和 PR 是任务交付的必要步骤；部署按已有授权及仓库规则执行。
 没有远端不自行创建外部仓库。
 ## 22. 测试要求
 关键业务规则先写失败测试，再实现。
@@ -1012,11 +1013,12 @@ creator-topic 是 worktree 命名规则，不是项目名。
 worktree 使用 <主目录名>-<topic>。
 与主目录平级。
 一个任务一个分支、一个 worktree，独立提交。
-主目录维护全局看板并集成。
+任务分支更新全局看板并通过 PR 集成。
 任务分支维护自己的详情和验证记录。
 依赖合并后才开始下游任务。
-分支验证通过进入待合并。
-合并主分支且集成验收通过才标记已完成。
+分支验证通过并创建 PR 后进入待合并。
+PR 合并主分支且集成验收通过才标记已完成。
+不得直接在 `main` 提交、合并或推送任务改动。
 关键规则先写失败测试再实现。
 所有检查记录真实结果。
 不把 mock 宣称为真实模型接入。
