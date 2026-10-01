@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { DraftPanel, type DraftState } from "./draft-panel";
+import { request } from "./request";
 
 type Section = {
   heading: string;
@@ -29,7 +31,7 @@ type Source = {
   summary: string | null;
   evidenceSpans: { id: string; quote: string }[];
 };
-type Article = {
+type Article = DraftState & {
   id: string;
   workingTitle: string;
   audience: string;
@@ -41,24 +43,6 @@ type Article = {
   sources: Source[];
 };
 type Job = { id: string; status: string; errorCode: string | null };
-const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
-
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${apiBase}/api${path}`, {
-    ...init,
-    credentials: "include",
-    headers: {
-      ...(init?.body ? { "content-type": "application/json" } : {}),
-      ...init?.headers,
-    },
-  });
-  const payload = (await response.json()) as T & {
-    error?: { message?: string };
-  };
-  if (!response.ok)
-    throw new Error(payload.error?.message ?? "请求失败，请稍后重试。");
-  return payload;
-}
 
 function blankOutline(article: Article): Outline {
   return {
@@ -91,6 +75,7 @@ export function OutlineWorkspace({ id }: { id: string }) {
   const [outline, setOutline] = useState<Outline | null>(null);
   const [sectionKeys, setSectionKeys] = useState<string[]>([]);
   const [jobId, setJobId] = useState<string | null>(null);
+  const [draftJob, setDraftJob] = useState<Job | null>(null);
   const [generationAvailable, setGenerationAvailable] = useState(false);
   const [loading, setLoading] = useState(true);
   const [pending, setPending] = useState(false);
@@ -101,9 +86,11 @@ export function OutlineWorkspace({ id }: { id: string }) {
     const result = await request<{
       article: Article;
       latestJob: Job | null;
+      latestDraftJob: Job | null;
       generationAvailable: boolean;
     }>(`/articles/${id}`);
     setArticle(result.article);
+    setDraftJob(result.latestDraftJob);
     setGenerationAvailable(result.generationAvailable);
     setBrief({
       workingTitle: result.article.workingTitle,
@@ -139,9 +126,10 @@ export function OutlineWorkspace({ id }: { id: string }) {
         .then(async ({ job }) => {
           if (!live) return;
           if (job.status === "succeeded") {
+            // Clearing jobId ends this effect, so set the notice before that.
+            setNotice("大纲已生成，请检查并修改后确认。");
             setJobId(null);
             await refresh();
-            if (live) setNotice("大纲已生成，请检查并修改后确认。");
           } else if (["failed", "stale"].includes(job.status)) {
             setJobId(null);
             setError(
@@ -233,7 +221,7 @@ export function OutlineWorkspace({ id }: { id: string }) {
         body: JSON.stringify({ expectedVersion: article.version }),
       });
       await refresh();
-      setNotice("大纲已确认。初稿生成将在后续任务开放。");
+      setNotice("大纲已确认，可以生成初稿。");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "确认失败。");
     } finally {
@@ -617,6 +605,28 @@ export function OutlineWorkspace({ id }: { id: string }) {
           )}
         </CardContent>
       </Card>
+      <DraftPanel
+        articleId={id}
+        draft={article}
+        latestJob={draftJob}
+        generationAvailable={generationAvailable}
+        blockedReason={
+          article.sources.length !== article.sourceCount
+            ? "部分来源已删除，无法生成初稿。"
+            : outlineDirty || briefDirty
+              ? "有未保存的修改，保存并确认大纲后再生成。"
+              : null
+        }
+        sourceTitles={
+          new Map(
+            article.sources.map((source) => [
+              source.materialId,
+              source.title ?? "已删除素材",
+            ]),
+          )
+        }
+        onChanged={refresh}
+      />
     </div>
   );
 }

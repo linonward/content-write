@@ -46,3 +46,13 @@ T026 调整：
 - `GET /api/materials/:id/analysis` 与素材列表的处理状态只反映素材整理任务，不受以该素材为来源的选题或大纲任务影响。
 - 每日逻辑生成额度记入独立账本，按 Asia/Shanghai 自然日累计；删除素材、选题或文章不回退额度。模型运行记录在任务删除后保留，`job_id` 置空，仍随用户删除。
 - 统一错误中 `retryable`：500、503 与 `AI_CONCURRENCY_LIMIT` 为 true；每日额度和其余 4xx 为 false。
+
+T010 新增：
+
+- `POST /api/articles/:id/draft/generate`：携带 `expectedVersion` 和 `Idempotency-Key`，返回 202 `{jobId,status:"queued",mode:"mock"}`。只能从已确认的大纲生成，否则 422 `OUTLINE_NOT_CONFIRMED`；同键同输入返回同一任务，不同输入 409 `IDEMPOTENCY_CONFLICT`（幂等先于版本检查）；版本冲突 409，同文章已有进行中的初稿任务 409 `DRAFT_JOB_ACTIVE`，缺来源 422，配额/并发 429，模型不可用 503。输入摘要绑定文章基础版本、来源素材版本和生成选项（目标 1,200～2,000 中文字）。
+- worker 提交初稿时：大纲在任务创建后被修改或重新确认、或来源失效 → 任务 `stale`，结果不保存。文章仍为基础版本且没有正文 → 直接成为正文（版本加一）；否则保存为候选，不改动正文。同一任务只保存一份结果。
+- `GET /api/articles/:id` 增加 `title`、`body`、`currentDraft`（`id`、`sourceMap`、`evidenceGaps`、`mode`、`createdAt`）、`candidates`（最近 10 份候选，含标题、Markdown、来源映射和待补证据）以及 `latestDraftJob`。
+- `POST /api/articles/:id/drafts/:draftId/apply`：携带 `expectedVersion`，用候选替换正文，版本加一；版本冲突 409，候选已应用或已丢弃 409 `DRAFT_NOT_CANDIDATE`，跨用户或不存在 404 `DRAFT_NOT_FOUND`。
+- `POST /api/articles/:id/drafts/:draftId/discard`：丢弃候选，返回 204，不改动文章；非候选 409，跨用户 404。
+- `GET /api/jobs/:id` 的 `kind` 增加 `draft_generation`；初稿任务不能通过 `/api/jobs/:id/retry` 重试，由文章页重新生成。
+- 删除素材时，引用它的文章连同初稿与候选一起删除。

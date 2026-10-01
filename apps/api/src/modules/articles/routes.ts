@@ -11,10 +11,13 @@ import {
 import { listArticles } from "./repository";
 import {
   ArticleError,
+  applyDraft,
   confirmOutline,
   createArticle,
+  discardDraft,
   getArticle,
   saveOutline,
+  startDraftGeneration,
   startOutlineGeneration,
   updateBrief,
 } from "./service";
@@ -56,7 +59,7 @@ const readBody = (request: Request) => readJson(request, 32_768);
 /** Maps a rejected article action to its response; `action` completes the version-conflict hint. */
 function articleFailure(
   error: unknown,
-  action?: "修改" | "生成" | "保存" | "确认",
+  action?: "修改" | "生成" | "保存" | "确认" | "替换正文",
 ) {
   if (!(error instanceof ArticleError)) throw error;
   switch (error.reason) {
@@ -90,6 +93,14 @@ function articleFailure(
         "这篇文章已有正在生成的大纲。",
         409,
       );
+    case "outline_not_confirmed":
+      return apiError("OUTLINE_NOT_CONFIRMED", "请先确认大纲再生成初稿。", 422);
+    case "draft_job_active":
+      return apiError("DRAFT_JOB_ACTIVE", "这篇文章已有正在生成的初稿。", 409);
+    case "draft_missing":
+      return apiError("DRAFT_NOT_FOUND", "初稿不存在。", 404);
+    case "draft_not_candidate":
+      return apiError("DRAFT_NOT_CANDIDATE", "这份初稿已应用或已丢弃。", 409);
     case "quota":
       return apiError("AI_DAILY_LIMIT", "今日生成次数已用完。", 429);
     case "concurrency":
@@ -224,5 +235,61 @@ articleRoutes.post("/articles/:id/outline/confirm", async (context) => {
     return context.json({ version, status: "confirmed" });
   } catch (error) {
     return articleFailure(error, "确认");
+  }
+});
+articleRoutes.post("/articles/:id/draft/generate", async (context) => {
+  const key = idempotencyKey(context.req.raw);
+  if (!key) return invalidIdempotencyKey();
+  const body = await readBody(context.req.raw);
+  if (body.status === "large")
+    return apiError("ARTICLE_INPUT_TOO_LARGE", "请求内容过长。", 413);
+  if (body.status === "invalid")
+    return apiError("INVALID_JSON", "请求内容不是有效 JSON。", 400);
+  const parsed = versionInput.safeParse(body.value);
+  if (!parsed.success)
+    return apiError("INVALID_ARTICLE_VERSION", "请提供当前文章版本。", 422);
+  try {
+    const jobId = await startDraftGeneration(
+      context.get("userId"),
+      context.req.param("id"),
+      parsed.data.expectedVersion,
+      key,
+    );
+    return context.json({ jobId, status: "queued", mode: "mock" }, 202);
+  } catch (error) {
+    return articleFailure(error, "生成");
+  }
+});
+articleRoutes.post("/articles/:id/drafts/:draftId/apply", async (context) => {
+  const body = await readBody(context.req.raw);
+  if (body.status === "large")
+    return apiError("ARTICLE_INPUT_TOO_LARGE", "请求内容过长。", 413);
+  if (body.status === "invalid")
+    return apiError("INVALID_JSON", "请求内容不是有效 JSON。", 400);
+  const parsed = versionInput.safeParse(body.value);
+  if (!parsed.success)
+    return apiError("INVALID_ARTICLE_VERSION", "请提供当前文章版本。", 422);
+  try {
+    const version = await applyDraft(
+      context.get("userId"),
+      context.req.param("id"),
+      context.req.param("draftId"),
+      parsed.data.expectedVersion,
+    );
+    return context.json({ version });
+  } catch (error) {
+    return articleFailure(error, "替换正文");
+  }
+});
+articleRoutes.post("/articles/:id/drafts/:draftId/discard", async (context) => {
+  try {
+    await discardDraft(
+      context.get("userId"),
+      context.req.param("id"),
+      context.req.param("draftId"),
+    );
+    return context.body(null, 204);
+  } catch (error) {
+    return articleFailure(error);
   }
 });

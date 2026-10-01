@@ -25,6 +25,10 @@ export type ArticleErrorReason =
   | "outline_required"
   | "idempotency_conflict"
   | "job_active"
+  | "outline_not_confirmed"
+  | "draft_job_active"
+  | "draft_missing"
+  | "draft_not_candidate"
   | "quota"
   | "concurrency"
   | "ai_unavailable";
@@ -70,15 +74,37 @@ export async function createArticle(userId: string, ideaId: string) {
 
 export async function getArticle(userId: string, id: string) {
   const db = getDb();
-  const [article, sources, latestJob] = await Promise.all([
-    repo.findArticle(db, userId, id),
-    repo.listSourceDetails(db, userId, id),
-    repo.findLatestOutlineJob(db, userId, id),
-  ]);
+  const [article, sources, latestJob, latestDraftJob, candidates] =
+    await Promise.all([
+      repo.findArticle(db, userId, id),
+      repo.listSourceDetails(db, userId, id),
+      repo.findLatestJob(db, userId, id, "outline_generation"),
+      repo.findLatestJob(db, userId, id, "draft_generation"),
+      repo.listCandidateDrafts(db, userId, id),
+    ]);
   if (!article) throw new ArticleError("article_missing");
+  const { currentDraftId, ...fields } = article;
+  const current = currentDraftId
+    ? await repo.findDraft(db, userId, id, currentDraftId)
+    : undefined;
   return {
-    article: { ...article, sources },
+    article: {
+      ...fields,
+      sources,
+      // The body carries the text; the draft adds provenance for it.
+      currentDraft: current
+        ? {
+            id: current.id,
+            sourceMap: current.sourceMap,
+            evidenceGaps: current.evidenceGaps,
+            mode: current.mode,
+            createdAt: current.createdAt,
+          }
+        : null,
+      candidates,
+    },
     latestJob: latestJob ?? null,
+    latestDraftJob: latestDraftJob ?? null,
     generationAvailable: aiAvailable(),
   };
 }
@@ -191,7 +217,7 @@ export async function startOutlineGeneration(
     if (prior) return prior;
     if (article.version !== expectedVersion)
       throw new ArticleError("version_conflict");
-    if (await repo.hasActiveOutlineJob(tx, id))
+    if (await repo.hasActiveJob(tx, id, "outline_generation"))
       throw new ArticleError("job_active");
     // Queue outcomes are returned, not thrown: limit checks write deadline cleanup that must commit.
     return enqueueJob(tx, {
@@ -209,4 +235,92 @@ export async function startOutlineGeneration(
   if (result.status === "quota") throw new ArticleError("quota");
   if (result.status === "concurrency") throw new ArticleError("concurrency");
   return result.jobId;
+}
+
+/** Queues a draft from the confirmed outline; the worker decides between body and candidate. */
+export async function startDraftGeneration(
+  userId: string,
+  id: string,
+  expectedVersion: number,
+  key: string,
+) {
+  if (!aiAvailable()) throw new ArticleError("ai_unavailable");
+  const result = await getDb().transaction(async (tx) => {
+    await lockUserQueue(tx, userId);
+    const article = await repo.lockArticle(tx, userId, id);
+    if (!article) throw new ArticleError("article_missing");
+    const sources = await readArticleSources(tx, id, userId, { lock: true });
+    if (!sourcesIntact(sources, article.sourceCount))
+      throw new ArticleError("sources_missing");
+    const inputHash = hashInput({
+      kind: "draft_generation",
+      id,
+      expectedVersion,
+      sources: sources.map((source) => ({
+        material_id: source.materialId,
+        material_version: source.materialVersion,
+      })),
+      options: { targetChars: [1200, 2000] },
+      mode: "mock",
+    });
+    const prior = await findIdempotentJob(tx, userId, key, inputHash);
+    if (prior) return prior;
+    if (article.version !== expectedVersion)
+      throw new ArticleError("version_conflict");
+    if (!article.outline || !article.outlineConfirmedAt)
+      throw new ArticleError("outline_not_confirmed");
+    if (await repo.hasActiveJob(tx, id, "draft_generation"))
+      throw new ArticleError("draft_job_active");
+    return enqueueJob(tx, {
+      kind: "draft_generation",
+      userId,
+      idempotencyKey: key,
+      inputHash,
+      sourceCount: sources.length,
+      articleId: id,
+      articleVersion: expectedVersion,
+    });
+  });
+  if (result.status === "conflict")
+    throw new ArticleError("idempotency_conflict");
+  if (result.status === "quota") throw new ArticleError("quota");
+  if (result.status === "concurrency") throw new ArticleError("concurrency");
+  return result.jobId;
+}
+
+/** Replaces the body with a candidate draft as a new article version. */
+export async function applyDraft(
+  userId: string,
+  id: string,
+  draftId: string,
+  expectedVersion: number,
+) {
+  return getDb().transaction(async (tx) => {
+    await lockVersion(tx, userId, id, expectedVersion);
+    const draft = await repo.lockDraft(tx, userId, id, draftId);
+    if (!draft) throw new ArticleError("draft_missing");
+    if (draft.status !== "candidate")
+      throw new ArticleError("draft_not_candidate");
+    await repo.setDraftStatus(tx, draftId, "applied");
+    return repo.updateArticle(tx, id, {
+      title: draft.title,
+      body: draft.markdown,
+      currentDraftId: draftId,
+    });
+  });
+}
+
+/** Discarding keeps the article untouched and hides the candidate. */
+export async function discardDraft(
+  userId: string,
+  id: string,
+  draftId: string,
+) {
+  await getDb().transaction(async (tx) => {
+    const draft = await repo.lockDraft(tx, userId, id, draftId);
+    if (!draft) throw new ArticleError("draft_missing");
+    if (draft.status !== "candidate")
+      throw new ArticleError("draft_not_candidate");
+    await repo.setDraftStatus(tx, draftId, "discarded");
+  });
 }
