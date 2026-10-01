@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
-import { getDb } from "@content-write/db/client";
+import { getDb, getPool } from "@content-write/db/client";
 import {
   linkFetchLimits,
   materialRevisions,
   materials,
 } from "@content-write/db/schema";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 export type MaterialInput = { title: string; content: string };
 export type MaterialCreation = MaterialInput & {
@@ -15,23 +15,61 @@ export type MaterialCreation = MaterialInput & {
   fetchStatus?: "fetched" | "failed" | "disabled" | "manual";
 };
 
-export async function listMaterials(userId: string) {
-  return getDb()
-    .select({
-      id: materials.id,
-      title: materials.title,
-      kind: materials.kind,
-      sourceFilename: materials.sourceFilename,
-      sourceUrl: materials.sourceUrl,
-      fetchStatus: materials.fetchStatus,
-      currentVersion: materials.currentVersion,
-      createdAt: materials.createdAt,
-      updatedAt: materials.updatedAt,
-    })
-    .from(materials)
-    .where(eq(materials.userId, userId))
-    .orderBy(desc(materials.updatedAt), desc(materials.id))
-    .limit(100);
+export type MaterialFilters = {
+  q?: string;
+  kind?: "text" | "markdown" | "link";
+  status?: "unprocessed" | "processing" | "failed" | "analyzed";
+  tag?: string;
+};
+
+export async function listMaterials(userId: string, filters: MaterialFilters) {
+  const result = await getPool().query<{
+    id: string;
+    title: string;
+    kind: string;
+    sourceFilename: string | null;
+    sourceUrl: string | null;
+    fetchStatus: string | null;
+    currentVersion: number;
+    createdAt: Date;
+    updatedAt: Date;
+    analysisStatus: string;
+    tags: string[];
+  }>(
+    `SELECT m.id, m.title, m.kind, m.source_filename AS "sourceFilename", m.source_url AS "sourceUrl",
+            m.fetch_status AS "fetchStatus", m.current_version AS "currentVersion",
+            m.created_at AS "createdAt", m.updated_at AS "updatedAt",
+            CASE WHEN a.id IS NOT NULL THEN 'analyzed'
+                 WHEN j.status IN ('queued','running') THEN 'processing'
+                 WHEN j.status = 'failed' THEN 'failed'
+                 ELSE 'unprocessed' END AS "analysisStatus",
+            COALESCE(a.result -> 'tags', '[]'::jsonb) AS tags
+       FROM materials m
+       LEFT JOIN material_analyses a ON a.material_id = m.id AND a.material_version = m.current_version
+       LEFT JOIN LATERAL (
+         SELECT status FROM ai_jobs WHERE material_id = m.id AND material_version = m.current_version
+         ORDER BY created_at DESC, id DESC LIMIT 1
+       ) j ON true
+      WHERE m.user_id = $1
+        AND ($2::text IS NULL OR position(lower($2) in lower(m.title || ' ' || m.content || ' ' || COALESCE(m.source_url, ''))) > 0)
+        AND ($3::text IS NULL OR m.kind = $3)
+        AND ($4::text IS NULL OR CASE WHEN a.id IS NOT NULL THEN 'analyzed'
+               WHEN j.status IN ('queued','running') THEN 'processing'
+               WHEN j.status = 'failed' THEN 'failed' ELSE 'unprocessed' END = $4)
+        AND ($5::text IS NULL OR COALESCE(a.result -> 'tags', '[]'::jsonb) ? $5)
+      ORDER BY m.updated_at DESC, m.id DESC LIMIT 101`,
+    [
+      userId,
+      filters.q ?? null,
+      filters.kind ?? null,
+      filters.status ?? null,
+      filters.tag ?? null,
+    ],
+  );
+  return {
+    materials: result.rows.slice(0, 100),
+    hasMore: result.rows.length > 100,
+  };
 }
 
 export async function getMaterial(userId: string, id: string) {

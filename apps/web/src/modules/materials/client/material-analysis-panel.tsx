@@ -49,12 +49,15 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export function MaterialAnalysisPanel({
   materialId,
   version,
+  onStatusChange,
 }: {
   materialId: string;
   version: number;
+  onStatusChange?: () => void;
 }) {
   const [analysis, setAnalysis] = useState<AnalysisResponse["analysis"]>(null);
   const [jobId, setJobId] = useState<string | null>(null);
+  const [failedJobId, setFailedJobId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [processingAvailable, setProcessingAvailable] = useState(false);
@@ -65,6 +68,7 @@ export function MaterialAnalysisPanel({
     let live = true;
     setAnalysis(null);
     setJobId(null);
+    setFailedJobId(null);
     setError("");
     setLoading(true);
     void request<AnalysisResponse>(`/materials/${materialId}/analysis`)
@@ -79,8 +83,10 @@ export function MaterialAnalysisPanel({
         setHasContent(response.hasContent);
         if (response.job && ["queued", "running"].includes(response.job.status))
           setJobId(response.job.id);
-        if (response.job?.status === "failed")
+        if (response.job?.status === "failed") {
           setError("上次处理失败，请重新整理。");
+          setFailedJobId(response.job.id);
+        }
         if (response.job?.status === "stale")
           setError("素材版本已变化，请重新整理。");
       })
@@ -110,6 +116,7 @@ export function MaterialAnalysisPanel({
                 : null,
             );
             setJobId(null);
+            onStatusChange?.();
           } else if (["failed", "stale"].includes(response.job.status)) {
             setError(
               response.job.status === "stale"
@@ -117,6 +124,8 @@ export function MaterialAnalysisPanel({
                 : "处理失败，请稍后重试。",
             );
             setJobId(null);
+            onStatusChange?.();
+            if (response.job.status === "failed") setFailedJobId(jobId);
           }
         })
         .catch((cause: unknown) => {
@@ -130,20 +139,24 @@ export function MaterialAnalysisPanel({
       live = false;
       clearInterval(timer);
     };
-  }, [jobId, version]);
+  }, [jobId, version, onStatusChange]);
 
   async function start() {
     setError("");
     setStarting(true);
     try {
       const response = await request<{ jobId: string }>(
-        `/materials/${materialId}/process`,
+        failedJobId
+          ? `/jobs/${failedJobId}/retry`
+          : `/materials/${materialId}/process`,
         {
           method: "POST",
           headers: { "idempotency-key": crypto.randomUUID() },
         },
       );
       setJobId(response.jobId);
+      setFailedJobId(null);
+      onStatusChange?.();
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : "处理失败，请稍后重试。",
@@ -247,7 +260,9 @@ export function MaterialAnalysisPanel({
                 : !hasContent
                   ? "请先粘贴正文"
                   : processingAvailable
-                    ? "整理当前版本"
+                    ? failedJobId
+                      ? "重试处理"
+                      : "整理当前版本"
                     : "处理服务未配置"}
           </Button>
         )}

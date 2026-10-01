@@ -53,7 +53,12 @@ type Material = {
   createdAt: string;
   updatedAt: string;
 };
-type Summary = Omit<Material, "content">;
+type Summary = Omit<Material, "content"> & {
+  analysisStatus: "unprocessed" | "processing" | "failed" | "analyzed";
+  tags: string[];
+};
+type Filters = { q: string; kind: string; status: string; tag: string };
+const emptyFilters: Filters = { q: "", kind: "", status: "", tag: "" };
 
 const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -81,6 +86,10 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
 
 export function MaterialWorkspace() {
   const [items, setItems] = useState<Summary[]>([]);
+  const [hasMore, setHasMore] = useState(false);
+  const [filters, setFilters] = useState<Filters>(emptyFilters);
+  const [appliedFilters, setAppliedFilters] = useState<Filters>(emptyFilters);
+  const [listError, setListError] = useState("");
   const [selected, setSelected] = useState<Material | null>(null);
   const [mode, setMode] = useState<"create" | "view" | "edit">("create");
   const [title, setTitle] = useState("");
@@ -94,14 +103,27 @@ export function MaterialWorkspace() {
   const [fetchRequested, setFetchRequested] = useState(true);
 
   const refresh = useCallback(async () => {
-    const result = await api<{ materials: Summary[] }>("");
+    const search = new URLSearchParams();
+    for (const [key, value] of Object.entries(appliedFilters)) {
+      if (value.trim()) search.set(key, value.trim());
+    }
+    const result = await api<{ materials: Summary[]; hasMore: boolean }>(
+      search.size ? `?${search}` : "",
+    );
     setItems(result.materials);
-  }, []);
+    setHasMore(result.hasMore);
+    setListError("");
+  }, [appliedFilters]);
+  const handleStatusChange = useCallback(() => {
+    void refresh().catch((cause: unknown) =>
+      setListError(cause instanceof Error ? cause.message : "列表更新失败。"),
+    );
+  }, [refresh]);
 
   useEffect(() => {
     refresh()
       .catch((cause: unknown) =>
-        setError(cause instanceof Error ? cause.message : "加载失败。"),
+        setListError(cause instanceof Error ? cause.message : "加载失败。"),
       )
       .finally(() => setLoading(false));
   }, [refresh]);
@@ -316,13 +338,113 @@ export function MaterialWorkspace() {
           </CardAction>
         </CardHeader>
         <CardContent>
+          <form
+            className="space-y-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+              setLoading(true);
+              setAppliedFilters({ ...filters });
+            }}
+          >
+            <Input
+              aria-label="搜索素材"
+              placeholder="搜索标题、正文或链接"
+              maxLength={100}
+              value={filters.q}
+              onChange={(event) =>
+                setFilters({ ...filters, q: event.target.value })
+              }
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <select
+                aria-label="素材类型"
+                className="h-9 rounded-md border bg-background px-2 text-sm"
+                value={filters.kind}
+                onChange={(event) =>
+                  setFilters({ ...filters, kind: event.target.value })
+                }
+              >
+                <option value="">全部类型</option>
+                <option value="text">文字</option>
+                <option value="markdown">Markdown</option>
+                <option value="link">链接</option>
+              </select>
+              <select
+                aria-label="处理状态"
+                className="h-9 rounded-md border bg-background px-2 text-sm"
+                value={filters.status}
+                onChange={(event) =>
+                  setFilters({ ...filters, status: event.target.value })
+                }
+              >
+                <option value="">全部状态</option>
+                <option value="unprocessed">未处理</option>
+                <option value="processing">处理中</option>
+                <option value="failed">处理失败</option>
+                <option value="analyzed">已整理</option>
+              </select>
+            </div>
+            <Input
+              aria-label="标签过滤"
+              placeholder="输入完整标签"
+              maxLength={50}
+              value={filters.tag}
+              onChange={(event) =>
+                setFilters({ ...filters, tag: event.target.value })
+              }
+            />
+            <div className="flex gap-2">
+              <Button type="submit" variant="outline">
+                查找
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  setFilters(emptyFilters);
+                  setLoading(true);
+                  setAppliedFilters({ ...emptyFilters });
+                }}
+              >
+                清除
+              </Button>
+            </div>
+          </form>
+          {listError && (
+            <Alert variant="destructive" className="mt-4">
+              <AlertDescription>
+                {listError}{" "}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() =>
+                    void refresh().catch((cause: unknown) =>
+                      setListError(
+                        cause instanceof Error ? cause.message : "加载失败。",
+                      ),
+                    )
+                  }
+                >
+                  重试
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
           {loading ? (
             <p className="text-sm text-muted-foreground">加载中…</p>
           ) : items.length === 0 ? (
             <Empty>
               <EmptyHeader>
-                <EmptyTitle>还没有素材</EmptyTitle>
-                <EmptyDescription>写下第一条想法吧。</EmptyDescription>
+                <EmptyTitle>
+                  {Object.values(appliedFilters).some(Boolean)
+                    ? "没有匹配的素材"
+                    : "还没有素材"}
+                </EmptyTitle>
+                <EmptyDescription>
+                  {Object.values(appliedFilters).some(Boolean)
+                    ? "试试其他搜索或过滤条件。"
+                    : "写下第一条想法吧。"}
+                </EmptyDescription>
               </EmptyHeader>
             </Empty>
           ) : (
@@ -349,15 +471,28 @@ export function MaterialWorkspace() {
                         · 版本 {item.currentVersion} ·{" "}
                         {new Date(item.updatedAt).toLocaleDateString("zh-CN")}
                       </span>
+                      <span className="text-xs text-muted-foreground">
+                        {
+                          (
+                            {
+                              unprocessed: "未处理",
+                              processing: "处理中",
+                              failed: "处理失败",
+                              analyzed: "已整理",
+                            } as const
+                          )[item.analysisStatus]
+                        }
+                        {item.tags.length ? ` · ${item.tags.join("、")}` : ""}
+                      </span>
                     </span>
                   </Button>
                 </li>
               ))}
             </ul>
           )}
-          {items.length === 100 && (
+          {hasMore && (
             <p className="mt-3 text-xs text-muted-foreground">
-              当前显示最近 100 条素材。
+              当前显示最近 100 条匹配素材；请缩小搜索范围。
             </p>
           )}
         </CardContent>
@@ -444,6 +579,7 @@ export function MaterialWorkspace() {
                 key={`${selected.id}:${selected.currentVersion}`}
                 materialId={selected.id}
                 version={selected.currentVersion}
+                onStatusChange={handleStatusChange}
               />
               <div className="mt-6 flex items-center gap-3">
                 <Button

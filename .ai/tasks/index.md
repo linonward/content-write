@@ -1,11 +1,11 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-01 17:08 CST
+更新时间：2026-10-01 17:36 CST
 已完成：7 / 25
-待合并：0
+待合并：1
 阻塞：0
-当前任务：无（T007、T008 待启动）
-下一项：T007 retry-and-find；T008 source-based-ideas
+当前任务：T007 retry-and-find（待合并）
+下一项：T008 source-based-ideas（等待 T007 收尾）
 真实模型验收：未开始
 线上验收：未开始
 
@@ -17,7 +17,7 @@
 | T004 | 上传 Markdown，解析、限制、持久化和失败反馈 | 已完成 | T003 | feat/T004-import-markdown | 已清理 | 1d95e3e | 59debba | .ai/verifications/T004.md |
 | T005 | 保存 URL、安全抓取、失败粘贴正文与开关 | 已完成 | T003 | feat/T005-capture-link | 已清理 | 8d55e7d | 92ee463 | .ai/verifications/T005.md |
 | T006 | 处理素材获得摘要、观点和片段；包含任务、worker、轮询、基础配额 | 已完成 | T003、T005 | feat/T006-analyze-material | 已清理 | e12f1d9 | 4eb24a8 | .ai/verifications/T006.md |
-| T007 | 搜索、过滤、处理失败重试、删除失效 | 待开始 | T004、T005、T006 | feat/T007-retry-and-find | 未创建 | 无 | 无 | 无 |
+| T007 | 搜索、过滤、处理失败重试、删除失效 | 待合并 | T004、T005、T006 | feat/T007-retry-and-find | `/Users/kaelen/workspace/github/linonward/content-write-retry-and-find` | 待提交 | 无 | .ai/verifications/T007.md |
 | T008 | 选择素材生成、收藏、忽略选题并查看来源 | 待开始 | T006 | feat/T008-source-based-ideas | 未创建 | 无 | 无 | 无 |
 | T009 | 创建文章 brief，生成、修改、确认大纲 | 待开始 | T008 | feat/T009-confirm-outline | 未创建 | 无 | 无 | 无 |
 | T010 | 根据确认大纲生成初稿，来源、缺口、预算和冲突处理 | 待开始 | T009 | feat/T010-generate-draft | 未创建 | 无 | 无 | 无 |
