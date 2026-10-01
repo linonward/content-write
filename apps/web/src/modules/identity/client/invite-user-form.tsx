@@ -1,7 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { ui } from "@/lib/styles";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { authClient } from "@/modules/identity/client/auth-client";
 
 export function InviteUserForm() {
@@ -51,63 +59,60 @@ export function InviteUserForm() {
   }
 
   return (
-    <form className={ui.form} onSubmit={submit}>
-      <label className={ui.label} htmlFor="invite-name">
-        姓名
-      </label>
-      <input
-        id="invite-name"
-        className={ui.input}
-        name="name"
-        type="text"
-        autoComplete="off"
-        maxLength={80}
-        required
-      />
-      <label className={ui.label} htmlFor="invite-email">
-        邮箱
-      </label>
-      <input
-        id="invite-email"
-        className={ui.input}
-        name="email"
-        type="email"
-        autoComplete="off"
-        required
-      />
-      <label className={ui.label} htmlFor="invite-password">
-        初始密码
-      </label>
-      <input
-        id="invite-password"
-        className={ui.input}
-        name="password"
-        type="password"
-        autoComplete="new-password"
-        minLength={12}
-        maxLength={128}
-        required
-      />
-      {error && (
-        <p className={ui.error} role="alert">
-          {error}
-        </p>
-      )}
-      {createdEmail && (
-        <p className={ui.success} role="status">
-          已创建 {createdEmail}。请通过可信渠道发送登录信息。
-        </p>
-      )}
-      <button
-        className={`${ui.primaryButton} mt-[18px]`}
-        type="submit"
-        disabled={pending}
-      >
-        {pending ? "创建中…" : "创建账号"}
-      </button>
-      <p className={ui.note}>
-        当前不发送邀请邮件或重置密码邮件。密码只在本次输入时显示，请妥善传达。
-      </p>
+    <form onSubmit={submit}>
+      <FieldGroup>
+        <Field>
+          <FieldLabel htmlFor="invite-name">姓名</FieldLabel>
+          <Input
+            id="invite-name"
+            name="name"
+            type="text"
+            autoComplete="off"
+            maxLength={80}
+            required
+          />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="invite-email">邮箱</FieldLabel>
+          <Input
+            id="invite-email"
+            name="email"
+            type="email"
+            autoComplete="off"
+            required
+          />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="invite-password">初始密码</FieldLabel>
+          <Input
+            id="invite-password"
+            name="password"
+            type="password"
+            autoComplete="new-password"
+            minLength={12}
+            maxLength={128}
+            required
+          />
+        </Field>
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        {createdEmail && (
+          <Alert role="status">
+            <AlertDescription>
+              已创建 {createdEmail}。请通过可信渠道发送登录信息。
+            </AlertDescription>
+          </Alert>
+        )}
+        <Button size="lg" className="w-full" type="submit" disabled={pending}>
+          {pending ? "创建中…" : "创建账号"}
+        </Button>
+        <FieldDescription>
+          当前不发送邀请邮件或重置密码邮件。密码只在本次输入时显示，请妥善传达。
+        </FieldDescription>
+      </FieldGroup>
     </form>
   );
 }

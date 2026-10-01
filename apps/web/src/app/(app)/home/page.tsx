@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 import { ui } from "@/lib/styles";
 import { LogoutButton } from "@/modules/identity/client/logout-button";
 import { requireSession } from "@/modules/identity/server/session";
@@ -24,29 +26,32 @@ export default async function HomePage() {
         </p>
       </section>
       <section
-        className="flex items-center justify-between gap-6 border-y border-[#c8d0ca] py-7 max-[680px]:flex-col max-[680px]:items-start"
+        className="flex items-center justify-between gap-6 border-y py-7 max-[680px]:flex-col max-[680px]:items-start"
         aria-labelledby="account-heading"
       >
         <div>
           <h2 id="account-heading" className="mb-2 text-xl">
             当前账号
           </h2>
-          <p className="text-sm text-[#6c7771]">{session.user.email}</p>
+          <p className="text-sm text-muted-foreground">{session.user.email}</p>
         </div>
         {isAdmin ? (
-          <Link className={ui.outlineLink} href="/admin/users">
+          <Link
+            className={buttonVariants({ variant: "outline" })}
+            href="/admin/users"
+          >
             创建受邀账号
           </Link>
         ) : (
-          <span className={ui.muted}>受邀作者</span>
+          <Badge variant="secondary">受邀作者</Badge>
         )}
       </section>
       <p className="mt-[22px]">
-        <Link className={ui.outlineLink} href="/inbox">
+        <Link className={buttonVariants({ variant: "outline" })} href="/inbox">
           打开素材箱
         </Link>
       </p>
-      <p className="mt-[22px] text-sm text-[#6c7771]">
+      <p className="mt-[22px] text-sm text-muted-foreground">
         选题与写作流程将在后续开放；打开首页不会自动调用模型。
       </p>
     </main>

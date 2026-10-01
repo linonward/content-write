@@ -1,7 +1,43 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ui } from "@/lib/styles";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 type Material = {
   id: string;
@@ -49,6 +85,7 @@ export function MaterialWorkspace() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const refresh = useCallback(async () => {
     const result = await api<{ materials: Summary[] }>("");
@@ -183,13 +220,7 @@ export function MaterialWorkspace() {
   }
 
   async function remove() {
-    if (
-      !selected ||
-      !window.confirm(
-        `删除「${selected.title}」及其全部历史版本？此操作不可恢复。`,
-      )
-    )
-      return;
+    if (!selected) return;
     setPending(true);
     setError("");
     setNotice("");
@@ -210,187 +241,226 @@ export function MaterialWorkspace() {
       className="grid grid-cols-[minmax(220px,300px)_minmax(0,1fr)] items-start gap-8 max-[680px]:grid-cols-1"
       aria-label="素材箱"
     >
-      <aside className={ui.panel}>
-        <div className={ui.panelHead}>
-          <h2 className="text-xl">最近素材</h2>
-          <button
-            className="cursor-pointer font-bold text-[#174a42]"
-            type="button"
-            onClick={startCreate}
-          >
-            + 新建
-          </button>
-        </div>
-        {loading ? (
-          <p className={ui.note}>加载中…</p>
-        ) : items.length === 0 ? (
-          <p className={ui.note}>还没有素材。写下第一条想法吧。</p>
-        ) : (
-          <ul className="mt-6">
-            {items.map((item) => (
-              <li
-                className="border-b border-[#e2e7e2] last:border-b-0"
-                key={item.id}
-              >
-                <button
-                  type="button"
-                  className={`${ui.listButton} ${selected?.id === item.id ? "bg-[#eaf1eb]" : ""}`}
-                  onClick={() => void open(item.id)}
-                >
-                  <strong className="truncate">{item.title}</strong>
-                  <span className="text-[13px] text-[#66716c]">
-                    {item.sourceFilename ? "文件导入" : "文字"} · 版本{" "}
-                    {item.currentVersion} ·{" "}
-                    {new Date(item.updatedAt).toLocaleDateString("zh-CN")}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-        {items.length === 100 && (
-          <p className={ui.note}>当前显示最近 100 条素材。</p>
-        )}
-      </aside>
-      <div className={ui.panel}>
-        <div className={ui.panelHead}>
-          <h2 className="text-xl">
-            {mode === "create"
-              ? "添加文字素材"
-              : mode === "edit"
-                ? "编辑素材"
-                : selected?.title}
-          </h2>
-          {selected && (
-            <span className={ui.muted}>版本 {selected.currentVersion}</span>
+      <Card className="min-h-[330px]">
+        <CardHeader>
+          <CardTitle>
+            <h2>最近素材</h2>
+          </CardTitle>
+          <CardAction>
+            <Button variant="ghost" type="button" onClick={startCreate}>
+              + 新建
+            </Button>
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <p className="text-sm text-muted-foreground">加载中…</p>
+          ) : items.length === 0 ? (
+            <Empty>
+              <EmptyHeader>
+                <EmptyTitle>还没有素材</EmptyTitle>
+                <EmptyDescription>写下第一条想法吧。</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
+          ) : (
+            <ul className="mt-2">
+              {items.map((item) => (
+                <li className="border-b last:border-b-0" key={item.id}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className={cn(
+                      "h-auto w-full justify-start rounded-none px-2 py-3.5 text-left",
+                      selected?.id === item.id && "bg-muted",
+                    )}
+                    onClick={() => void open(item.id)}
+                  >
+                    <span className="grid min-w-0 gap-1.5">
+                      <strong className="truncate">{item.title}</strong>
+                      <span className="text-xs text-muted-foreground">
+                        {item.sourceFilename ? "文件导入" : "文字"} · 版本{" "}
+                        {item.currentVersion} ·{" "}
+                        {new Date(item.updatedAt).toLocaleDateString("zh-CN")}
+                      </span>
+                    </span>
+                  </Button>
+                </li>
+              ))}
+            </ul>
           )}
-        </div>
-        {error && (
-          <p className={ui.error} role="alert">
-            {error}
-          </p>
-        )}
-        {notice && (
-          <p className={ui.success} role="status">
-            {notice}
-          </p>
-        )}
-        {mode === "view" && selected ? (
-          <>
-            <p className="text-[13px] text-[#66716c]">
-              更新于 {new Date(selected.updatedAt).toLocaleString("zh-CN")}
+          {items.length === 100 && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              当前显示最近 100 条素材。
             </p>
-            {selected.sourceFilename && (
-              <p className="text-[13px] text-[#66716c]">
-                来源文件：{selected.sourceFilename} ·{" "}
-                {selected.kind === "markdown" ? "Markdown" : "纯文本"}
+          )}
+        </CardContent>
+      </Card>
+      <Card className="min-h-[330px]">
+        <CardHeader>
+          <CardTitle>
+            <h2>
+              {mode === "create"
+                ? "添加文字素材"
+                : mode === "edit"
+                  ? "编辑素材"
+                  : selected?.title}
+            </h2>
+          </CardTitle>
+          {selected && (
+            <CardAction>
+              <Badge variant="secondary">版本 {selected.currentVersion}</Badge>
+            </CardAction>
+          )}
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          {notice && (
+            <Alert role="status" className="mb-4">
+              <AlertDescription>{notice}</AlertDescription>
+            </Alert>
+          )}
+          {mode === "view" && selected ? (
+            <>
+              <p className="text-xs text-muted-foreground">
+                更新于 {new Date(selected.updatedAt).toLocaleString("zh-CN")}
               </p>
-            )}
-            <div className="mt-7 whitespace-pre-wrap wrap-anywhere leading-[1.8]">
-              {selected.content}
-            </div>
-            <div className="mt-[22px] flex items-center gap-3">
-              <button
-                className={ui.primaryButton}
-                type="button"
-                onClick={() => {
-                  setMode("edit");
-                  setNotice("");
-                }}
-              >
-                编辑
-              </button>
-              <button
-                className="cursor-pointer rounded-lg border border-[#bd6a5b] bg-white px-[18px] py-3 text-[#8c2f23] disabled:cursor-wait disabled:opacity-65"
-                type="button"
-                disabled={pending}
-                onClick={() => void remove()}
-              >
-                删除
-              </button>
-            </div>
-          </>
-        ) : (
-          <form className={ui.form} onSubmit={(event) => void save(event)}>
-            <label className={ui.label} htmlFor="material-title">
-              标题
-            </label>
-            <input
-              id="material-title"
-              className={ui.input}
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              maxLength={200}
-              required
-            />
-            <label className={ui.label} htmlFor="material-content">
-              正文
-            </label>
-            <textarea
-              id="material-content"
-              className={ui.textarea}
-              value={content}
-              onChange={(event) => setContent(event.target.value)}
-              maxLength={50_000}
-              rows={14}
-              required
-            />
-            <p className={ui.note}>
-              {content.length} / 50000 字。当前仅保存文字，不会自动调用模型。
-            </p>
-            <div className="mt-[22px] flex items-center gap-3">
-              <button
-                className={ui.primaryButton}
-                type="submit"
-                disabled={pending}
-              >
-                {pending ? "保存中…" : "保存素材"}
-              </button>
-              {mode === "edit" && (
-                <button
+              {selected.sourceFilename && (
+                <p className="text-xs text-muted-foreground">
+                  来源文件：{selected.sourceFilename} ·{" "}
+                  {selected.kind === "markdown" ? "Markdown" : "纯文本"}
+                </p>
+              )}
+              <div className="mt-7 whitespace-pre-wrap wrap-anywhere leading-[1.8]">
+                {selected.content}
+              </div>
+              <div className="mt-6 flex items-center gap-3">
+                <Button
                   type="button"
-                  className={ui.outlineLink}
                   onClick={() => {
-                    setMode("view");
-                    setError("");
+                    setMode("edit");
+                    setNotice("");
                   }}
                 >
-                  取消
-                </button>
-              )}
-            </div>
-          </form>
-        )}
-        {mode === "create" && (
-          <form
-            className="mt-8 grid gap-3 border-t border-[#e2e7e2] pt-6"
-            onSubmit={(event) => void upload(event)}
-          >
-            <h3 className="text-lg">从文件导入</h3>
-            <label className="text-sm font-bold" htmlFor="material-file">
-              选择 Markdown 或纯文本文件
-            </label>
-            <input
-              id="material-file"
-              className="w-full"
-              name="file"
-              type="file"
-              accept=".md,.txt,text/markdown,text/plain"
-              required
-            />
-            <p className={ui.note}>
-              仅支持 UTF-8；单文件不超过 1 MiB，正文不超过 50000 字。
-            </p>
-            <button
-              className={`${ui.outlineLink} justify-self-start bg-white cursor-pointer disabled:cursor-wait disabled:opacity-65`}
-              type="submit"
-              disabled={pending}
-            >
-              {pending ? "导入中…" : "导入文件"}
-            </button>
-          </form>
-        )}
-      </div>
+                  编辑
+                </Button>
+                <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                  <AlertDialogTrigger
+                    render={<Button variant="destructive" disabled={pending} />}
+                  >
+                    删除
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>删除素材？</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        将删除「{selected.title}
+                        」及其全部历史版本，此操作不可恢复。
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>取消</AlertDialogCancel>
+                      <AlertDialogAction
+                        variant="destructive"
+                        disabled={pending}
+                        onClick={() => {
+                          setDeleteOpen(false);
+                          void remove();
+                        }}
+                      >
+                        确认删除
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </>
+          ) : (
+            <form onSubmit={(event) => void save(event)}>
+              <FieldGroup>
+                <Field>
+                  <FieldLabel htmlFor="material-title">标题</FieldLabel>
+                  <Input
+                    id="material-title"
+                    value={title}
+                    onChange={(event) => setTitle(event.target.value)}
+                    maxLength={200}
+                    required
+                  />
+                </Field>
+                <Field>
+                  <FieldLabel htmlFor="material-content">正文</FieldLabel>
+                  <Textarea
+                    id="material-content"
+                    value={content}
+                    onChange={(event) => setContent(event.target.value)}
+                    maxLength={50_000}
+                    rows={14}
+                    required
+                  />
+                  <FieldDescription>
+                    {content.length} / 50000
+                    字。当前仅保存文字，不会自动调用模型。
+                  </FieldDescription>
+                </Field>
+                <div className="flex items-center gap-3">
+                  <Button type="submit" disabled={pending}>
+                    {pending ? "保存中…" : "保存素材"}
+                  </Button>
+                  {mode === "edit" && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => {
+                        setMode("view");
+                        setError("");
+                      }}
+                    >
+                      取消
+                    </Button>
+                  )}
+                </div>
+              </FieldGroup>
+            </form>
+          )}
+          {mode === "create" && (
+            <>
+              <Separator className="my-7" />
+              <form onSubmit={(event) => void upload(event)}>
+                <FieldGroup>
+                  <h3 className="text-lg font-medium">从文件导入</h3>
+                  <Field>
+                    <FieldLabel htmlFor="material-file">
+                      选择 Markdown 或纯文本文件
+                    </FieldLabel>
+                    <Input
+                      id="material-file"
+                      name="file"
+                      type="file"
+                      accept=".md,.txt,text/markdown,text/plain"
+                      required
+                    />
+                    <FieldDescription>
+                      仅支持 UTF-8；单文件不超过 1 MiB，正文不超过 50000 字。
+                    </FieldDescription>
+                  </Field>
+                  <Button
+                    variant="outline"
+                    className="justify-self-start"
+                    type="submit"
+                    disabled={pending}
+                  >
+                    {pending ? "导入中…" : "导入文件"}
+                  </Button>
+                </FieldGroup>
+              </form>
+            </>
+          )}
+        </CardContent>
+      </Card>
     </section>
   );
 }

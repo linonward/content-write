@@ -2,7 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ui } from "@/lib/styles";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { authClient } from "@/modules/identity/client/auth-client";
 
 export function SignInForm() {
@@ -38,42 +46,40 @@ export function SignInForm() {
   }
 
   return (
-    <form className={ui.form} onSubmit={submit}>
-      <label className={ui.label} htmlFor="email">
-        邮箱
-      </label>
-      <input
-        id="email"
-        className={ui.input}
-        name="email"
-        type="email"
-        autoComplete="username"
-        required
-      />
-      <label className={ui.label} htmlFor="password">
-        密码
-      </label>
-      <input
-        id="password"
-        className={ui.input}
-        name="password"
-        type="password"
-        autoComplete="current-password"
-        required
-      />
-      {error && (
-        <p className={ui.error} role="alert">
-          {error}
-        </p>
-      )}
-      <button
-        className={`${ui.primaryButton} mt-[18px]`}
-        type="submit"
-        disabled={pending}
-      >
-        {pending ? "登录中…" : "登录"}
-      </button>
-      <p className={ui.note}>仅限受邀账号。忘记密码请联系管理员。</p>
+    <form onSubmit={submit}>
+      <FieldGroup>
+        <Field>
+          <FieldLabel htmlFor="email">邮箱</FieldLabel>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            autoComplete="username"
+            required
+          />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="password">密码</FieldLabel>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            required
+          />
+        </Field>
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        <Button size="lg" className="w-full" type="submit" disabled={pending}>
+          {pending ? "登录中…" : "登录"}
+        </Button>
+        <FieldDescription>
+          仅限受邀账号。忘记密码请联系管理员。
+        </FieldDescription>
+      </FieldGroup>
     </form>
   );
 }

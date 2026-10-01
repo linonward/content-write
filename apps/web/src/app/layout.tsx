@@ -11,7 +11,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="zh-CN" className="[color-scheme:light]">
-      <body className="bg-[#f7f6f2] font-sans text-[#192321]">{children}</body>
+      <body>{children}</body>
     </html>
   );
 }

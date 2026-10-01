@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { authClient } from "@/modules/identity/client/auth-client";
 
 export function LogoutButton() {
@@ -29,16 +30,16 @@ export function LogoutButton() {
 
   return (
     <div className="flex items-center gap-2">
-      <button
-        className="cursor-pointer text-sm font-bold text-[#174a42] hover:underline focus-visible:underline disabled:cursor-wait"
+      <Button
+        variant="ghost"
         type="button"
         onClick={signOut}
         disabled={pending}
       >
         {pending ? "退出中…" : "退出登录"}
-      </button>
+      </Button>
       {error && (
-        <span className="text-xs text-[#9d372a]" role="alert">
+        <span className="text-xs text-destructive" role="alert">
           {error}
         </span>
       )}
