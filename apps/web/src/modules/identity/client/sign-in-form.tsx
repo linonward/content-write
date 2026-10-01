@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ui } from "@/lib/styles";
 import { authClient } from "@/modules/identity/client/auth-client";
 
 export function SignInForm() {
@@ -37,32 +38,42 @@ export function SignInForm() {
   }
 
   return (
-    <form className="auth-form" onSubmit={submit}>
-      <label htmlFor="email">邮箱</label>
+    <form className={ui.form} onSubmit={submit}>
+      <label className={ui.label} htmlFor="email">
+        邮箱
+      </label>
       <input
         id="email"
+        className={ui.input}
         name="email"
         type="email"
         autoComplete="username"
         required
       />
-      <label htmlFor="password">密码</label>
+      <label className={ui.label} htmlFor="password">
+        密码
+      </label>
       <input
         id="password"
+        className={ui.input}
         name="password"
         type="password"
         autoComplete="current-password"
         required
       />
       {error && (
-        <p className="form-error" role="alert">
+        <p className={ui.error} role="alert">
           {error}
         </p>
       )}
-      <button className="primary-button" type="submit" disabled={pending}>
+      <button
+        className={`${ui.primaryButton} mt-[18px]`}
+        type="submit"
+        disabled={pending}
+      >
         {pending ? "登录中…" : "登录"}
       </button>
-      <p className="form-note">仅限受邀账号。忘记密码请联系管理员。</p>
+      <p className={ui.note}>仅限受邀账号。忘记密码请联系管理员。</p>
     </form>
   );
 }

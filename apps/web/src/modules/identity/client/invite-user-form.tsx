@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ui } from "@/lib/styles";
 import { authClient } from "@/modules/identity/client/auth-client";
 
 export function InviteUserForm() {
@@ -50,27 +51,36 @@ export function InviteUserForm() {
   }
 
   return (
-    <form className="auth-form" onSubmit={submit}>
-      <label htmlFor="invite-name">姓名</label>
+    <form className={ui.form} onSubmit={submit}>
+      <label className={ui.label} htmlFor="invite-name">
+        姓名
+      </label>
       <input
         id="invite-name"
+        className={ui.input}
         name="name"
         type="text"
         autoComplete="off"
         maxLength={80}
         required
       />
-      <label htmlFor="invite-email">邮箱</label>
+      <label className={ui.label} htmlFor="invite-email">
+        邮箱
+      </label>
       <input
         id="invite-email"
+        className={ui.input}
         name="email"
         type="email"
         autoComplete="off"
         required
       />
-      <label htmlFor="invite-password">初始密码</label>
+      <label className={ui.label} htmlFor="invite-password">
+        初始密码
+      </label>
       <input
         id="invite-password"
+        className={ui.input}
         name="password"
         type="password"
         autoComplete="new-password"
@@ -79,19 +89,23 @@ export function InviteUserForm() {
         required
       />
       {error && (
-        <p className="form-error" role="alert">
+        <p className={ui.error} role="alert">
           {error}
         </p>
       )}
       {createdEmail && (
-        <p className="form-success" role="status">
+        <p className={ui.success} role="status">
           已创建 {createdEmail}。请通过可信渠道发送登录信息。
         </p>
       )}
-      <button className="primary-button" type="submit" disabled={pending}>
+      <button
+        className={`${ui.primaryButton} mt-[18px]`}
+        type="submit"
+        disabled={pending}
+      >
         {pending ? "创建中…" : "创建账号"}
       </button>
-      <p className="form-note">
+      <p className={ui.note}>
         当前不发送邀请邮件或重置密码邮件。密码只在本次输入时显示，请妥善传达。
       </p>
     </form>

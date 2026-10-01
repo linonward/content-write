@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { ui } from "@/lib/styles";
 import { SignInForm } from "@/modules/identity/client/sign-in-form";
 import { getCurrentSession } from "@/modules/identity/server/session";
 
@@ -7,15 +8,17 @@ export default async function SignInPage() {
   if (session) redirect("/home");
 
   return (
-    <main className="shell narrow-shell">
-      <header className="masthead">
-        <span className="mark">文</span>
+    <main className={ui.narrowShell}>
+      <header className={ui.header}>
+        <span className={ui.mark}>文</span>
         <span>公众号内容工作台</span>
       </header>
-      <section className="form-intro">
-        <p className="stage">受邀访问</p>
-        <h1>登录工作台</h1>
-        <p className="lead">使用管理员为你创建的邮箱和密码登录。</p>
+      <section className={ui.formIntro}>
+        <p className={ui.stage}>受邀访问</p>
+        <h1 className={ui.formTitle}>登录工作台</h1>
+        <p className="mt-[18px] max-w-[570px] text-base leading-[1.8] text-[#66716c]">
+          使用管理员为你创建的邮箱和密码登录。
+        </p>
       </section>
       <SignInForm />
     </main>

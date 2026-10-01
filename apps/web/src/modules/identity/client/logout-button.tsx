@@ -28,11 +28,20 @@ export function LogoutButton() {
   }
 
   return (
-    <div className="logout-control">
-      <button type="button" onClick={signOut} disabled={pending}>
+    <div className="flex items-center gap-2">
+      <button
+        className="cursor-pointer text-sm font-bold text-[#174a42] hover:underline focus-visible:underline disabled:cursor-wait"
+        type="button"
+        onClick={signOut}
+        disabled={pending}
+      >
         {pending ? "退出中…" : "退出登录"}
       </button>
-      {error && <span role="alert">{error}</span>}
+      {error && (
+        <span className="text-xs text-[#9d372a]" role="alert">
+          {error}
+        </span>
+      )}
     </div>
   );
 }

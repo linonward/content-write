@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ui } from "@/lib/styles";
 
 type Material = {
   id: string;
@@ -205,29 +206,39 @@ export function MaterialWorkspace() {
   }
 
   return (
-    <section className="material-workspace" aria-label="素材箱">
-      <aside className="material-list">
-        <div className="material-list-head">
-          <h2>最近素材</h2>
-          <button type="button" onClick={startCreate}>
+    <section
+      className="grid grid-cols-[minmax(220px,300px)_minmax(0,1fr)] items-start gap-8 max-[680px]:grid-cols-1"
+      aria-label="素材箱"
+    >
+      <aside className={ui.panel}>
+        <div className={ui.panelHead}>
+          <h2 className="text-xl">最近素材</h2>
+          <button
+            className="cursor-pointer font-bold text-[#174a42]"
+            type="button"
+            onClick={startCreate}
+          >
             + 新建
           </button>
         </div>
         {loading ? (
-          <p className="form-note">加载中…</p>
+          <p className={ui.note}>加载中…</p>
         ) : items.length === 0 ? (
-          <p className="form-note">还没有素材。写下第一条想法吧。</p>
+          <p className={ui.note}>还没有素材。写下第一条想法吧。</p>
         ) : (
-          <ul>
+          <ul className="mt-6">
             {items.map((item) => (
-              <li key={item.id}>
+              <li
+                className="border-b border-[#e2e7e2] last:border-b-0"
+                key={item.id}
+              >
                 <button
                   type="button"
-                  className={selected?.id === item.id ? "selected" : ""}
+                  className={`${ui.listButton} ${selected?.id === item.id ? "bg-[#eaf1eb]" : ""}`}
                   onClick={() => void open(item.id)}
                 >
-                  <strong>{item.title}</strong>
-                  <span>
+                  <strong className="truncate">{item.title}</strong>
+                  <span className="text-[13px] text-[#66716c]">
                     {item.sourceFilename ? "文件导入" : "文字"} · 版本{" "}
                     {item.currentVersion} ·{" "}
                     {new Date(item.updatedAt).toLocaleDateString("zh-CN")}
@@ -238,12 +249,12 @@ export function MaterialWorkspace() {
           </ul>
         )}
         {items.length === 100 && (
-          <p className="form-note">当前显示最近 100 条素材。</p>
+          <p className={ui.note}>当前显示最近 100 条素材。</p>
         )}
       </aside>
-      <div className="material-detail">
-        <div className="material-detail-head">
-          <h2>
+      <div className={ui.panel}>
+        <div className={ui.panelHead}>
+          <h2 className="text-xl">
             {mode === "create"
               ? "添加文字素材"
               : mode === "edit"
@@ -251,34 +262,36 @@ export function MaterialWorkspace() {
                 : selected?.title}
           </h2>
           {selected && (
-            <span className="status-muted">版本 {selected.currentVersion}</span>
+            <span className={ui.muted}>版本 {selected.currentVersion}</span>
           )}
         </div>
         {error && (
-          <p className="form-error" role="alert">
+          <p className={ui.error} role="alert">
             {error}
           </p>
         )}
         {notice && (
-          <p className="form-success" role="status">
+          <p className={ui.success} role="status">
             {notice}
           </p>
         )}
         {mode === "view" && selected ? (
           <>
-            <p className="material-meta">
+            <p className="text-[13px] text-[#66716c]">
               更新于 {new Date(selected.updatedAt).toLocaleString("zh-CN")}
             </p>
             {selected.sourceFilename && (
-              <p className="material-meta">
+              <p className="text-[13px] text-[#66716c]">
                 来源文件：{selected.sourceFilename} ·{" "}
                 {selected.kind === "markdown" ? "Markdown" : "纯文本"}
               </p>
             )}
-            <div className="material-body">{selected.content}</div>
-            <div className="material-actions">
+            <div className="mt-7 whitespace-pre-wrap wrap-anywhere leading-[1.8]">
+              {selected.content}
+            </div>
+            <div className="mt-[22px] flex items-center gap-3">
               <button
-                className="primary-button"
+                className={ui.primaryButton}
                 type="button"
                 onClick={() => {
                   setMode("edit");
@@ -288,7 +301,7 @@ export function MaterialWorkspace() {
                 编辑
               </button>
               <button
-                className="danger-button"
+                className="cursor-pointer rounded-lg border border-[#bd6a5b] bg-white px-[18px] py-3 text-[#8c2f23] disabled:cursor-wait disabled:opacity-65"
                 type="button"
                 disabled={pending}
                 onClick={() => void remove()}
@@ -298,30 +311,36 @@ export function MaterialWorkspace() {
             </div>
           </>
         ) : (
-          <form className="auth-form" onSubmit={(event) => void save(event)}>
-            <label htmlFor="material-title">标题</label>
+          <form className={ui.form} onSubmit={(event) => void save(event)}>
+            <label className={ui.label} htmlFor="material-title">
+              标题
+            </label>
             <input
               id="material-title"
+              className={ui.input}
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               maxLength={200}
               required
             />
-            <label htmlFor="material-content">正文</label>
+            <label className={ui.label} htmlFor="material-content">
+              正文
+            </label>
             <textarea
               id="material-content"
+              className={ui.textarea}
               value={content}
               onChange={(event) => setContent(event.target.value)}
               maxLength={50_000}
               rows={14}
               required
             />
-            <p className="form-note">
+            <p className={ui.note}>
               {content.length} / 50000 字。当前仅保存文字，不会自动调用模型。
             </p>
-            <div className="material-actions">
+            <div className="mt-[22px] flex items-center gap-3">
               <button
-                className="primary-button"
+                className={ui.primaryButton}
                 type="submit"
                 disabled={pending}
               >
@@ -330,7 +349,7 @@ export function MaterialWorkspace() {
               {mode === "edit" && (
                 <button
                   type="button"
-                  className="outline-link"
+                  className={ui.outlineLink}
                   onClick={() => {
                     setMode("view");
                     setError("");
@@ -344,22 +363,29 @@ export function MaterialWorkspace() {
         )}
         {mode === "create" && (
           <form
-            className="upload-form"
+            className="mt-8 grid gap-3 border-t border-[#e2e7e2] pt-6"
             onSubmit={(event) => void upload(event)}
           >
-            <h3>从文件导入</h3>
-            <label htmlFor="material-file">选择 Markdown 或纯文本文件</label>
+            <h3 className="text-lg">从文件导入</h3>
+            <label className="text-sm font-bold" htmlFor="material-file">
+              选择 Markdown 或纯文本文件
+            </label>
             <input
               id="material-file"
+              className="w-full"
               name="file"
               type="file"
               accept=".md,.txt,text/markdown,text/plain"
               required
             />
-            <p className="form-note">
+            <p className={ui.note}>
               仅支持 UTF-8；单文件不超过 1 MiB，正文不超过 50000 字。
             </p>
-            <button className="outline-link" type="submit" disabled={pending}>
+            <button
+              className={`${ui.outlineLink} justify-self-start bg-white cursor-pointer disabled:cursor-wait disabled:opacity-65`}
+              type="submit"
+              disabled={pending}
+            >
               {pending ? "导入中…" : "导入文件"}
             </button>
           </form>
