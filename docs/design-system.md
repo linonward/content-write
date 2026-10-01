@@ -1,6 +1,6 @@
 # 设计系统：墨水纸感编辑台
 
-状态：草案，待确认后落地到 `apps/web/src/app/globals.css` 与共享组件。设计稿见 `docs/design/content-write.pen`（用 Pen 打开，pen.dev）。本文是页面设计稿和前端实现的唯一依据；与本文冲突的现有样式按本文修改。
+状态：基线已确认（按 2026-10-02 产品方向调整前的定位）。"爆款拆解"方向带来的界面变化（拆解页、框架标签、草稿箱、导航与落地页调整）见 `.ai/plans/product-direction-2026-10.md`，将在后续设计更新中合入本文。尚未落地到 `apps/web/src/app/globals.css` 与共享组件。设计稿见 `docs/design/content-write.pen`（用 Pen 打开，pen.dev）。本文是页面设计稿和前端实现的唯一依据；与本文冲突的现有样式按本文修改。
 
 ## 1. 视觉主题与氛围
 
