@@ -38,6 +38,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { MaterialAnalysisPanel } from "./material-analysis-panel";
 
 type Material = {
   id: string;
@@ -337,6 +338,11 @@ export function MaterialWorkspace() {
               <div className="mt-7 whitespace-pre-wrap wrap-anywhere leading-[1.8]">
                 {selected.content}
               </div>
+              <MaterialAnalysisPanel
+                key={`${selected.id}:${selected.currentVersion}`}
+                materialId={selected.id}
+                version={selected.currentVersion}
+              />
               <div className="mt-6 flex items-center gap-3">
                 <Button
                   type="button"

@@ -19,7 +19,7 @@ export default function InboxPage() {
           先保存你的想法。
         </h1>
         <p className="mt-[18px] max-w-[570px] text-base leading-[1.8] text-[#66716c]">
-          收集文字素材，随时回来修改。AI 整理将在后续开放。
+          收集文字素材，随时回来修改。打开素材后可主动整理当前版本。
         </p>
       </section>
       <MaterialWorkspace />

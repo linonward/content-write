@@ -1,6 +1,7 @@
 import {
   index,
   integer,
+  jsonb,
   pgTable,
   text,
   timestamp,
@@ -67,3 +68,80 @@ export const materialRevisions = pgTable(
     ),
   ],
 );
+
+export const materialAnalyses = pgTable(
+  "material_analyses",
+  {
+    id: text("id").primaryKey(),
+    materialId: text("material_id")
+      .notNull()
+      .references(() => materials.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    materialVersion: integer("material_version").notNull(),
+    result: jsonb("result").notNull(),
+    mode: text("mode").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("material_analyses_version_idx").on(
+      table.materialId,
+      table.materialVersion,
+    ),
+  ],
+);
+
+export const aiJobs = pgTable(
+  "ai_jobs",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    materialId: text("material_id")
+      .notNull()
+      .references(() => materials.id, { onDelete: "cascade" }),
+    materialVersion: integer("material_version").notNull(),
+    kind: text("kind").notNull(),
+    status: text("status").notNull().default("queued"),
+    idempotencyKey: text("idempotency_key").notNull(),
+    inputHash: text("input_hash").notNull(),
+    attempts: integer("attempts").notNull().default(0),
+    claimToken: text("claim_token"),
+    leaseUntil: timestamp("lease_until", { withTimezone: true }),
+    deadlineAt: timestamp("deadline_at", { withTimezone: true }).notNull(),
+    errorCode: text("error_code"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("ai_jobs_user_key_idx").on(table.userId, table.idempotencyKey),
+    index("ai_jobs_queue_idx").on(table.status, table.leaseUntil),
+    index("ai_jobs_user_created_idx").on(table.userId, table.createdAt),
+  ],
+);
+
+export const aiRuns = pgTable("ai_runs", {
+  id: text("id").primaryKey(),
+  jobId: text("job_id")
+    .notNull()
+    .references(() => aiJobs.id, { onDelete: "cascade" }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  mode: text("mode").notNull(),
+  durationMs: integer("duration_ms").notNull(),
+  inputTokens: integer("input_tokens"),
+  outputTokens: integer("output_tokens"),
+  estimatedCost: text("estimated_cost"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
