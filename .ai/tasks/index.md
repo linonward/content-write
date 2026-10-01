@@ -4,7 +4,7 @@
 已完成：10 / 26
 待合并：0
 阻塞：0
-当前任务：无
+当前任务：T026 ai-jobs-hardening（开发中）
 下一项：T026 合并验收后 T027a articles-layering，然后 T010 generate-draft
 真实模型验收：未开始
 线上验收：未开始
@@ -36,6 +36,7 @@
 | T023 | 生产镜像、完整 CI、部署、HTTPS、迁移和备份恢复 | 待开始 | T022；环境授权 | feat/T023-staging-delivery | 未创建 | 无 | 无 | 无 |
 | T024 | 试用交付、七天实验、说明和最终验收 | 待开始 | T023 | feat/T024-trial-handoff | 未创建 | 无 | 无 | 无 |
 | T025 | Web/API/worker 分离与 Turborepo 编排 | 已完成 | T001、T002 | chore/T025-turborepo-hono | 已清理 | 638fa04 | 8ec3dfc | .ai/verifications/T025.md |
+| T026 | 任务额度账本、用量保留、任务类型隔离、API 共享辅助与 worker 失败分类 | 开发中 | T009 | chore/T026-ai-jobs-hardening | `/Users/kaelen/workspace/github/linonward/content-write-ai-jobs-hardening` | 无 | 无 | .ai/verifications/T026.md |
 | T027 | API 按 route/service/repository 分层，数据访问收敛到 Drizzle；用户行为不变 | 待开始 | T026；T027a 先于 T010 | refactor/T027a–c（按模块拆分） | 未创建 | 无 | 无 | 无 |
 
 ## 当前阻塞
@@ -45,6 +46,8 @@
 ## 最近更新
 
 - 2026-10-01 22:40 CST：新增 T027（API 分层与 Drizzle 查询收敛），依赖 T026；在 AGENTS.md 补充分层与数据访问约定，记录 ADR 003。T027a（articles）排在 T010 之前，避免初稿生成沿用手写 SQL；T027b/c 不阻塞 T010。
+
+- 2026-10-01 22:15 CST：T026 从已集成的 T009 主分支建立独立 worktree，在 T010 前修复删除素材回退每日额度、选题任务混入素材整理状态、非整理任务重试错误与 worker 吞错；收敛 API 共享辅助与入队逻辑。
 
 - 2026-10-01 22:03 CST：PR #20 合并为 `7db44e9`；主分支独立 PostgreSQL 空库迁移 0000–0007 与完整检查通过，API 集成测试 26/26。验证数据库和 T009 worktree 已清理。
 

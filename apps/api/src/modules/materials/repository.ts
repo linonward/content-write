@@ -47,7 +47,7 @@ export async function listMaterials(userId: string, filters: MaterialFilters) {
        FROM materials m
        LEFT JOIN material_analyses a ON a.material_id = m.id AND a.material_version = m.current_version
        LEFT JOIN LATERAL (
-         SELECT status FROM ai_jobs WHERE material_id = m.id AND material_version = m.current_version
+         SELECT status FROM ai_jobs WHERE kind = 'material_analysis' AND material_id = m.id AND material_version = m.current_version
          ORDER BY created_at DESC, id DESC LIMIT 1
        ) j ON true
       WHERE m.user_id = $1

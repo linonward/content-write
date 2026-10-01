@@ -57,6 +57,13 @@
       "when": 1790856939706,
       "tag": "0007_smart_mephistopheles",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790863874431,
+      "tag": "0008_bouncy_sally_floyd",
+      "breakpoints": true
     }
   ]
 }

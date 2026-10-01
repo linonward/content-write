@@ -15,8 +15,12 @@ async function main() {
       if (ready) {
         try {
           if (await processOneJob()) continue;
-        } catch {
-          console.error("worker: job processing failed");
+        } catch (error) {
+          // Claim or bookkeeping failed outside a handler; log the category, not row data.
+          console.error("worker: job processing failed", {
+            name: error instanceof Error ? error.name : typeof error,
+            code: (error as { code?: unknown } | null)?.code,
+          });
         }
       }
       try {

@@ -551,6 +551,7 @@ docs/runbook.md
 | T023 | staging-delivery | 生产镜像、完整 CI、部署、HTTPS、迁移和备份恢复 | T022；环境授权 |
 | T024 | trial-handoff | 试用交付、七天实验、说明和最终验收 | T023 |
 | T025 | turborepo-hono | Web/API/worker 分离，Turborepo 编排与数据库包迁移 | T001、T002 |
+| T026 | ai-jobs-hardening | 任务额度账本、用量保留、任务类型隔离、API 共享辅助与 worker 失败分类 | T009 |
 每项功能实施时就完成相关权限和错误测试。
 不得等 T022 才首次验证数据隔离。
 依赖任务合并主分支后才开始下游任务。

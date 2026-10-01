@@ -1,8 +1,11 @@
 import {
+  type AnyPgColumn,
+  date,
   index,
   integer,
   jsonb,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -115,11 +118,14 @@ export const aiJobs = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    materialId: text("material_id")
-      .notNull()
-      .references(() => materials.id, { onDelete: "cascade" }),
-    materialVersion: integer("material_version").notNull(),
-    articleId: text("article_id"),
+    // Only material_analysis jobs reference a material; other kinds keep their sources in their own tables.
+    materialId: text("material_id").references(() => materials.id, {
+      onDelete: "cascade",
+    }),
+    materialVersion: integer("material_version"),
+    articleId: text("article_id").references((): AnyPgColumn => articles.id, {
+      onDelete: "cascade",
+    }),
     articleVersion: integer("article_version"),
     sourceCount: integer("source_count").notNull().default(1),
     kind: text("kind").notNull(),
@@ -145,11 +151,10 @@ export const aiJobs = pgTable(
   ],
 );
 
+// Usage outlives deleted jobs so model cost and volume stay auditable.
 export const aiRuns = pgTable("ai_runs", {
   id: text("id").primaryKey(),
-  jobId: text("job_id")
-    .notNull()
-    .references(() => aiJobs.id, { onDelete: "cascade" }),
+  jobId: text("job_id").references(() => aiJobs.id, { onDelete: "set null" }),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
@@ -162,6 +167,19 @@ export const aiRuns = pgTable("ai_runs", {
     .notNull()
     .defaultNow(),
 });
+
+// Daily logical generation count; independent of job rows so deleting content never restores quota.
+export const aiDailyUsage = pgTable(
+  "ai_daily_usage",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    day: date("day").notNull(),
+    count: integer("count").notNull().default(0),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.day] })],
+);
 
 export const ideaJobSources = pgTable(
   "idea_job_sources",

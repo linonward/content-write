@@ -163,6 +163,44 @@ describe("source-based ideas", () => {
     }
   });
 
+  it("keeps idea jobs out of material processing state and analysis retry", async () => {
+    const owner = await signIn("idea-job-kind");
+    const source = await material(owner, "类型隔离素材");
+    const response = await generate(owner, [source]);
+    expect(response.status).toBe(202);
+    const jobId = ((await response.json()) as { jobId: string }).jobId;
+    const panel = await app.request(`/api/materials/${source.id}/analysis`, {
+      headers: { cookie: owner },
+    });
+    expect(((await panel.json()) as { job: unknown }).job).toBeNull();
+    const job = await app.request(`/api/jobs/${jobId}`, {
+      headers: { cookie: owner },
+    });
+    expect(((await job.json()) as { job: object }).job).toMatchObject({
+      kind: "idea_generation",
+      materialId: null,
+    });
+    await getPool().query(
+      "UPDATE ai_jobs SET status = 'failed', error_code = 'IDEA_GENERATION_FAILED' WHERE id = $1",
+      [jobId],
+    );
+    const panelAfterFailure = await app.request(
+      `/api/materials/${source.id}/analysis`,
+      { headers: { cookie: owner } },
+    );
+    expect(
+      ((await panelAfterFailure.json()) as { job: unknown }).job,
+    ).toBeNull();
+    const retry = await app.request(`/api/jobs/${jobId}/retry`, {
+      method: "POST",
+      headers: { cookie: owner, origin, "idempotency-key": randomUUID() },
+    });
+    expect(retry.status).toBe(409);
+    expect(
+      ((await retry.json()) as { error: { code: string } }).error.code,
+    ).toBe("JOB_NOT_RETRYABLE");
+  });
+
   it("persists 3 source-backed ideas, allows owner to save and ignore, and removes them with a deleted source", async () => {
     const owner = await signIn("idea-flow");
     const other = await signIn("idea-flow-other");

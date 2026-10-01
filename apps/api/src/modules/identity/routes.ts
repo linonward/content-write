@@ -1,26 +1,13 @@
-import { randomUUID } from "node:crypto";
 import { getConnInfo } from "@hono/node-server/conninfo";
 import { Hono } from "hono";
+import { apiError, isTrustedOrigin } from "../../http";
 import { auth } from "./auth";
 
 export const identityRoutes = new Hono();
 
 identityRoutes.on(["GET", "POST"], "/auth/*", async (context) => {
-  if (context.req.method === "POST") {
-    const expectedOrigin = process.env.WEB_ORIGIN ?? "http://localhost:3000";
-    if (context.req.header("origin") !== expectedOrigin) {
-      return context.json(
-        {
-          error: {
-            code: "INVALID_ORIGIN",
-            message: "请求来源不受信任。",
-            requestId: randomUUID(),
-            retryable: false,
-          },
-        },
-        403,
-      );
-    }
+  if (context.req.method === "POST" && !isTrustedOrigin(context.req.raw)) {
+    return apiError("INVALID_ORIGIN", "请求来源不受信任。", 403);
   }
   const headers = new Headers(context.req.raw.headers);
   headers.delete("x-direct-client-ip");
@@ -37,19 +24,7 @@ identityRoutes.get("/me", async (context) => {
   const session = await auth.api.getSession({
     headers: context.req.raw.headers,
   });
-  if (!session) {
-    return context.json(
-      {
-        error: {
-          code: "UNAUTHORIZED",
-          message: "请先登录。",
-          requestId: randomUUID(),
-          retryable: false,
-        },
-      },
-      401,
-    );
-  }
+  if (!session) return apiError("UNAUTHORIZED", "请先登录。", 401);
   return context.json({
     user: {
       id: session.user.id,
