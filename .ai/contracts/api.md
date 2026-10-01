@@ -67,3 +67,9 @@ T012 新增：
 - `GET /api/articles/:id/revisions`：本人文章最近 50 条正文历史，版本倒序，含 `version`、`source`（`edit` / `draft` / `restore`）、`title`、`restoredFrom`、`chars`（正文字符数）、`createdAt`，不含正文。跨用户或不存在 404。
 - `GET /api/articles/:id/revisions/:version`：单个历史版本，含标题和正文；不存在或跨用户 404 `REVISION_NOT_FOUND`（文章不属于本人时也返回 404）。
 - `POST /api/articles/:id/restore`：携带 `expectedVersion` 与 `revision`，需可信 Origin。把该版本的标题和正文作为新版本保存，版本加一，同一事务写入 `source: "restore"`、`restoredFrom` 的历史；已有历史不修改不删除。版本冲突 409，不存在的历史版本 404，与当前正文一致时返回当前版本不写历史。迁移 0011 为 `article_revisions` 增加 `restored_from`。
+
+2026-10-02 规划（尚未实现，接口在对应任务完成后才算可用）：
+
+- T029：`GET/POST /api/breakdowns`、`GET/PATCH/DELETE /api/breakdowns/:id`、`POST /api/breakdowns/:id/process`（202 与 jobId，复用 `/api/jobs/:id` 轮询与额度）。
+- T030：`POST /api/articles` 增加可选 `breakdownId` 与 `materials`（1～10 条本人已整理素材版本）；大纲生成在文章绑定框架时按槽位进行。
+- T031：`POST /api/articles/:id/wechat-draft`（携带 `expectedVersion` 与 Idempotency-Key，只创建草稿）、`GET /api/articles/:id/wechat-draft`（推送记录与确认状态）；未配置公众号返回 503。
