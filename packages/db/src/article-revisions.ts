@@ -14,7 +14,8 @@ export async function recordRevision(
     version: number;
     title: string;
     body: string;
-    source: "edit" | "draft";
+    source: "edit" | "draft" | "restore";
+    restoredFrom?: number;
   },
 ) {
   await db.insert(articleRevisions).values({ id: randomUUID(), ...revision });

@@ -30,6 +30,7 @@ export type ArticleErrorReason =
   | "draft_job_active"
   | "draft_missing"
   | "draft_not_candidate"
+  | "revision_missing"
   | "quota"
   | "concurrency"
   | "ai_unavailable";
@@ -356,6 +357,52 @@ export async function saveBody(
       version,
       ...input,
       source: "edit",
+    });
+    return version;
+  });
+}
+
+export async function listRevisions(userId: string, id: string) {
+  const db = getDb();
+  if (!(await repo.findArticle(db, userId, id)))
+    throw new ArticleError("article_missing");
+  return repo.listRevisions(db, userId, id);
+}
+
+export async function getRevision(userId: string, id: string, version: number) {
+  const revision = await repo.findRevision(getDb(), userId, id, version);
+  if (!revision) throw new ArticleError("revision_missing");
+  return revision;
+}
+
+/**
+ * Brings back an earlier version's title and body as a new version. History is
+ * only appended, so the text replaced here can itself be restored later.
+ */
+export async function restoreRevision(
+  userId: string,
+  id: string,
+  expectedVersion: number,
+  revisionVersion: number,
+) {
+  return getDb().transaction(async (tx) => {
+    const article = await lockVersion(tx, userId, id, expectedVersion);
+    const revision = await repo.findRevision(tx, userId, id, revisionVersion);
+    if (!revision) throw new ArticleError("revision_missing");
+    if (article.title === revision.title && article.body === revision.body)
+      return article.version;
+    const version = await repo.updateArticle(tx, id, {
+      title: revision.title,
+      body: revision.body,
+    });
+    await recordRevision(tx, {
+      articleId: id,
+      userId,
+      version,
+      title: revision.title,
+      body: revision.body,
+      source: "restore",
+      restoredFrom: revision.version,
     });
     return version;
   });

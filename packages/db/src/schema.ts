@@ -370,7 +370,7 @@ export const articleDrafts = pgTable(
   ],
 );
 
-// Every body or title change, including drafts that became the body. Restoring arrives with T012.
+// Every body or title change: edits, drafts that became the body, and restores.
 export const articleRevisions = pgTable(
   "article_revisions",
   {
@@ -385,6 +385,8 @@ export const articleRevisions = pgTable(
     title: text("title").notNull(),
     body: text("body").notNull(),
     source: text("source").notNull(),
+    // Set when source is "restore": the version whose text was brought back.
+    restoredFrom: integer("restored_from"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DraftPanel, type DraftState } from "./draft-panel";
 import { request } from "./request";
+import { RevisionHistory } from "./revision-history";
 
 type Section = {
   heading: string;
@@ -631,6 +632,11 @@ export function OutlineWorkspace({ id }: { id: string }) {
             previous ? { ...previous, ...saved } : previous,
           )
         }
+      />
+      <RevisionHistory
+        articleId={id}
+        currentVersion={article.version}
+        onRestored={refresh}
       />
     </div>
   );
