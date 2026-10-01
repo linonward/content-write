@@ -1,11 +1,11 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-01 15:50 CST
-已完成：4 / 25
-待合并：1
+更新时间：2026-10-01 16:31 CST
+已完成：5 / 25
+待合并：0
 阻塞：0
-当前任务：T004 import-markdown（待合并）
-下一项：T005 capture-link（待 T004 合并及集成验收）
+当前任务：无（T004 已完成）
+下一项：T005 capture-link（可启动）
 真实模型验收：未开始
 线上验收：未开始
 
@@ -14,7 +14,7 @@
 | T001 | 基础工程、数据库、健康页、检查命令、文档、看板、CI 基线 | 已完成 | 无 | chore/T001-bootstrap | 已清理 | 0751508 | 7d669a9 | .ai/verifications/T001.md |
 | T002 | 邀请账号登录、退出、保护页面和身份隔离 | 已完成 | T001 | feat/T002-account-access | 已清理 | a0568a5 | e9d5b9c | .ai/verifications/T002.md |
 | T003 | 保存、查看、编辑、删除文字素材，版本与权限完整 | 已完成 | T002 | feat/T003-capture-text | 已清理 | ee2dcdc | af5e587 | .ai/verifications/T003.md |
-| T004 | 上传 Markdown，解析、限制、持久化和失败反馈 | 待合并 | T003 | feat/T004-import-markdown | ../content-write-import-markdown | ef09907 | 无 | .ai/verifications/T004.md |
+| T004 | 上传 Markdown，解析、限制、持久化和失败反馈 | 已完成 | T003 | feat/T004-import-markdown | 已清理 | 1d95e3e | 59debba | .ai/verifications/T004.md |
 | T005 | 保存 URL、安全抓取、失败粘贴正文与开关 | 待开始 | T003 | feat/T005-capture-link | 未创建 | 无 | 无 | 无 |
 | T006 | 处理素材获得摘要、观点和片段；包含任务、worker、轮询、基础配额 | 待开始 | T003 | feat/T006-analyze-material | 未创建 | 无 | 无 | 无 |
 | T007 | 搜索、过滤、处理失败重试、删除失效 | 待开始 | T004、T005、T006 | feat/T007-retry-and-find | 未创建 | 无 | 无 | 无 |
@@ -60,3 +60,5 @@
 - 2026-10-01 15:52 CST：T003 收尾 PR #9 合并；从最新主分支创建 T004 独立 worktree。
 - 2026-10-01 15:58 CST：T004 文件导入、限制和来源记录通过独立 PostgreSQL 与真实 HTTP 验证，准备提交 PR。
 - 2026-10-01 15:59 CST：T004 实现提交 `ef09907`，创建 PR #10。
+
+- 2026-10-01 16:31 CST：T004 PR #10 已合并；主分支独立 PostgreSQL 空库迁移和完整检查通过，任务 worktree 已清理。
