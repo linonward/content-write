@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -58,6 +59,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export function IdeasWorkspace() {
+  const router = useRouter();
   const [materials, setMaterials] = useState<Material[]>([]);
   const [materialsHasMore, setMaterialsHasMore] = useState(false);
   const [generationAvailable, setGenerationAvailable] = useState(false);
@@ -194,6 +196,22 @@ export function IdeasWorkspace() {
       );
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "更新选题失败。");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function createArticle(ideaId: string) {
+    setPending(true);
+    setError("");
+    try {
+      const result = await request<{ articleId: string }>("/articles", {
+        method: "POST",
+        body: JSON.stringify({ ideaId }),
+      });
+      router.push(`/articles/${result.articleId}`);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "创建文章失败。");
     } finally {
       setPending(false);
     }
@@ -417,6 +435,13 @@ export function IdeasWorkspace() {
                   </ul>
                 </details>
                 <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    disabled={pending || idea.status === "ignored"}
+                    onClick={() => void createArticle(idea.id)}
+                  >
+                    创建文章并规划大纲
+                  </Button>
                   <Button
                     type="button"
                     variant="outline"

@@ -139,7 +139,7 @@ export async function getJob(userId: string, jobId: string) {
     mode: string | null;
   }>(
     `SELECT j.id, j.material_id, j.material_version, j.status, j.error_code, j.updated_at, a.result, a.mode
-       FROM ai_jobs j LEFT JOIN material_analyses a ON a.material_id = j.material_id AND a.material_version = j.material_version
+       FROM ai_jobs j LEFT JOIN material_analyses a ON j.kind = 'material_analysis' AND a.material_id = j.material_id AND a.material_version = j.material_version
       WHERE j.id = $1 AND j.user_id = $2`,
     [jobId, userId],
   );

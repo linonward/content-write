@@ -171,6 +171,15 @@ export async function deleteMaterial(userId: string, id: string) {
   const client = await getPool().connect();
   try {
     await client.query("BEGIN");
+    // Outlines can contain source-derived text, so remove dependent articles.
+    await client.query(
+      "DELETE FROM ai_jobs WHERE user_id = $1 AND article_id IN (SELECT article_id FROM article_sources WHERE material_id = $2)",
+      [userId, id],
+    );
+    await client.query(
+      "DELETE FROM articles WHERE user_id = $1 AND id IN (SELECT article_id FROM article_sources WHERE material_id = $2)",
+      [userId, id],
+    );
     // Removing a selected source invalidates its entire generated result and pending job.
     await client.query(
       "DELETE FROM ai_jobs WHERE user_id = $1 AND id IN (SELECT job_id FROM idea_job_sources WHERE material_id = $2)",

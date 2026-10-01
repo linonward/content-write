@@ -1,11 +1,11 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-01 19:11 CST
+更新时间：2026-10-01 21:11 CST
 已完成：9 / 25
-待合并：0
+待合并：1
 阻塞：0
-当前任务：无
-下一项：T009 confirm-outline
+当前任务：T009 confirm-outline（待合并）
+下一项：T010 generate-draft（等待 T009 集成验收）
 真实模型验收：未开始
 线上验收：未开始
 
@@ -19,7 +19,7 @@
 | T006 | 处理素材获得摘要、观点和片段；包含任务、worker、轮询、基础配额 | 已完成 | T003、T005 | feat/T006-analyze-material | 已清理 | e12f1d9 | 4eb24a8 | .ai/verifications/T006.md |
 | T007 | 搜索、过滤、处理失败重试、删除失效 | 已完成 | T004、T005、T006 | feat/T007-retry-and-find | 已清理 | 6e61e4c | 98ddc74 | .ai/verifications/T007.md |
 | T008 | 选择素材生成、收藏、忽略选题并查看来源 | 已完成 | T006 | feat/T008-source-based-ideas | 已清理 | 197d15a | ce1044b | .ai/verifications/T008.md |
-| T009 | 创建文章 brief，生成、修改、确认大纲 | 待开始 | T008 | feat/T009-confirm-outline | 未创建 | 无 | 无 | 无 |
+| T009 | 创建文章 brief，生成、修改、确认大纲 | 待合并 | T008 | feat/T009-confirm-outline | `/Users/kaelen/workspace/github/linonward/content-write-confirm-outline` | 678990b | 无 | .ai/verifications/T009.md |
 | T010 | 根据确认大纲生成初稿，来源、缺口、预算和冲突处理 | 待开始 | T009 | feat/T010-generate-draft | 未创建 | 无 | 无 | 无 |
 | T011 | Markdown 编辑、自动保存、版本冲突和本地恢复 | 待开始 | T010 | feat/T011-edit-and-save | 未创建 | 无 | 无 | 无 |
 | T012 | 查看版本、恢复旧版本并生成新版本 | 待开始 | T011 | feat/T012-restore-revision | 未创建 | 无 | 无 | 无 |
@@ -42,6 +42,10 @@
 暂无已确认阻塞。
 
 ## 最近更新
+
+- 2026-10-01 21:11 CST：T009 提交 `678990b`，创建 PR #20，等待 CI 与评审；主分支集成验收尚未开始。
+
+- 2026-10-01 21:08 CST：T009 在已集成的 T008 主分支上实现文章 brief、持久大纲任务、编辑和确认；独立空库迁移、完整检查与 Playwright 浏览器流程通过。删除素材时同步清理依赖文章；验证服务和数据库已停止并清理，准备提交 PR。
 
 - 2026-10-01 19:11 CST：PR #18 合并为 `ce1044b`；主分支独立 PostgreSQL 空库迁移与完整检查通过，API 集成测试 22/22。验证数据库和 T008 worktree 已清理。
 

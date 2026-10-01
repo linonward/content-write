@@ -604,7 +604,7 @@ export function MaterialWorkspace() {
                       <AlertDialogTitle>删除素材？</AlertDialogTitle>
                       <AlertDialogDescription>
                         将删除「{selected.title}
-                        」及其全部历史版本，此操作不可恢复。
+                        」及其全部历史版本、引用它的选题和文章，此操作不可恢复。
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

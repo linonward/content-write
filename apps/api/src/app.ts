@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { articleRoutes } from "./modules/articles/routes";
 import { healthRoutes } from "./modules/health/routes";
 import { ideaRoutes } from "./modules/ideas/routes";
 import { identityRoutes } from "./modules/identity/routes";
@@ -19,6 +20,7 @@ app.route("/api", identityRoutes);
 app.route("/api", materialRoutes);
 app.route("/api", jobRoutes);
 app.route("/api", ideaRoutes);
+app.route("/api", articleRoutes);
 
 app.notFound((context) =>
   context.json(

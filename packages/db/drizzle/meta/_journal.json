@@ -50,6 +50,13 @@
       "when": 1790849833971,
       "tag": "0006_legal_blue_marvel",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1790856939706,
+      "tag": "0007_smart_mephistopheles",
+      "breakpoints": true
     }
   ]
 }

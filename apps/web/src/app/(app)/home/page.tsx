@@ -22,7 +22,7 @@ export default async function HomePage() {
         <p className={ui.stage}>写作空间</p>
         <h1 className={ui.heroTitle}>你好，{session.user.name}。</h1>
         <p className={ui.lead}>
-          你的账号已可以使用。现在可以保存、整理素材并寻找选题。
+          你的账号已可以使用。现在可以保存、整理素材，寻找选题并确认文章大纲。
         </p>
       </section>
       <section
@@ -56,9 +56,15 @@ export default async function HomePage() {
         >
           从素材找选题
         </Link>
+        <Link
+          className={`${buttonVariants({ variant: "outline" })} ml-3`}
+          href="/articles"
+        >
+          查看文章大纲
+        </Link>
       </p>
       <p className="mt-[22px] text-sm text-muted-foreground">
-        选题需要作者主动生成；文章写作流程将在后续开放。打开首页不会自动调用模型。
+        选题和大纲需要作者主动生成；初稿生成将在后续开放。打开首页不会自动调用模型。
       </p>
     </main>
   );

@@ -119,6 +119,8 @@ export const aiJobs = pgTable(
       .notNull()
       .references(() => materials.id, { onDelete: "cascade" }),
     materialVersion: integer("material_version").notNull(),
+    articleId: text("article_id"),
+    articleVersion: integer("article_version"),
     sourceCount: integer("source_count").notNull().default(1),
     kind: text("kind").notNull(),
     status: text("status").notNull().default("queued"),
@@ -232,5 +234,68 @@ export const ideaSources = pgTable(
       table.materialId,
     ),
     index("idea_sources_material_idx").on(table.materialId),
+  ],
+);
+
+export const articles = pgTable(
+  "articles",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    ideaId: text("idea_id").references(() => ideas.id, {
+      onDelete: "set null",
+    }),
+    workingTitle: text("working_title").notNull(),
+    audience: text("audience").notNull(),
+    thesis: text("thesis").notNull(),
+    sourceCount: integer("source_count").notNull(),
+    version: integer("version").notNull().default(1),
+    outline: jsonb("outline").$type<{
+      workingTitle: string;
+      audience: string;
+      thesis: string;
+      sections: {
+        heading: string;
+        purpose: string;
+        keyPoints: string[];
+        evidenceIds: string[];
+        missingEvidence: string[];
+      }[];
+    }>(),
+    outlineConfirmedAt: timestamp("outline_confirmed_at", {
+      withTimezone: true,
+    }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("articles_user_updated_idx").on(table.userId, table.updatedAt),
+    uniqueIndex("articles_user_idea_idx").on(table.userId, table.ideaId),
+  ],
+);
+
+export const articleSources = pgTable(
+  "article_sources",
+  {
+    id: text("id").primaryKey(),
+    articleId: text("article_id")
+      .notNull()
+      .references(() => articles.id, { onDelete: "cascade" }),
+    materialId: text("material_id")
+      .notNull()
+      .references(() => materials.id, { onDelete: "cascade" }),
+    materialVersion: integer("material_version").notNull(),
+  },
+  (table) => [
+    uniqueIndex("article_sources_article_material_idx").on(
+      table.articleId,
+      table.materialId,
+    ),
   ],
 );
