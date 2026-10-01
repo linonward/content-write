@@ -257,10 +257,17 @@ describe("material processing", () => {
 
   it("requires source text and reports unavailable processing mode", async () => {
     const owner = await signIn("analysis-empty");
-    const id = await material(owner, "待清空");
-    await getPool().query("UPDATE materials SET content = '' WHERE id = $1", [
-      id,
-    ]);
+    const savedLink = await app.request("/api/materials/link", {
+      method: "POST",
+      headers: { cookie: owner, origin, "content-type": "application/json" },
+      body: JSON.stringify({
+        url: "https://example.com/article",
+        fetch: false,
+      }),
+    });
+    expect(savedLink.status).toBe(201);
+    const id = ((await savedLink.json()) as { material: { id: string } })
+      .material.id;
     const emptyStatus = await app.request(`/api/materials/${id}/analysis`, {
       headers: { cookie: owner },
     });

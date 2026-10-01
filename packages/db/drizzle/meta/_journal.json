@@ -33,8 +33,15 @@
     {
       "idx": 4,
       "version": "7",
-      "when": 1790844045382,
-      "tag": "0004_early_storm",
+      "when": 1790844207403,
+      "tag": "0004_special_makkari",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790845419691,
+      "tag": "0005_acoustic_chronomancer",
       "breakpoints": true
     }
   ]
