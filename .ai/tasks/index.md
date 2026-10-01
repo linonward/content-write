@@ -1,11 +1,11 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-01 23:38 CST
-已完成：11 / 26
-待合并：1
+更新时间：2026-10-01 23:42 CST
+已完成：12 / 26
+待合并：0
 阻塞：0
-当前任务：T010 generate-draft（待合并）
-下一项：T010 合并验收后 T011 edit-and-save
+当前任务：无
+下一项：T011 edit-and-save
 真实模型验收：未开始
 线上验收：未开始
 
@@ -20,7 +20,7 @@
 | T007 | 搜索、过滤、处理失败重试、删除失效 | 已完成 | T004、T005、T006 | feat/T007-retry-and-find | 已清理 | 6e61e4c | 98ddc74 | .ai/verifications/T007.md |
 | T008 | 选择素材生成、收藏、忽略选题并查看来源 | 已完成 | T006 | feat/T008-source-based-ideas | 已清理 | 197d15a | ce1044b | .ai/verifications/T008.md |
 | T009 | 创建文章 brief，生成、修改、确认大纲 | 已完成 | T008 | feat/T009-confirm-outline | 已清理 | 678990b | 7db44e9 | .ai/verifications/T009.md |
-| T010 | 根据确认大纲生成初稿，来源、缺口、预算和冲突处理 | 待合并 | T009、T027a | feat/T010-generate-draft | `/Users/kaelen/workspace/github/linonward/content-write-generate-draft` | 见 PR | 无 | .ai/verifications/T010.md |
+| T010 | 根据确认大纲生成初稿，来源、缺口、预算和冲突处理 | 已完成 | T009、T027a | feat/T010-generate-draft | 已清理 | 0e4f738 | 16d087a | .ai/verifications/T010.md |
 | T011 | Markdown 编辑、自动保存、版本冲突和本地恢复 | 待开始 | T010 | feat/T011-edit-and-save | 未创建 | 无 | 无 | 无 |
 | T012 | 查看版本、恢复旧版本并生成新版本 | 待开始 | T011 | feat/T012-restore-revision | 未创建 | 无 | 无 | 无 |
 | T013 | AI 修改选区、差异预览、应用、拒绝、过期校验 | 待开始 | T011、T012 | feat/T013-ai-edit-selection | 未创建 | 无 | 无 | 无 |
@@ -44,6 +44,8 @@
 暂无已确认阻塞。
 
 ## 最近更新
+
+- 2026-10-01 23:42 CST：PR #28 合并为 `16d087a`；主分支独立 PostgreSQL 空库迁移 0000–0009 与完整检查通过，API 集成测试 34/34。验证数据库和 T010 worktree 已清理。T011 可以开始。
 
 - 2026-10-01 23:38 CST：T010 在 `2b52a9c` 上实现初稿生成：迁移 0009、`draft_generation` 任务、已有正文时保存候选并支持替换和丢弃、页面初稿区块。独立空库迁移 0000–0009 与完整检查通过，API 集成测试 34/34，Playwright 浏览器流程通过；顺带修复 T009 大纲生成成功提示不显示的问题。等待 PR。
 
