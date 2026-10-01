@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { recordRevision } from "@content-write/db/article-revisions";
 import {
   type ArticleSource,
   readArticleSources,
@@ -143,8 +144,8 @@ export async function completeDraftJob(
       status: applied ? "applied" : "candidate",
       mode: "mock",
     });
-    if (applied)
-      await tx
+    if (applied) {
+      const [updated] = await tx
         .update(articles)
         .set({
           title: checked.data.title,
@@ -153,7 +154,17 @@ export async function completeDraftJob(
           version: sql`${articles.version} + 1`,
           updatedAt: sql`now()`,
         })
-        .where(eq(articles.id, articleId));
+        .where(eq(articles.id, articleId))
+        .returning({ version: articles.version });
+      await recordRevision(tx, {
+        articleId,
+        userId: job.user_id,
+        version: updated.version,
+        title: checked.data.title,
+        body: checked.data.markdown,
+        source: "draft",
+      });
+    }
     await tx
       .update(aiJobs)
       .set({

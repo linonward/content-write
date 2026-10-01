@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BodyEditor } from "./body-editor";
 import { request } from "./request";
 
 type SourceLink = {
@@ -23,6 +24,7 @@ export type Candidate = {
 };
 export type DraftState = {
   version: number;
+  workingTitle: string;
   title: string | null;
   body: string | null;
   outlineConfirmedAt: string | null;
@@ -89,6 +91,7 @@ export function DraftPanel({
   blockedReason,
   sourceTitles,
   onChanged,
+  onBodySaved,
 }: {
   articleId: string;
   draft: DraftState;
@@ -98,7 +101,21 @@ export function DraftPanel({
   blockedReason: string | null;
   sourceTitles: Map<string, string>;
   onChanged: () => Promise<void>;
+  onBodySaved: (saved: {
+    version: number;
+    title: string;
+    body: string;
+  }) => void;
 }) {
+  // Before any body exists the editor starts from the working title and an empty page.
+  const server = useMemo(
+    () => ({
+      version: draft.version,
+      title: draft.title ?? draft.workingTitle,
+      body: draft.body ?? "",
+    }),
+    [draft.version, draft.title, draft.workingTitle, draft.body],
+  );
   const [jobId, setJobId] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -199,7 +216,7 @@ export function DraftPanel({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>初稿</CardTitle>
+        <CardTitle>正文与初稿</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
         {error && (
@@ -232,27 +249,29 @@ export function DraftPanel({
               ? "根据大纲生成初稿"
               : "再生成一版候选"}
         </Button>
-        {draft.body !== null ? (
-          <article className="space-y-4 rounded-lg border p-4">
+        <BodyEditor
+          articleId={articleId}
+          server={server}
+          onSaved={onBodySaved}
+          onReload={onChanged}
+        />
+        {draft.currentDraft && (
+          <div className="space-y-2 rounded-lg border p-4">
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-lg font-medium">{draft.title}</h3>
-              {draft.currentDraft?.mode === "mock" && (
+              <h3 className="font-medium">最近应用的初稿</h3>
+              {draft.currentDraft.mode === "mock" && (
                 <Badge variant="outline">mock 生成</Badge>
               )}
             </div>
-            <pre className="whitespace-pre-wrap break-words font-sans text-sm leading-7">
-              {draft.body}
-            </pre>
-            {draft.currentDraft && (
-              <Provenance
-                sourceMap={draft.currentDraft.sourceMap}
-                evidenceGaps={draft.currentDraft.evidenceGaps}
-                titles={sourceTitles}
-              />
-            )}
-          </article>
-        ) : (
-          <p className="text-sm text-muted-foreground">尚无正文。</p>
+            <p className="text-xs text-muted-foreground">
+              来源映射对应初稿生成时的文字，作者修改后可能不再一一对应。
+            </p>
+            <Provenance
+              sourceMap={draft.currentDraft.sourceMap}
+              evidenceGaps={draft.currentDraft.evidenceGaps}
+              titles={sourceTitles}
+            />
+          </div>
         )}
         {draft.candidates.length > 0 && (
           <div className="space-y-3">

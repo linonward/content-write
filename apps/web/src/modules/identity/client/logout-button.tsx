@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { clearLocalCopies } from "@/modules/articles/client/local-copy";
 import { authClient } from "@/modules/identity/client/auth-client";
 
 export function LogoutButton() {
@@ -19,6 +20,8 @@ export function LogoutButton() {
         setError("退出失败，请重试。");
         return;
       }
+      // Unsaved article text must not outlive the session on a shared browser.
+      clearLocalCopies(window.localStorage);
       router.replace("/sign-in");
       router.refresh();
     } catch {

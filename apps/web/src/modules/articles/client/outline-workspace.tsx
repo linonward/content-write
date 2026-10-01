@@ -626,6 +626,11 @@ export function OutlineWorkspace({ id }: { id: string }) {
           )
         }
         onChanged={refresh}
+        onBodySaved={(saved) =>
+          setArticle((previous) =>
+            previous ? { ...previous, ...saved } : previous,
+          )
+        }
       />
     </div>
   );

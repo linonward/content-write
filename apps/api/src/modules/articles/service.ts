@@ -1,3 +1,4 @@
+import { recordRevision } from "@content-write/db/article-revisions";
 import {
   citesOnlySourceEvidence,
   readArticleSources,
@@ -302,11 +303,20 @@ export async function applyDraft(
     if (draft.status !== "candidate")
       throw new ArticleError("draft_not_candidate");
     await repo.setDraftStatus(tx, draftId, "applied");
-    return repo.updateArticle(tx, id, {
+    const version = await repo.updateArticle(tx, id, {
       title: draft.title,
       body: draft.markdown,
       currentDraftId: draftId,
     });
+    await recordRevision(tx, {
+      articleId: id,
+      userId,
+      version,
+      title: draft.title,
+      body: draft.markdown,
+      source: "draft",
+    });
+    return version;
   });
 }
 
@@ -322,5 +332,31 @@ export async function discardDraft(
     if (draft.status !== "candidate")
       throw new ArticleError("draft_not_candidate");
     await repo.setDraftStatus(tx, draftId, "discarded");
+  });
+}
+
+/**
+ * Saves the author's title and body as a new version with history. Unchanged
+ * text is a no-op so repeated autosaves do not grow history.
+ */
+export async function saveBody(
+  userId: string,
+  id: string,
+  expectedVersion: number,
+  input: { title: string; body: string },
+) {
+  return getDb().transaction(async (tx) => {
+    const article = await lockVersion(tx, userId, id, expectedVersion);
+    if (article.title === input.title && article.body === input.body)
+      return article.version;
+    const version = await repo.updateArticle(tx, id, input);
+    await recordRevision(tx, {
+      articleId: id,
+      userId,
+      version,
+      ...input,
+      source: "edit",
+    });
+    return version;
   });
 }

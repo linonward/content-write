@@ -16,6 +16,7 @@ import {
   createArticle,
   discardDraft,
   getArticle,
+  saveBody,
   saveOutline,
   startDraftGeneration,
   startOutlineGeneration,
@@ -51,6 +52,13 @@ const outlineInput = z.strictObject({
   outline: outlineSchema,
 });
 const versionInput = z.strictObject({ expectedVersion: z.int().positive() });
+const bodyInput = z.strictObject({
+  expectedVersion: z.int().positive(),
+  title: text(200),
+  // Length is checked separately so an oversized body gets 413, not 422.
+  body: z.string(),
+});
+const MAX_BODY_CHARS = 50_000;
 const createInput = z.strictObject({ ideaId: z.string().uuid() });
 export const articleRoutes = new Hono<AuthedEnv>();
 
@@ -291,5 +299,42 @@ articleRoutes.post("/articles/:id/drafts/:draftId/discard", async (context) => {
     return context.body(null, 204);
   } catch (error) {
     return articleFailure(error);
+  }
+});
+articleRoutes.put("/articles/:id/body", async (context) => {
+  // 50,000 characters may take up to ~200 KB as UTF-8 JSON.
+  const body = await readJson(context.req.raw, 262_144);
+  if (body.status === "large")
+    return apiError(
+      "ARTICLE_BODY_TOO_LARGE",
+      "正文不能超过 50,000 字符。",
+      413,
+    );
+  if (body.status === "invalid")
+    return apiError("INVALID_JSON", "请求内容不是有效 JSON。", 400);
+  const parsed = bodyInput.safeParse(body.value);
+  if (!parsed.success)
+    return apiError(
+      "INVALID_ARTICLE_BODY",
+      "标题不能为空且不超过 200 字。",
+      422,
+    );
+  if (parsed.data.body.length > MAX_BODY_CHARS)
+    return apiError(
+      "ARTICLE_BODY_TOO_LARGE",
+      "正文不能超过 50,000 字符。",
+      413,
+    );
+  const { expectedVersion, ...input } = parsed.data;
+  try {
+    const version = await saveBody(
+      context.get("userId"),
+      context.req.param("id"),
+      expectedVersion,
+      input,
+    );
+    return context.json({ version });
+  } catch (error) {
+    return articleFailure(error, "保存");
   }
 });

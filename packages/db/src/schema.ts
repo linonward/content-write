@@ -369,3 +369,30 @@ export const articleDrafts = pgTable(
     ),
   ],
 );
+
+// Every body or title change, including drafts that became the body. Restoring arrives with T012.
+export const articleRevisions = pgTable(
+  "article_revisions",
+  {
+    id: text("id").primaryKey(),
+    articleId: text("article_id")
+      .notNull()
+      .references(() => articles.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    version: integer("version").notNull(),
+    title: text("title").notNull(),
+    body: text("body").notNull(),
+    source: text("source").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("article_revisions_article_version_idx").on(
+      table.articleId,
+      table.version,
+    ),
+  ],
+);
