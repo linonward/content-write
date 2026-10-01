@@ -14,7 +14,7 @@ pnpm dev
 
 `pnpm dev` 通过 Turborepo 启动 Web（3000）和 API（3001）。另一个终端运行 `pnpm worker:dev`。素材整理需要常驻 worker：API 持久化任务并返回 202，worker 从 PostgreSQL 领取任务，页面轮询本人任务。`AI_MODE=mock` 使用确定性来源摘录，仅用于开发验证；真实模型在 T021 接入。其他模式当前返回 503，不会伪称已完成真实分析。
 
-`AI_DAILY_JOB_LIMIT` 默认每用户每日 20 个逻辑任务（按 Asia/Shanghai 自然日），`AI_USER_CONCURRENCY` 默认每用户同时 2 个任务。任务截止时间 5 分钟，租约 30 秒；失败或租约失效最多尝试 3 次。任务重试入口和搜索过滤属于 T007。
+`AI_DAILY_JOB_LIMIT` 默认每用户每日 20 个逻辑任务（按 Asia/Shanghai 自然日），`AI_USER_CONCURRENCY` 默认每用户同时 2 个任务。任务截止时间 5 分钟，租约 30 秒；失败或租约失效最多尝试 3 次。素材箱支持搜索标题、正文和来源链接，按类型、当前处理状态与完整标签过滤。失败任务可从素材详情重试；重试创建新逻辑任务，仍受每日和并发限制。删除素材会级联清理历史、分析、任务与运行记录。
 
 Web 只负责页面和会话页面渲染，不提供 API 路由。浏览器直接请求 `NEXT_PUBLIC_API_URL` 指向的 Hono API；Web 服务端用 `API_INTERNAL_URL` 查询当前会话。API 使用 `WEB_ORIGIN` 限制浏览器跨域来源，`BETTER_AUTH_URL` 指向 API 地址。部署时分别配置这些地址，并确保认证 cookie 在 Web 与 API 域名之间可用。`GET /api/healthz` 检查 API 进程，`GET /api/readyz` 检查数据库连接；数据库不可用时后者返回 503。
 

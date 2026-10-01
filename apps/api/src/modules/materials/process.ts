@@ -23,6 +23,7 @@ export async function startAnalysis(
   userId: string,
   materialId: string,
   key: string,
+  expectedVersion?: number,
 ): Promise<StartResult> {
   if (process.env.AI_MODE !== "mock") return { status: "unavailable" };
   const client = await getPool().connect();
@@ -39,6 +40,13 @@ export async function startAnalysis(
     if (!item.rows[0]) {
       await client.query("ROLLBACK");
       return { status: "missing" };
+    }
+    if (
+      expectedVersion !== undefined &&
+      item.rows[0].current_version !== expectedVersion
+    ) {
+      await client.query("ROLLBACK");
+      return { status: "conflict" };
     }
     if (!item.rows[0].content.trim()) {
       await client.query("ROLLBACK");

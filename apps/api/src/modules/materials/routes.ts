@@ -25,6 +25,14 @@ const linkInput = z.strictObject({
   url: z.string().trim().min(1).max(2048),
   fetch: z.boolean().optional(),
 });
+const listInput = z.strictObject({
+  q: z.string().trim().max(100).optional(),
+  kind: z.enum(["text", "markdown", "link"]).optional(),
+  status: z
+    .enum(["unprocessed", "processing", "failed", "analyzed"])
+    .optional(),
+  tag: z.string().trim().min(1).max(50).optional(),
+});
 
 export const materialRoutes = new Hono<{
   Variables: { materialUserId: string };
@@ -91,9 +99,13 @@ materialRoutes.use("/materials", async (context, next) => {
 });
 
 materialRoutes.get("/materials", async (context) => {
-  return context.json({
-    materials: await listMaterials(context.get("materialUserId")),
-  });
+  const search = new URL(context.req.url).searchParams;
+  const parsed = listInput.safeParse(Object.fromEntries(search));
+  if (!parsed.success)
+    return error("INVALID_FILTER", "搜索或过滤条件无效。", 422);
+  return context.json(
+    await listMaterials(context.get("materialUserId"), parsed.data),
+  );
 });
 materialRoutes.post("/materials", async (context) => {
   const body = await readBody(context.req.raw);
@@ -288,6 +300,13 @@ jobRoutes.use("/jobs/*", async (context, next) => {
   });
   if (!session) return error("UNAUTHORIZED", "请先登录。", 401);
   context.set("jobUserId", session.user.id);
+  if (
+    !["GET", "HEAD", "OPTIONS"].includes(context.req.method) &&
+    context.req.header("origin") !==
+      (process.env.WEB_ORIGIN ?? "http://localhost:3000")
+  ) {
+    return error("INVALID_ORIGIN", "请求来源不受信任。", 403);
+  }
   await next();
 });
 jobRoutes.get("/jobs/:id", async (context) => {
@@ -307,4 +326,47 @@ jobRoutes.get("/jobs/:id", async (context) => {
           : null,
     },
   });
+});
+jobRoutes.post("/jobs/:id/retry", async (context) => {
+  const key = context.req.header("idempotency-key");
+  if (!key || key.length > 128 || !/^[\x21-\x7e]+$/.test(key))
+    return error(
+      "INVALID_IDEMPOTENCY_KEY",
+      "请提供有效的 Idempotency-Key。",
+      422,
+    );
+  const job = await getJob(context.get("jobUserId"), context.req.param("id"));
+  if (!job) return error("JOB_NOT_FOUND", "任务不存在。", 404);
+  if (job.status !== "failed")
+    return error("JOB_NOT_RETRYABLE", "只有处理失败的任务可以重试。", 409);
+  const result = await startAnalysis(
+    context.get("jobUserId"),
+    job.material_id,
+    key,
+    job.material_version,
+  );
+  if (result.status === "missing")
+    return error("MATERIAL_NOT_FOUND", "素材不存在。", 404);
+  if (result.status === "conflict")
+    return error(
+      "MATERIAL_VERSION_CONFLICT",
+      "素材版本已变化，请刷新后重新处理。",
+      409,
+    );
+  if (result.status === "no_content")
+    return error("MATERIAL_CONTENT_REQUIRED", "请先粘贴正文。", 422);
+  if (result.status === "already_done")
+    return error("ALREADY_ANALYZED", "当前版本已有整理结果。", 409);
+  if (result.status === "quota")
+    return error("AI_DAILY_LIMIT", "今日处理次数已用完。", 429);
+  if (result.status === "concurrency")
+    return error("AI_CONCURRENCY_LIMIT", "同时处理的任务已达上限。", 429);
+  if (result.status === "unavailable")
+    return error("AI_NOT_CONFIGURED", "当前尚未配置可用模型服务。", 503);
+  if (result.status !== "created" && result.status !== "existing")
+    return error("INTERNAL_ERROR", "任务创建失败。", 503);
+  return context.json(
+    { jobId: result.jobId, status: "queued", mode: "mock" },
+    202,
+  );
 });

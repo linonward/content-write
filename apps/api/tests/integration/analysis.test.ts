@@ -291,4 +291,138 @@ describe("material processing", () => {
       else process.env.AI_MODE = prior;
     }
   });
+
+  it("retries only the owner's failed current-version job with a trusted origin and idempotency key", async () => {
+    const owner = await signIn("retry-owner");
+    const other = await signIn("retry-other");
+    const id = await material(owner);
+    const started = await startRequest(id, owner);
+    const failedId = ((await started.json()) as { jobId: string }).jobId;
+    await getPool().query(
+      "UPDATE ai_jobs SET status = 'failed', error_code = 'ANALYSIS_FAILED' WHERE id = $1",
+      [failedId],
+    );
+    const retry = (cookie: string, key: string, source = origin) =>
+      app.request(`/api/jobs/${failedId}/retry`, {
+        method: "POST",
+        headers: { cookie, origin: source, "idempotency-key": key },
+      });
+    expect((await retry(other, randomUUID())).status).toBe(404);
+    expect(
+      (await retry(owner, randomUUID(), "https://untrusted.example")).status,
+    ).toBe(403);
+    const key = randomUUID();
+    const first = await retry(owner, key);
+    expect(first.status).toBe(202);
+    const nextId = ((await first.json()) as { jobId: string }).jobId;
+    expect(nextId).not.toBe(failedId);
+    expect(
+      ((await (await retry(owner, key)).json()) as { jobId: string }).jobId,
+    ).toBe(nextId);
+    const changed = await app.request(`/api/materials/${id}`, {
+      method: "PATCH",
+      headers: { cookie: owner, origin, "content-type": "application/json" },
+      body: JSON.stringify({
+        title: "新版",
+        content: "新版正文",
+        expectedVersion: 1,
+      }),
+    });
+    expect(changed.status).toBe(200);
+    expect((await retry(owner, randomUUID())).status).toBe(409);
+  });
+
+  it("searches and filters only current owned analysis; deleting removes jobs, analyses and runs", async () => {
+    const owner = await signIn("find-owner");
+    const other = await signIn("find-other");
+    const id = await material(owner, "独特的正文检索词");
+    await material(other, "独特的正文检索词");
+    const query = async (search: string, cookie = owner) =>
+      app.request(`/api/materials?${search}`, { headers: { cookie } });
+    const found = await query(
+      "q=独特的正文检索词&kind=text&status=unprocessed",
+    );
+    expect(found.status).toBe(200);
+    expect(
+      ((await found.json()) as { materials: { id: string }[] }).materials.map(
+        (item) => item.id,
+      ),
+    ).toEqual([id]);
+    expect((await query("status=bogus")).status).toBe(422);
+    const started = await startRequest(id, owner);
+    const jobId = ((await started.json()) as { jobId: string }).jobId;
+    for (let attempt = 0; attempt < 10; attempt++) {
+      const state = await getPool().query<{ status: string }>(
+        "SELECT status FROM ai_jobs WHERE id = $1",
+        [jobId],
+      );
+      if (state.rows[0]?.status === "succeeded") break;
+      await processOneJob();
+    }
+    await getPool().query(
+      "UPDATE material_analyses SET result = jsonb_set(result, '{tags}', '[\"素材\"]'::jsonb) WHERE material_id = $1",
+      [id],
+    );
+    const analyzed = await query("status=analyzed&tag=素材");
+    expect(
+      (
+        (await analyzed.json()) as { materials: { id: string }[] }
+      ).materials.some((item) => item.id === id),
+    ).toBe(true);
+    const deleteResponse = await app.request(`/api/materials/${id}`, {
+      method: "DELETE",
+      headers: { cookie: owner, origin },
+    });
+    expect(deleteResponse.status).toBe(204);
+    expect(
+      (await app.request(`/api/jobs/${jobId}`, { headers: { cookie: owner } }))
+        .status,
+    ).toBe(404);
+    expect(
+      await getDb().select().from(aiJobs).where(eq(aiJobs.materialId, id)),
+    ).toHaveLength(0);
+    expect(
+      await getDb()
+        .select()
+        .from(materialAnalyses)
+        .where(eq(materialAnalyses.materialId, id)),
+    ).toHaveLength(0);
+    expect(
+      await getDb().select().from(aiRuns).where(eq(aiRuns.jobId, jobId)),
+    ).toHaveLength(0);
+  });
+
+  it("invalidates a claimed job when its source is deleted", async () => {
+    const owner = await signIn("delete-running-owner");
+    const id = await material(owner);
+    const started = await startRequest(id, owner);
+    const jobId = ((await started.json()) as { jobId: string }).jobId;
+    let claimed = await claimJob();
+    while (claimed && claimed.id !== jobId) {
+      const source = await getPool().query<{ content: string }>(
+        "SELECT content FROM materials WHERE id = $1",
+        [claimed.material_id],
+      );
+      await completeJob(
+        claimed,
+        createMockAnalysis(source.rows[0]?.content ?? ""),
+        1,
+      );
+      claimed = await claimJob();
+    }
+    expect(claimed?.id).toBe(jobId);
+    const removed = await app.request(`/api/materials/${id}`, {
+      method: "DELETE",
+      headers: { cookie: owner, origin },
+    });
+    expect(removed.status).toBe(204);
+    if (claimed)
+      expect(
+        await completeJob(
+          claimed,
+          createMockAnalysis("🚀作者认为应该先验证。"),
+          1,
+        ),
+      ).toBe("lost");
+  });
 });
