@@ -35,7 +35,7 @@
 | T022 | 完整 E2E、安全与故障回归、10 组质量评估 | 待开始 | T020、T021；授权素材 | feat/T022-quality-and-regression | 未创建 | 无 | 无 | 无 |
 | T023 | 生产镜像、完整 CI、部署、HTTPS、迁移和备份恢复 | 待开始 | T022；环境授权 | feat/T023-staging-delivery | 未创建 | 无 | 无 | 无 |
 | T024 | 试用交付、七天实验、说明和最终验收 | 待开始 | T023 | feat/T024-trial-handoff | 未创建 | 无 | 无 | 无 |
-| T025 | Web/API/worker 分离与 Turborepo 编排 | 待合并 | T001 | chore/T025-turborepo-hono | content-write-turborepo-hono | 待提交 | 无 | .ai/verifications/T025.md |
+| T025 | Web/API/worker 分离与 Turborepo 编排 | 待合并 | T001 | chore/T025-turborepo-hono | content-write-turborepo-hono | 638fa04 | 无 | .ai/verifications/T025.md |
 
 ## 当前阻塞
 
@@ -46,4 +46,5 @@ T002 已在另一 worktree 有未提交改动；本分支从 `origin/main` 独�
 - 2026-10-01 13:44 CST：启动 T001，计划在平级 worktree 实现基础工程。
 - 2026-10-01 13:53 CST：T001 已合并并完成主分支检查；记录 `next typegen` 和数据库健康等待修正。
 
-- 2026-10-01 15:00 CST：按用户要求启动 T025；Web、Hono API、worker 分离并完成初步验证，待提交 PR。
+- 2026-10-01 15:00 CST：按用户要求启动 T025；Web、Hono API、worker 分离并验证。
+- 2026-10-01 15:03 CST：提交 `638fa04`，创建 PR #5，进入待合并。
