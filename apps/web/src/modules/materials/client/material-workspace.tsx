@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
@@ -43,8 +44,10 @@ type Material = {
   id: string;
   title: string;
   content: string;
-  kind: "text" | "markdown";
+  kind: "text" | "markdown" | "link";
   sourceFilename: string | null;
+  sourceUrl: string | null;
+  fetchStatus: "fetched" | "failed" | "disabled" | "manual" | null;
   currentVersion: number;
   createdAt: string;
   updatedAt: string;
@@ -86,6 +89,8 @@ export function MaterialWorkspace() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [remoteFetchEnabled, setRemoteFetchEnabled] = useState(false);
+  const [fetchRequested, setFetchRequested] = useState(true);
 
   const refresh = useCallback(async () => {
     const result = await api<{ materials: Summary[] }>("");
@@ -99,6 +104,12 @@ export function MaterialWorkspace() {
       )
       .finally(() => setLoading(false));
   }, [refresh]);
+
+  useEffect(() => {
+    api<{ remoteFetchEnabled: boolean }>("/link-capabilities")
+      .then((result) => setRemoteFetchEnabled(result.remoteFetchEnabled))
+      .catch(() => setRemoteFetchEnabled(false));
+  }, []);
 
   async function open(id: string) {
     setError("");
@@ -219,6 +230,57 @@ export function MaterialWorkspace() {
     }
   }
 
+  async function saveLink(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    const rawUrl = String(new FormData(formElement).get("url") ?? "").trim();
+    let url: URL;
+    try {
+      url = new URL(rawUrl);
+      if (
+        !(["http:", "https:"] as string[]).includes(url.protocol) ||
+        url.username ||
+        url.password ||
+        (url.port && !["80", "443"].includes(url.port))
+      )
+        throw new Error();
+    } catch {
+      setError("请输入不含账号密码、使用 80/443 端口的 HTTP 或 HTTPS 链接。");
+      return;
+    }
+    setPending(true);
+    setError("");
+    setNotice("");
+    try {
+      const result = await api<{ material: Material }>("/link", {
+        method: "POST",
+        body: JSON.stringify({
+          url: url.href,
+          fetch: remoteFetchEnabled && fetchRequested,
+        }),
+      });
+      setSelected(result.material);
+      setTitle(result.material.title);
+      setContent(result.material.content);
+      setMode("view");
+      formElement.reset();
+      await refresh();
+      setNotice(
+        result.material.fetchStatus === "fetched"
+          ? "网页文字已保存为素材，请核对原文和来源。"
+          : result.material.fetchStatus === "failed"
+            ? "链接已保存，抓取失败。可粘贴正文继续使用。"
+            : "链接已保存。可粘贴正文继续使用。",
+      );
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "保存链接失败，请重试。",
+      );
+    } finally {
+      setPending(false);
+    }
+  }
+
   async function remove() {
     if (!selected) return;
     setPending(true);
@@ -278,8 +340,12 @@ export function MaterialWorkspace() {
                     <span className="grid min-w-0 gap-1.5">
                       <strong className="truncate">{item.title}</strong>
                       <span className="text-xs text-muted-foreground">
-                        {item.sourceFilename ? "文件导入" : "文字"} · 版本{" "}
-                        {item.currentVersion} ·{" "}
+                        {item.kind === "link"
+                          ? "链接"
+                          : item.sourceFilename
+                            ? "文件导入"
+                            : "文字"}{" "}
+                        · 版本 {item.currentVersion} ·{" "}
                         {new Date(item.updatedAt).toLocaleDateString("zh-CN")}
                       </span>
                     </span>
@@ -334,9 +400,44 @@ export function MaterialWorkspace() {
                   {selected.kind === "markdown" ? "Markdown" : "纯文本"}
                 </p>
               )}
-              <div className="mt-7 whitespace-pre-wrap wrap-anywhere leading-[1.8]">
-                {selected.content}
-              </div>
+              {selected.sourceUrl && (
+                <p className="mt-2 text-xs text-muted-foreground wrap-anywhere">
+                  来源链接：
+                  <a
+                    className="text-primary underline"
+                    href={selected.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {selected.sourceUrl}
+                  </a>
+                  {selected.fetchStatus && (
+                    <Badge variant="secondary" className="ml-2">
+                      {selected.fetchStatus === "fetched"
+                        ? "已抓取文字"
+                        : selected.fetchStatus === "manual"
+                          ? "手动粘贴"
+                          : selected.fetchStatus === "failed"
+                            ? "抓取失败"
+                            : "未抓取"}
+                    </Badge>
+                  )}
+                </p>
+              )}
+              {selected.content ? (
+                <div className="mt-7 whitespace-pre-wrap wrap-anywhere leading-[1.8]">
+                  {selected.content}
+                </div>
+              ) : selected.kind === "link" ? (
+                <Empty className="mt-6">
+                  <EmptyHeader>
+                    <EmptyTitle>暂无正文</EmptyTitle>
+                    <EmptyDescription>
+                      可编辑素材并粘贴网页正文；不会根据链接编造内容。
+                    </EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
+              ) : null}
               <div className="mt-6 flex items-center gap-3">
                 <Button
                   type="button"
@@ -345,7 +446,9 @@ export function MaterialWorkspace() {
                     setNotice("");
                   }}
                 >
-                  编辑
+                  {selected.kind === "link" && !selected.content
+                    ? "粘贴正文"
+                    : "编辑"}
                 </Button>
                 <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                   <AlertDialogTrigger
@@ -392,7 +495,11 @@ export function MaterialWorkspace() {
                   />
                 </Field>
                 <Field>
-                  <FieldLabel htmlFor="material-content">正文</FieldLabel>
+                  <FieldLabel htmlFor="material-content">
+                    {selected?.kind === "link" && !selected.content
+                      ? "粘贴正文"
+                      : "正文"}
+                  </FieldLabel>
                   <Textarea
                     id="material-content"
                     value={content}
@@ -454,6 +561,50 @@ export function MaterialWorkspace() {
                     disabled={pending}
                   >
                     {pending ? "导入中…" : "导入文件"}
+                  </Button>
+                </FieldGroup>
+              </form>
+              <Separator className="my-7" />
+              <form onSubmit={(event) => void saveLink(event)}>
+                <FieldGroup>
+                  <h3 className="text-lg font-medium">保存网页链接</h3>
+                  <Field>
+                    <FieldLabel htmlFor="material-url">公开网页 URL</FieldLabel>
+                    <Input
+                      id="material-url"
+                      name="url"
+                      type="url"
+                      placeholder="https://example.com/article"
+                      maxLength={2048}
+                      required
+                    />
+                    <FieldDescription>
+                      仅支持 HTTP/HTTPS 公网地址。抓取失败时仍会保存链接。
+                    </FieldDescription>
+                  </Field>
+                  {remoteFetchEnabled ? (
+                    <Field orientation="horizontal">
+                      <Switch
+                        id="material-fetch"
+                        checked={fetchRequested}
+                        onCheckedChange={setFetchRequested}
+                      />
+                      <FieldLabel htmlFor="material-fetch">
+                        尝试抓取公开网页文字
+                      </FieldLabel>
+                    </Field>
+                  ) : (
+                    <FieldDescription>
+                      此环境未开启远程抓取；保存后可粘贴正文。
+                    </FieldDescription>
+                  )}
+                  <Button
+                    variant="outline"
+                    className="justify-self-start"
+                    type="submit"
+                    disabled={pending}
+                  >
+                    {pending ? "保存中…" : "保存链接"}
                   </Button>
                 </FieldGroup>
               </form>
