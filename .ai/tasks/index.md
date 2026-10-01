@@ -12,7 +12,7 @@
 | ID | 用户结果 | 状态 | 依赖 | 分支 | worktree | 实现 SHA | 合并 SHA | 证据 |
 |---|---|---|---|---|---|---|---|---|
 | T001 | 基础工程、数据库、健康页、检查命令、文档、看板、CI 基线 | 已完成 | 无 | chore/T001-bootstrap | 已清理 | 0751508 | 7d669a9 | .ai/verifications/T001.md |
-| T002 | 邀请账号登录、退出、保护页面和身份隔离 | 待合并 | T001 | feat/T002-account-access | ../content-write-account-access | 见 PR | 无 | .ai/verifications/T002.md |
+| T002 | 邀请账号登录、退出、保护页面和身份隔离 | 待合并 | T001 | feat/T002-account-access | ../content-write-account-access | a0568a5 | 无 | .ai/verifications/T002.md |
 | T003 | 保存、查看、编辑、删除文字素材，版本与权限完整 | 待开始 | T002 | feat/T003-capture-text | 未创建 | 无 | 无 | 无 |
 | T004 | 上传 Markdown，解析、限制、持久化和失败反馈 | 待开始 | T003 | feat/T004-import-markdown | 未创建 | 无 | 无 | 无 |
 | T005 | 保存 URL、安全抓取、失败粘贴正文与开关 | 待开始 | T003 | feat/T005-capture-link | 未创建 | 无 | 无 | 无 |
