@@ -1,10 +1,10 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-02 01:30 CST
+更新时间：2026-10-02 01:38 CST
 已完成：14 / 30（T021 已取消）
 待合并：0
 阻塞：0
-当前任务：无
+当前任务：T028 deepseek-provider（开发中）
 下一项：T028 deepseek-provider（产品方向 PR 合并后）；T029 另需新方向设计更新合并
 真实模型验收：未开始
 线上验收：未开始
@@ -38,7 +38,7 @@
 | T025 | Web/API/worker 分离与 Turborepo 编排 | 已完成 | T001、T002 | chore/T025-turborepo-hono | 已清理 | 638fa04 | 8ec3dfc | .ai/verifications/T025.md |
 | T026 | 任务额度账本、用量保留、任务类型隔离、API 共享辅助与 worker 失败分类 | 已完成 | T009 | chore/T026-ai-jobs-hardening | 已清理 | 260960e | bf5100c | .ai/verifications/T026.md |
 | T027 | API 按 route/service/repository 分层，数据访问收敛到 Drizzle；用户行为不变 | T027a 已完成；b/c 待开始 | T026；T027a 先于 T010 | refactor/T027a-articles-layering | 已清理 | 11180c1 | d6acd92 | .ai/verifications/T027.md |
-| T028 | DeepSeek 真实模型接入，现有整理、选题、大纲、初稿真实调用与用量记录 | 待开始 | T026；凭证 | feat/T028-deepseek-provider | 未创建 | 无 | 无 | 无 |
+| T028 | DeepSeek 真实模型接入，现有整理、选题、大纲、初稿真实调用与用量记录 | 开发中 | T026；凭证 | feat/T028-deepseek-provider | `/Users/kaelen/workspace/github/linonward/content-write-deepseek-provider` | 无 | 无 | 无 |
 | T029 | 参考文章与拆解：保存与抓取、拆解任务、`/breakdowns`、删除清除、10 篇质量评估 | 待开始 | T028；新方向设计更新 | feat/T029-reference-breakdown | 未创建 | 无 | 无 | 无 |
 | T030 | 按框架写：用框架创建文章、槽位大纲、框架标签、参考文章不作证据 | 待开始 | T029 | feat/T030-framework-outline | 未创建 | 无 | 无 | 无 |
 | T031 | 本人公众号草稿箱：只创建草稿、结果待确认、版本落后提示 | 待开始 | T017；公众号凭证与固定出口 IP | feat/T031-wechat-draft | 未创建 | 无 | 无 | 无 |

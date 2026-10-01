@@ -68,6 +68,13 @@ T012 新增：
 - `GET /api/articles/:id/revisions/:version`：单个历史版本，含标题和正文；不存在或跨用户 404 `REVISION_NOT_FOUND`（文章不属于本人时也返回 404）。
 - `POST /api/articles/:id/restore`：携带 `expectedVersion` 与 `revision`，需可信 Origin。把该版本的标题和正文作为新版本保存，版本加一，同一事务写入 `source: "restore"`、`restoredFrom` 的历史；已有历史不修改不删除。版本冲突 409，不存在的历史版本 404，与当前正文一致时返回当前版本不写历史。迁移 0011 为 `article_revisions` 增加 `restored_from`。
 
+T028 新增：
+
+- `GET /api/ai/settings`：返回 `{mode, provider, consentRequired}`；`mode` 为 `mock`、`deepseek` 或 null（未配置或缺少 Key）。
+- `POST /api/ai/consent`：需会话与可信 Origin，记录本人对当前模型服务的确认并返回最新设置；无需确认的模式返回 409。
+- 生成类接口（`/api/materials/:id/process`、`/api/jobs/:id/retry`、`/api/ideas/generate`、`/api/articles/:id/outline/generate`、`/api/articles/:id/draft/generate`）在 DeepSeek 模式且本人未确认时返回 428 `AI_CONSENT_REQUIRED`。
+- 202 响应的 `mode`、可用性字段旁的 `aiMode`，以及选题、初稿结果的 `mode` 反映实际生成模式（`mock` 或 `deepseek`）。
+
 2026-10-02 规划（尚未实现，接口在对应任务完成后才算可用）：
 
 - T029：`GET/POST /api/breakdowns`、`GET/PATCH/DELETE /api/breakdowns/:id`、`POST /api/breakdowns/:id/process`（202 与 jobId，复用 `/api/jobs/:id` 轮询与额度）。

@@ -162,8 +162,21 @@ export const aiRuns = pgTable("ai_runs", {
   durationMs: integer("duration_ms").notNull(),
   inputTokens: integer("input_tokens"),
   outputTokens: integer("output_tokens"),
+  // Thinking tokens are part of output_tokens; kept separately to see what reasoning costs.
+  reasoningTokens: integer("reasoning_tokens"),
   estimatedCost: text("estimated_cost"),
   createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// Records that the author accepted sending materials to a real model provider (product 9.3).
+export const aiConsents = pgTable("ai_consents", {
+  userId: text("user_id")
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  provider: text("provider").notNull(),
+  consentedAt: timestamp("consented_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
 });

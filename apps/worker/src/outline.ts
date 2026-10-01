@@ -26,6 +26,8 @@ export type OutlineSource = {
   title: string;
   summary: string;
   evidenceIds: string[];
+  /** Span quotes for model prompts; validation only needs the ids. */
+  evidence?: { id: string; quote: string }[];
 };
 export type Brief = Pick<Outline, "workingTitle" | "audience" | "thesis">;
 

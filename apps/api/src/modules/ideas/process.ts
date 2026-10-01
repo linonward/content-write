@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { fromClient, getPool } from "@content-write/db/client";
-import { aiAvailable } from "../../config";
+import { aiAvailable, aiMode } from "../../config";
 import {
   enqueueJob,
   findIdempotentJob,
@@ -40,7 +40,7 @@ export async function startIdeaGeneration(
     const inputHash = hashInput({
       kind: "idea_generation",
       sources,
-      mode: "mock",
+      mode: aiMode(),
     });
     const prior = await findIdempotentJob(db, userId, key, inputHash);
     if (prior) {

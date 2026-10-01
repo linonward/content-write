@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { webOrigin } from "./config";
 import { apiError } from "./http";
-import { jobRoutes } from "./modules/ai-jobs/routes";
+import { aiRoutes, jobRoutes } from "./modules/ai-jobs/routes";
 import { articleRoutes } from "./modules/articles/routes";
 import { healthRoutes } from "./modules/health/routes";
 import { ideaRoutes } from "./modules/ideas/routes";
@@ -22,6 +22,7 @@ app.route("/api", healthRoutes);
 app.route("/api", identityRoutes);
 app.route("/api", materialRoutes);
 app.route("/api", jobRoutes);
+app.route("/api", aiRoutes);
 app.route("/api", ideaRoutes);
 app.route("/api", articleRoutes);
 

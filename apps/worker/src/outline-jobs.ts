@@ -7,6 +7,7 @@ import {
 import { type Executor, getDb } from "@content-write/db/client";
 import { aiJobs, aiRuns, articles } from "@content-write/db/schema";
 import { and, eq, gt, sql } from "drizzle-orm";
+import type { RunMeta } from "./ai/generate";
 import type { Claimed } from "./jobs";
 import {
   type Brief,
@@ -14,6 +15,7 @@ import {
   type OutlineSource,
   validateOutline,
 } from "./outline";
+import { mockRun, runUsage } from "./runs";
 
 function toOutlineSources(sources: ArticleSource[]): OutlineSource[] {
   return sources.map((source) => ({
@@ -21,6 +23,7 @@ function toOutlineSources(sources: ArticleSource[]): OutlineSource[] {
     title: source.title ?? "",
     summary: source.summary ?? "",
     evidenceIds: source.evidenceIds,
+    evidence: source.evidence,
   }));
 }
 
@@ -80,6 +83,7 @@ export async function completeOutlineJob(
   job: Claimed,
   output: Outline,
   durationMs: number,
+  meta: RunMeta = mockRun,
 ) {
   const articleId = job.article_id;
   if (!articleId) throw new Error("Outline job without an article");
@@ -140,7 +144,7 @@ export async function completeOutlineJob(
       id: randomUUID(),
       jobId: job.id,
       userId: job.user_id,
-      mode: "mock",
+      ...runUsage(meta),
       durationMs: Math.max(0, Math.round(durationMs)),
     });
     return "succeeded" as const;

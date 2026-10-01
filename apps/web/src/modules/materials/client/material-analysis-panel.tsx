@@ -5,6 +5,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AiConsentNotice } from "@/modules/ai/client/ai-consent-notice";
+import { type AiMode, modeNote } from "@/modules/ai/client/ai-mode";
 
 type Analysis = {
   summary: string;
@@ -20,6 +22,7 @@ type Analysis = {
 type AnalysisResponse = {
   currentVersion: number;
   processingAvailable: boolean;
+  aiMode: AiMode;
   hasContent: boolean;
   job: { id: string; status: string } | null;
   analysis: { materialVersion: number; mode: string; result: Analysis } | null;
@@ -61,6 +64,7 @@ export function MaterialAnalysisPanel({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [processingAvailable, setProcessingAvailable] = useState(false);
+  const [aiMode, setAiMode] = useState<AiMode>(null);
   const [hasContent, setHasContent] = useState(false);
   const [starting, setStarting] = useState(false);
 
@@ -80,6 +84,7 @@ export function MaterialAnalysisPanel({
             : null,
         );
         setProcessingAvailable(response.processingAvailable);
+        setAiMode(response.aiMode);
         setHasContent(response.hasContent);
         if (response.job && ["queued", "running"].includes(response.job.status))
           setJobId(response.job.id);
@@ -175,10 +180,9 @@ export function MaterialAnalysisPanel({
       <CardContent className="space-y-5">
         <p className="text-sm text-muted-foreground">
           AI 整理仅归纳来源，不代表事实已核实。
-          {processingAvailable
-            ? "当前使用确定性 mock，结果不计入真实模型指标。"
-            : "当前未配置处理服务。"}
+          {processingAvailable ? modeNote(aiMode) : "当前未配置处理服务。"}
         </p>
+        <AiConsentNotice />
         {error && (
           <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
