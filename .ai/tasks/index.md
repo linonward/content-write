@@ -14,7 +14,7 @@
 | T001 | 基础工程、数据库、健康页、检查命令、文档、看板、CI 基线 | 已完成 | 无 | chore/T001-bootstrap | 已清理 | 0751508 | 7d669a9 | .ai/verifications/T001.md |
 | T002 | 邀请账号登录、退出、保护页面和身份隔离 | 已完成 | T001 | feat/T002-account-access | 已清理 | a0568a5 | e9d5b9c | .ai/verifications/T002.md |
 | T003 | 保存、查看、编辑、删除文字素材，版本与权限完整 | 已完成 | T002 | feat/T003-capture-text | 已清理 | ee2dcdc | af5e587 | .ai/verifications/T003.md |
-| T004 | 上传 Markdown，解析、限制、持久化和失败反馈 | 待合并 | T003 | feat/T004-import-markdown | ../content-write-import-markdown | 待提交 | 无 | .ai/verifications/T004.md |
+| T004 | 上传 Markdown，解析、限制、持久化和失败反馈 | 待合并 | T003 | feat/T004-import-markdown | ../content-write-import-markdown | ef09907 | 无 | .ai/verifications/T004.md |
 | T005 | 保存 URL、安全抓取、失败粘贴正文与开关 | 待开始 | T003 | feat/T005-capture-link | 未创建 | 无 | 无 | 无 |
 | T006 | 处理素材获得摘要、观点和片段；包含任务、worker、轮询、基础配额 | 待开始 | T003 | feat/T006-analyze-material | 未创建 | 无 | 无 | 无 |
 | T007 | 搜索、过滤、处理失败重试、删除失效 | 待开始 | T004、T005、T006 | feat/T007-retry-and-find | 未创建 | 无 | 无 | 无 |
@@ -59,3 +59,4 @@
 - 2026-10-01 15:50 CST：T003 PR #8 已合并，主分支空库迁移和完整检查通过；完成集成验收并清理 worktree。
 - 2026-10-01 15:52 CST：T003 收尾 PR #9 合并；从最新主分支创建 T004 独立 worktree。
 - 2026-10-01 15:58 CST：T004 文件导入、限制和来源记录通过独立 PostgreSQL 与真实 HTTP 验证，准备提交 PR。
+- 2026-10-01 15:59 CST：T004 实现提交 `ef09907`，创建 PR #10。
