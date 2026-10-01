@@ -844,7 +844,7 @@ gh pr view feat/T003-capture-text --json state,mergedAt,mergeCommit
 git worktree remove ../content-write-capture-text
 git worktree list
 ```
-确认 PR 已合并且 worktree 干净后才移除。分支删除单独处理；squash 合并时不要仅凭 `merge-base` 判断是否已集成。
+PR 合并且集成验收通过后及时清理该任务 worktree。未合并的 PR 保留 worktree。确认 worktree 干净后才移除。分支删除单独处理；squash 合并时不要仅凭 `merge-base` 判断是否已集成。
 上一步失败不继续删除。
 不强制删除。
 不使用硬重置或 rm -rf 清理未保存工作。
