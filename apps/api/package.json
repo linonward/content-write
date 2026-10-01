@@ -1,0 +1,34 @@
+{
+  "name": "@content-write/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "node --watch --env-file-if-exists=../../.env.local --import tsx src/index.ts",
+    "start": "node --env-file-if-exists=../../.env.local --import tsx src/index.ts",
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --exclude tests/integration/**",
+    "test:integration": "node --env-file-if-exists=../../.env.local ../../node_modules/vitest/vitest.mjs run tests/integration",
+    "auth:check": "node --env-file-if-exists=../../.env.local node_modules/auth/dist/index.mjs check schema --config src/modules/identity/auth.ts",
+    "auth:create-admin": "node --env-file-if-exists=../../.env.local node_modules/auth/dist/index.mjs create-admin --config src/modules/identity/auth.ts"
+  },
+  "dependencies": {
+    "@content-write/db": "workspace:*",
+    "@hono/node-server": "2.1.3",
+    "hono": "4.13.12",
+    "tsx": "4.23.15",
+    "@better-auth/drizzle-adapter": "1.7.7",
+    "better-auth": "1.7.7"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.4",
+    "typescript": "5.9.3",
+    "vitest": "4.0.16",
+    "auth": "1.7.7",
+    "drizzle-orm": "0.45.3"
+  }
+}

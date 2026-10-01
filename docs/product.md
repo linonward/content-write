@@ -180,17 +180,17 @@ Phase 0：
 - PostHog，可禁用。
 实施时核对实际兼容版本并提交锁文件。
 不得凭记忆指定“最新版本”。
-Phase 0：
-- 单仓库。
-- 一个 Web 应用。
-- 一个独立 worker。
+Phase 0（T025 架构调整）：
+- pnpm workspace + Turborepo 单仓库。
+- `apps/web`：Next.js 页面，不提供业务 API。
+- `apps/api`：独立 Hono API，按业务模块组织路由。
+- `apps/worker`：独立 worker。
+- `packages/db`：仅服务端共享的数据库代码。
 - PostgreSQL 持久任务。
 不提前引入：
-- Hono。
 - tRPC。
 - Redis。
 - BullMQ。
-- Turborepo。
 - 向量数据库。
 已有项目存在有效技术方案时保留并记录差异。
 ### 4.1 基础服务
@@ -487,21 +487,15 @@ Cookie 写接口验证 Origin 并采用适用的 CSRF 防护。
 - 首次真实生成告知素材会发送给配置的模型服务。
 ## 10. 目录建议
 ```text
-src/app/
-src/components/
-src/modules/identity/
-src/modules/materials/
-src/modules/ideas/
-src/modules/articles/
-src/modules/author/
-src/modules/publication/
-src/modules/feedback/
-src/modules/ai-jobs/
-src/server/db/
-src/worker.ts
-tests/fixtures/
-tests/integration/
-tests/e2e/
+apps/web/src/app/
+apps/web/src/modules/
+apps/api/src/modules/
+apps/api/src/app.ts
+apps/worker/src/
+packages/db/src/
+packages/db/drizzle/
+apps/api/tests/integration/
+packages/db/tests/integration/
 docs/product.md
 docs/runbook.md
 .ai/contracts/
@@ -556,6 +550,7 @@ docs/runbook.md
 | T022 | quality-and-regression | 完整 E2E、安全与故障回归、10 组质量评估 | T020、T021；授权素材 |
 | T023 | staging-delivery | 生产镜像、完整 CI、部署、HTTPS、迁移和备份恢复 | T022；环境授权 |
 | T024 | trial-handoff | 试用交付、七天实验、说明和最终验收 | T023 |
+| T025 | turborepo-hono | Web/API/worker 分离，Turborepo 编排与数据库包迁移 | T001、T002 |
 每项功能实施时就完成相关权限和错误测试。
 不得等 T022 才首次验证数据隔离。
 依赖任务合并主分支后才开始下游任务。

@@ -1,6 +1,6 @@
 # 公众号内容工作台
 
-Phase 0 开发中。当前具备 Web 基础工程、PostgreSQL、健康检查，以及受邀账号的登录和管理。素材与写作能力尚未开放。
+Phase 0 开发中。工程采用 pnpm workspace + Turborepo：`apps/web` 仅提供 Next.js 页面，`apps/api` 提供独立的模块化 Hono API，`apps/worker` 独立运行后台任务，`packages/db` 仅供服务端使用。受邀账号登录和管理已实现；素材与写作能力尚未开放。
 
 ## 本地运行
 
@@ -15,7 +15,7 @@ pnpm auth:create-admin
 pnpm dev
 ```
 
-首次运行时设置 `BETTER_AUTH_SECRET` 为至少 32 字符的随机值；`auth:create-admin` 会交互式创建初始管理员。打开 `http://localhost:3000/sign-in` 登录，再由管理员在 `/admin/users` 创建受邀账号。检查 `http://localhost:3000/api/healthz` 和 `http://localhost:3000/api/readyz`。独立 worker 可用 `pnpm worker:dev` 启动。
+将 `BETTER_AUTH_SECRET` 改为至少 32 字符的随机值。Web 位于 `http://localhost:3000`，API 位于 `http://localhost:3001`；Web 不提供 `/api/*` 路由。打开 `/sign-in` 登录，再由管理员在 `/admin/users` 创建受邀账号。独立 worker 使用 `pnpm worker:dev` 启动。
 
 ## 检查
 

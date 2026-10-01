@@ -1,18 +1,18 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-01 14:56 CST
-已完成：1 / 24
+更新时间：2026-10-01 15:07 CST
+已完成：1 / 25
 待合并：1
 阻塞：0
-当前任务：T002 account-access（待合并）
-下一项：T003 capture-text（待 T002 合并）
+当前任务：T025 turborepo-hono（待合并）
+下一项：T003 capture-text（待 T002 集成验收及 T025 合并）
 真实模型验收：未开始
 线上验收：未开始
 
 | ID | 用户结果 | 状态 | 依赖 | 分支 | worktree | 实现 SHA | 合并 SHA | 证据 |
 |---|---|---|---|---|---|---|---|---|
 | T001 | 基础工程、数据库、健康页、检查命令、文档、看板、CI 基线 | 已完成 | 无 | chore/T001-bootstrap | 已清理 | 0751508 | 7d669a9 | .ai/verifications/T001.md |
-| T002 | 邀请账号登录、退出、保护页面和身份隔离 | 待合并 | T001 | feat/T002-account-access | ../content-write-account-access | a0568a5 | 无 | .ai/verifications/T002.md |
+| T002 | 邀请账号登录、退出、保护页面和身份隔离 | 已合并待集成验收 | T001 | feat/T002-account-access | ../content-write-account-access | a0568a5 | e9d5b9c | .ai/verifications/T002.md |
 | T003 | 保存、查看、编辑、删除文字素材，版本与权限完整 | 待开始 | T002 | feat/T003-capture-text | 未创建 | 无 | 无 | 无 |
 | T004 | 上传 Markdown，解析、限制、持久化和失败反馈 | 待开始 | T003 | feat/T004-import-markdown | 未创建 | 无 | 无 | 无 |
 | T005 | 保存 URL、安全抓取、失败粘贴正文与开关 | 待开始 | T003 | feat/T005-capture-link | 未创建 | 无 | 无 | 无 |
@@ -35,6 +35,7 @@
 | T022 | 完整 E2E、安全与故障回归、10 组质量评估 | 待开始 | T020、T021；授权素材 | feat/T022-quality-and-regression | 未创建 | 无 | 无 | 无 |
 | T023 | 生产镜像、完整 CI、部署、HTTPS、迁移和备份恢复 | 待开始 | T022；环境授权 | feat/T023-staging-delivery | 未创建 | 无 | 无 | 无 |
 | T024 | 试用交付、七天实验、说明和最终验收 | 待开始 | T023 | feat/T024-trial-handoff | 未创建 | 无 | 无 | 无 |
+| T025 | Web/API/worker 分离与 Turborepo 编排 | 待合并 | T001、T002 | chore/T025-turborepo-hono | content-write-turborepo-hono | 638fa04 | 无 | .ai/verifications/T025.md |
 
 ## 当前阻塞
 
@@ -47,3 +48,5 @@
 
 - 2026-10-01 14:41 CST：T002 从已合并的 `origin/main` 启动，worktree 为 `content-write-account-access`。
 - 2026-10-01 14:56 CST：T002 本地验证通过，准备通过 PR 合并；T003 等待合并和集成验收。
+
+- 2026-10-01 15:07 CST：T002 PR #4 已合并但集成验收尚未记录；T025 基于新主分支解决冲突，迁移认证 API 到 Hono。

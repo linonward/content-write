@@ -1,3 +1,6 @@
+packages:
+  - "apps/*"
+  - "packages/*"
 allowBuilds:
   esbuild: true
 minimumReleaseAgeExclude:
@@ -24,6 +27,14 @@ minimumReleaseAgeExclude:
   - pg-connection-string@2.14.1
   - pg-protocol@1.16.1
   - pg@8.23.1
+  - '@turbo/darwin-64@2.11.6'
+  - '@turbo/darwin-arm64@2.11.6'
+  - '@turbo/linux-64@2.11.6'
+  - '@turbo/linux-arm64@2.11.6'
+  - '@turbo/windows-64@2.11.6'
+  - '@turbo/windows-arm64@2.11.6'
+  - hono@4.13.12
+  - turbo@2.11.6
   - '@better-auth/core@1.7.7'
   - '@better-auth/drizzle-adapter@1.7.7'
   - '@better-auth/kysely-adapter@1.7.7'

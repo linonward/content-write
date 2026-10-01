@@ -20,7 +20,9 @@ jobs:
     env:
       DATABASE_URL: postgresql://app:app@localhost:5432/content_write_test
       APP_URL: http://localhost:3000
-      BETTER_AUTH_URL: http://localhost:3000
+      BETTER_AUTH_URL: http://localhost:3001
+      WEB_ORIGIN: http://localhost:3000
+      NEXT_PUBLIC_API_URL: http://localhost:3001
       BETTER_AUTH_SECRET: ci-only-secret-at-least-32-characters-long
     steps:
       - uses: actions/checkout@v4

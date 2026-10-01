@@ -1,0 +1,34 @@
+{
+  "name": "@content-write/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "exports": {
+    "./client": "./src/client.ts",
+    "./health": "./src/health.ts",
+    "./schema": "./src/schema.ts",
+    "./auth-schema": "./src/auth-schema.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test:integration": "node --env-file-if-exists=../../.env.local ../../node_modules/vitest/vitest.mjs run tests/integration",
+    "db:migrate": "node --env-file-if-exists=../../.env.local --import tsx scripts/migrate.ts",
+    "db:generate": "drizzle-kit generate"
+  },
+  "dependencies": {
+    "drizzle-orm": "0.45.3",
+    "pg": "8.23.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.4",
+    "@types/pg": "8.15.5",
+    "drizzle-kit": "0.31.11",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "vitest": "4.0.16"
+  }
+}
