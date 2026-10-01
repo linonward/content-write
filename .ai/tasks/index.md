@@ -1,11 +1,11 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-01 22:40 CST
+更新时间：2026-10-01 23:21 CST
 已完成：11 / 26
-待合并：1
+待合并：0
 阻塞：0
-当前任务：T027a articles-layering（待合并）
-下一项：T027a 合并验收后 T010 generate-draft
+当前任务：无
+下一项：T010 generate-draft
 真实模型验收：未开始
 线上验收：未开始
 
@@ -37,13 +37,15 @@
 | T024 | 试用交付、七天实验、说明和最终验收 | 待开始 | T023 | feat/T024-trial-handoff | 未创建 | 无 | 无 | 无 |
 | T025 | Web/API/worker 分离与 Turborepo 编排 | 已完成 | T001、T002 | chore/T025-turborepo-hono | 已清理 | 638fa04 | 8ec3dfc | .ai/verifications/T025.md |
 | T026 | 任务额度账本、用量保留、任务类型隔离、API 共享辅助与 worker 失败分类 | 已完成 | T009 | chore/T026-ai-jobs-hardening | 已清理 | 260960e | bf5100c | .ai/verifications/T026.md |
-| T027 | API 按 route/service/repository 分层，数据访问收敛到 Drizzle；用户行为不变 | T027a 待合并；b/c 待开始 | T026；T027a 先于 T010 | refactor/T027a-articles-layering | `/Users/kaelen/workspace/github/linonward/content-write-articles-layering` | 见 PR | 无 | .ai/verifications/T027.md |
+| T027 | API 按 route/service/repository 分层，数据访问收敛到 Drizzle；用户行为不变 | T027a 已完成；b/c 待开始 | T026；T027a 先于 T010 | refactor/T027a-articles-layering | 已清理 | 11180c1 | d6acd92 | .ai/verifications/T027.md |
 
 ## 当前阻塞
 
 暂无已确认阻塞。
 
 ## 最近更新
+
+- 2026-10-01 23:21 CST：PR #26 合并为 `d6acd92`；主分支独立 PostgreSQL 空库迁移 0000–0008 与完整检查通过，API 集成测试 30/30。验证数据库和 T027a worktree 已清理。T010 可以开始；T027b/c 不阻塞。
 
 - 2026-10-01 22:40 CST：T027a 在 `c4a825c` 上完成 articles 模块分层与 Drizzle 迁移，api 与 worker 共用来源与引用检查；先补错误码集成测试并在旧代码上通过，重构后独立空库迁移与完整检查通过，API 集成测试 30/30。等待 PR。
 
