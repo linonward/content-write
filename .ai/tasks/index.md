@@ -1,18 +1,18 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-01 13:53 CST
+更新时间：2026-10-01 14:56 CST
 已完成：1 / 24
-待合并：0
+待合并：1
 阻塞：0
-当前任务：无
-下一项：T002 account-access
+当前任务：T002 account-access（待合并）
+下一项：T003 capture-text（待 T002 合并）
 真实模型验收：未开始
 线上验收：未开始
 
 | ID | 用户结果 | 状态 | 依赖 | 分支 | worktree | 实现 SHA | 合并 SHA | 证据 |
 |---|---|---|---|---|---|---|---|---|
 | T001 | 基础工程、数据库、健康页、检查命令、文档、看板、CI 基线 | 已完成 | 无 | chore/T001-bootstrap | 已清理 | 0751508 | 7d669a9 | .ai/verifications/T001.md |
-| T002 | 邀请账号登录、退出、保护页面和身份隔离 | 待开始 | T001 | feat/T002-account-access | 未创建 | 无 | 无 | 无 |
+| T002 | 邀请账号登录、退出、保护页面和身份隔离 | 待合并 | T001 | feat/T002-account-access | ../content-write-account-access | 见 PR | 无 | .ai/verifications/T002.md |
 | T003 | 保存、查看、编辑、删除文字素材，版本与权限完整 | 待开始 | T002 | feat/T003-capture-text | 未创建 | 无 | 无 | 无 |
 | T004 | 上传 Markdown，解析、限制、持久化和失败反馈 | 待开始 | T003 | feat/T004-import-markdown | 未创建 | 无 | 无 | 无 |
 | T005 | 保存 URL、安全抓取、失败粘贴正文与开关 | 待开始 | T003 | feat/T005-capture-link | 未创建 | 无 | 无 | 无 |
@@ -44,3 +44,6 @@
 
 - 2026-10-01 13:44 CST：启动 T001，计划在平级 worktree 实现基础工程。
 - 2026-10-01 13:53 CST：T001 已合并并完成主分支检查；记录 `next typegen` 和数据库健康等待修正。
+
+- 2026-10-01 14:41 CST：T002 从已合并的 `origin/main` 启动，worktree 为 `content-write-account-access`。
+- 2026-10-01 14:56 CST：T002 本地验证通过，准备通过 PR 合并；T003 等待合并和集成验收。

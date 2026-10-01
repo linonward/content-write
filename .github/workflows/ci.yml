@@ -19,6 +19,9 @@ jobs:
           --health-interval 5s --health-timeout 3s --health-retries 10
     env:
       DATABASE_URL: postgresql://app:app@localhost:5432/content_write_test
+      APP_URL: http://localhost:3000
+      BETTER_AUTH_URL: http://localhost:3000
+      BETTER_AUTH_SECRET: ci-only-secret-at-least-32-characters-long
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
