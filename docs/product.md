@@ -566,20 +566,20 @@ docs/runbook.md
 子任务各自使用分支、worktree 和提交。
 父任务只有在必要子任务全部合并后才完成。
 ## 13. worktree 命名规则
-creator-topic 是命名模式，不是项目名。
+`content-write-<topic>` 是本仓库的 worktree 命名模式。
 规则：
-<主目录名>-<topic>
+`content-write-<topic>`
 topic 是任务主题，使用英文 kebab-case。
 例如主目录：
-~/Projects/creator
+~/Projects/content-write
 任务 worktree：
-- ~/Projects/creator-capture-text
-- ~/Projects/creator-import-markdown
-- ~/Projects/creator-analyze-material
+- ~/Projects/content-write-capture-text
+- ~/Projects/content-write-import-markdown
+- ~/Projects/content-write-analyze-material
 主目录与 worktree 放在同一个父目录，保持平级。
 不放在主仓库内部。
 不重新 clone 成另一个独立仓库。
-实际主目录名称按现有项目确定，不改项目名或包名。
+主目录名称为 `content-write`，不改项目名或包名。
 任务 ID 保留在：
 - 分支。
 - 提交信息。
@@ -588,7 +588,7 @@ topic 是任务主题，使用英文 kebab-case。
 - 验证记录。
 示例：
 分支 feat/T003-capture-text
-worktree creator-capture-text
+worktree content-write-capture-text
 每个未清理 worktree 的 topic 必须唯一。
 ## 14. worktree 创建与恢复
 每个任务：
@@ -603,7 +603,7 @@ worktree creator-capture-text
 - 不在主目录直接开发全部功能。
 创建前检查：
 ```bash
-cd ~/Projects/creator
+cd ~/Projects/content-write
 git status --short
 git worktree list
 git log -1 --oneline
@@ -611,8 +611,8 @@ git log -1 --oneline
 创建 T003：
 ```bash
 git fetch origin
-git worktree add -b feat/T003-capture-text ../creator-capture-text origin/main
-cd ../creator-capture-text
+git worktree add -b feat/T003-capture-text ../content-write-capture-text origin/main
+cd ../content-write-capture-text
 pnpm install --frozen-lockfile
 ```
 执行前确认：
@@ -639,8 +639,8 @@ pnpm install --frozen-lockfile
 示例：
 - 主目录端口 3000。
 - T003 端口 3103。
-- T003 数据库 creator_t003。
-- T003 测试库 creator_t003_test。
+- T003 数据库 content_write_t003。
+- T003 测试库 content_write_t003_test。
 端口冲突时选择空闲端口并记录。
 node_modules 独立。
 pnpm 缓存可复用。
@@ -811,11 +811,11 @@ worktree：启动时填写平级绝对路径
 8. 通过后，用后续文档 PR 将看板与任务详情标为已完成，记录合并 SHA 和验收证据。
 示例：
 ```bash
-cd ~/Projects/creator
+cd ~/Projects/content-write
 git status --short
 git fetch origin
 git diff origin/main...feat/T003-capture-text --stat
-git -C ../creator-capture-text push -u origin feat/T003-capture-text
+git -C ../content-write-capture-text push -u origin feat/T003-capture-text
 # 先将 PR 描述写入 /tmp/T003-pr.md
 gh pr create --base main --head feat/T003-capture-text --title "T003: 文字素材" --body-file /tmp/T003-pr.md
 # PR 合并后再更新本地 main；如果分叉，不重置用户提交
@@ -837,11 +837,11 @@ PR 合并后集成失败：
 - worktree 干净。
 - 服务和 worker 已停止。
 ```bash
-cd ~/Projects/creator-capture-text
+cd ~/Projects/content-write-capture-text
 git status --short
-cd ../creator
+cd ../content-write
 gh pr view feat/T003-capture-text --json state,mergedAt,mergeCommit
-git worktree remove ../creator-capture-text
+git worktree remove ../content-write-capture-text
 git worktree list
 ```
 确认 PR 已合并且 worktree 干净后才移除。分支删除单独处理；squash 合并时不要仅凭 `merge-base` 判断是否已集成。
@@ -1009,8 +1009,7 @@ mock、示例和内部测试不计入。
 先创建计划、契约、ADR、看板和任务详情，然后从 T001 开始。
 按垂直用户结果开发。
 每任务覆盖必要的界面、API、数据、权限、错误处理、测试和文档。
-creator-topic 是 worktree 命名规则，不是项目名。
-worktree 使用 <主目录名>-<topic>。
+worktree 使用 `content-write-<topic>` 命名。
 与主目录平级。
 一个任务一个分支、一个 worktree，独立提交。
 任务分支更新全局看板并通过 PR 集成。
