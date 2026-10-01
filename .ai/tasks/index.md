@@ -1,11 +1,11 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-02 00:30 CST
+更新时间：2026-10-02 00:42 CST
 已完成：13 / 26
-待合并：0
+待合并：1
 阻塞：0
-当前任务：无
-下一项：T012 restore-revision
+当前任务：T012 restore-revision（待合并）
+下一项：T012 合并验收后 T013 ai-edit-selection
 真实模型验收：未开始
 线上验收：未开始
 
@@ -22,7 +22,7 @@
 | T009 | 创建文章 brief，生成、修改、确认大纲 | 已完成 | T008 | feat/T009-confirm-outline | 已清理 | 678990b | 7db44e9 | .ai/verifications/T009.md |
 | T010 | 根据确认大纲生成初稿，来源、缺口、预算和冲突处理 | 已完成 | T009、T027a | feat/T010-generate-draft | 已清理 | 0e4f738 | 16d087a | .ai/verifications/T010.md |
 | T011 | Markdown 编辑、自动保存、版本冲突和本地恢复 | 已完成 | T010 | feat/T011-edit-and-save | 已清理 | 1069b64 | ccdfafa | .ai/verifications/T011.md |
-| T012 | 查看版本、恢复旧版本并生成新版本 | 待开始 | T011 | feat/T012-restore-revision | 未创建 | 无 | 无 | 无 |
+| T012 | 查看版本、恢复旧版本并生成新版本 | 待合并 | T011 | feat/T012-restore-revision | `/Users/kaelen/workspace/github/linonward/content-write-restore-revision` | 见 PR | 无 | .ai/verifications/T012.md |
 | T013 | AI 修改选区、差异预览、应用、拒绝、过期校验 | 待开始 | T011、T012 | feat/T013-ai-edit-selection | 未创建 | 无 | 无 | 无 |
 | T014 | 作者画像与表达偏好保存并影响后续生成 | 待开始 | T002、T010 | feat/T014-author-preferences | 未创建 | 无 | 无 | 无 |
 | T015 | 添加、启停、删除历史文章并用于风格示例 | 待开始 | T014 | feat/T015-writing-samples | 未创建 | 无 | 无 | 无 |
@@ -44,6 +44,8 @@
 暂无已确认阻塞。
 
 ## 最近更新
+
+- 2026-10-02 00:42 CST：T012 实现历史列表、查看与恢复（迁移 0011 `restored_from`），恢复生成新版本且不删除历史。独立空库迁移与完整检查通过，API 集成测试 38/38，Playwright 流程通过。等待 PR。
 
 - 2026-10-02 00:30 CST：PR #31 合并为 `ccdfafa`；主分支独立 PostgreSQL 空库迁移 0000–0010 与完整检查通过，API 集成测试 37/37。验证数据库和 T011 worktree 已清理。T012 可以开始。
 

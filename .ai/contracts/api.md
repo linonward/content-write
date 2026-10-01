@@ -61,3 +61,9 @@ T011 新增：
 
 - `PUT /api/articles/:id/body`：携带 `expectedVersion`、`title`（去除首尾空格后 1～200 字）、`body`（Markdown，最多 50,000 字符），返回 `{version}`。需要会话与可信 Origin，跨用户 404。按版本条件原子更新，成功版本加一，同一事务写入 `article_revisions`（`source: "edit"`）。版本冲突 409 `ARTICLE_VERSION_CONFLICT`，不覆盖正文；正文过长 413 `ARTICLE_BODY_TOO_LARGE`；标题无效 422 `INVALID_ARTICLE_BODY`。标题和正文都与当前一致时不改版本、不写历史，直接返回当前版本。
 - 初稿直接成为正文、应用候选时，同一事务写入 `source: "draft"` 历史。迁移 0010 为已有正文的文章补写当前版本的历史。查看与恢复历史在 T012。
+
+T012 新增：
+
+- `GET /api/articles/:id/revisions`：本人文章最近 50 条正文历史，版本倒序，含 `version`、`source`（`edit` / `draft` / `restore`）、`title`、`restoredFrom`、`chars`（正文字符数）、`createdAt`，不含正文。跨用户或不存在 404。
+- `GET /api/articles/:id/revisions/:version`：单个历史版本，含标题和正文；不存在或跨用户 404 `REVISION_NOT_FOUND`（文章不属于本人时也返回 404）。
+- `POST /api/articles/:id/restore`：携带 `expectedVersion` 与 `revision`，需可信 Origin。把该版本的标题和正文作为新版本保存，版本加一，同一事务写入 `source: "restore"`、`restoredFrom` 的历史；已有历史不修改不删除。版本冲突 409，不存在的历史版本 404，与当前正文一致时返回当前版本不写历史。迁移 0011 为 `article_revisions` 增加 `restored_from`。

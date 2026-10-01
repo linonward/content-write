@@ -16,6 +16,9 @@ import {
   createArticle,
   discardDraft,
   getArticle,
+  getRevision,
+  listRevisions,
+  restoreRevision,
   saveBody,
   saveOutline,
   startDraftGeneration,
@@ -59,6 +62,10 @@ const bodyInput = z.strictObject({
   body: z.string(),
 });
 const MAX_BODY_CHARS = 50_000;
+const restoreInput = z.strictObject({
+  expectedVersion: z.int().positive(),
+  revision: z.int().positive(),
+});
 const createInput = z.strictObject({ ideaId: z.string().uuid() });
 export const articleRoutes = new Hono<AuthedEnv>();
 
@@ -67,7 +74,7 @@ const readBody = (request: Request) => readJson(request, 32_768);
 /** Maps a rejected article action to its response; `action` completes the version-conflict hint. */
 function articleFailure(
   error: unknown,
-  action?: "修改" | "生成" | "保存" | "确认" | "替换正文",
+  action?: "修改" | "生成" | "保存" | "确认" | "替换正文" | "恢复",
 ) {
   if (!(error instanceof ArticleError)) throw error;
   switch (error.reason) {
@@ -109,6 +116,8 @@ function articleFailure(
       return apiError("DRAFT_NOT_FOUND", "初稿不存在。", 404);
     case "draft_not_candidate":
       return apiError("DRAFT_NOT_CANDIDATE", "这份初稿已应用或已丢弃。", 409);
+    case "revision_missing":
+      return apiError("REVISION_NOT_FOUND", "历史版本不存在。", 404);
     case "quota":
       return apiError("AI_DAILY_LIMIT", "今日生成次数已用完。", 429);
     case "concurrency":
@@ -336,5 +345,58 @@ articleRoutes.put("/articles/:id/body", async (context) => {
     return context.json({ version });
   } catch (error) {
     return articleFailure(error, "保存");
+  }
+});
+articleRoutes.get("/articles/:id/revisions", async (context) => {
+  try {
+    return context.json({
+      revisions: await listRevisions(
+        context.get("userId"),
+        context.req.param("id"),
+      ),
+    });
+  } catch (error) {
+    return articleFailure(error);
+  }
+});
+articleRoutes.get("/articles/:id/revisions/:version", async (context) => {
+  const version = Number(context.req.param("version"));
+  if (!Number.isSafeInteger(version) || version < 1)
+    return apiError("REVISION_NOT_FOUND", "历史版本不存在。", 404);
+  try {
+    return context.json({
+      revision: await getRevision(
+        context.get("userId"),
+        context.req.param("id"),
+        version,
+      ),
+    });
+  } catch (error) {
+    return articleFailure(error);
+  }
+});
+articleRoutes.post("/articles/:id/restore", async (context) => {
+  const body = await readBody(context.req.raw);
+  if (body.status === "large")
+    return apiError("ARTICLE_INPUT_TOO_LARGE", "请求内容过长。", 413);
+  if (body.status === "invalid")
+    return apiError("INVALID_JSON", "请求内容不是有效 JSON。", 400);
+  const parsed = restoreInput.safeParse(body.value);
+  if (!parsed.success)
+    return apiError(
+      "INVALID_RESTORE",
+      "请提供当前文章版本和要恢复的版本。",
+      422,
+    );
+  try {
+    const version = await restoreRevision(
+      context.get("userId"),
+      context.req.param("id"),
+      parsed.data.expectedVersion,
+      parsed.data.revision,
+    );
+    return context.json({ version });
+  } catch (error) {
+    return articleFailure(error, "恢复");
   }
 });

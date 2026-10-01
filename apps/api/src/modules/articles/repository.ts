@@ -3,6 +3,7 @@ import { type Executor, getDb } from "@content-write/db/client";
 import {
   aiJobs,
   articleDrafts,
+  articleRevisions,
   articleSources,
   articles,
   ideaSources,
@@ -350,4 +351,52 @@ export async function setDraftStatus(
     .update(articleDrafts)
     .set({ status, updatedAt: sql`now()` })
     .where(eq(articleDrafts.id, draftId));
+}
+
+/** Newest first, without bodies; `chars` lets the list show length without loading text. */
+export function listRevisions(db: Executor, userId: string, articleId: string) {
+  return db
+    .select({
+      version: articleRevisions.version,
+      source: articleRevisions.source,
+      title: articleRevisions.title,
+      restoredFrom: articleRevisions.restoredFrom,
+      chars: sql<number>`char_length(${articleRevisions.body})::int`,
+      createdAt: articleRevisions.createdAt,
+    })
+    .from(articleRevisions)
+    .where(
+      and(
+        eq(articleRevisions.articleId, articleId),
+        eq(articleRevisions.userId, userId),
+      ),
+    )
+    .orderBy(desc(articleRevisions.version))
+    .limit(50);
+}
+
+export async function findRevision(
+  db: Executor,
+  userId: string,
+  articleId: string,
+  version: number,
+) {
+  const [revision] = await db
+    .select({
+      version: articleRevisions.version,
+      source: articleRevisions.source,
+      title: articleRevisions.title,
+      body: articleRevisions.body,
+      restoredFrom: articleRevisions.restoredFrom,
+      createdAt: articleRevisions.createdAt,
+    })
+    .from(articleRevisions)
+    .where(
+      and(
+        eq(articleRevisions.articleId, articleId),
+        eq(articleRevisions.userId, userId),
+        eq(articleRevisions.version, version),
+      ),
+    );
+  return revision;
 }
