@@ -1,11 +1,11 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-01 15:43 CST
-已完成：3 / 25
-待合并：1
+更新时间：2026-10-01 15:50 CST
+已完成：4 / 25
+待合并：0
 阻塞：0
-当前任务：T003 capture-text（待合并）
-下一项：T004 import-markdown（待 T003 合并及集成验收）
+当前任务：无
+下一项：T004 import-markdown
 真实模型验收：未开始
 线上验收：未开始
 
@@ -13,7 +13,7 @@
 |---|---|---|---|---|---|---|---|---|
 | T001 | 基础工程、数据库、健康页、检查命令、文档、看板、CI 基线 | 已完成 | 无 | chore/T001-bootstrap | 已清理 | 0751508 | 7d669a9 | .ai/verifications/T001.md |
 | T002 | 邀请账号登录、退出、保护页面和身份隔离 | 已完成 | T001 | feat/T002-account-access | 已清理 | a0568a5 | e9d5b9c | .ai/verifications/T002.md |
-| T003 | 保存、查看、编辑、删除文字素材，版本与权限完整 | 待合并 | T002 | feat/T003-capture-text | ../content-write-capture-text | ee2dcdc | 无 | .ai/verifications/T003.md |
+| T003 | 保存、查看、编辑、删除文字素材，版本与权限完整 | 已完成 | T002 | feat/T003-capture-text | 已清理 | ee2dcdc | af5e587 | .ai/verifications/T003.md |
 | T004 | 上传 Markdown，解析、限制、持久化和失败反馈 | 待开始 | T003 | feat/T004-import-markdown | 未创建 | 无 | 无 | 无 |
 | T005 | 保存 URL、安全抓取、失败粘贴正文与开关 | 待开始 | T003 | feat/T005-capture-link | 未创建 | 无 | 无 | 无 |
 | T006 | 处理素材获得摘要、观点和片段；包含任务、worker、轮询、基础配额 | 待开始 | T003 | feat/T006-analyze-material | 未创建 | 无 | 无 | 无 |
@@ -56,3 +56,4 @@
 - 2026-10-01 15:36 CST：T002 收尾 PR #7 合并并清理 worktree；从最新主分支创建 T003 独立 worktree。
 - 2026-10-01 15:43 CST：T003 本地实现与独立数据库验收通过，准备提交 PR。
 - 2026-10-01 15:44 CST：T003 实现提交 `ee2dcdc`，创建 PR #8。
+- 2026-10-01 15:50 CST：T003 PR #8 已合并，主分支空库迁移和完整检查通过；完成集成验收并清理 worktree。
