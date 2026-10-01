@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { Hono } from "hono";
 import { z } from "zod";
 import { auth } from "../identity/auth";
+import { parseImport } from "./import-file";
 import {
   createMaterial,
   deleteMaterial,
@@ -101,6 +102,21 @@ materialRoutes.post("/materials", async (context) => {
       422,
     );
   const item = await createMaterial(context.get("materialUserId"), parsed.data);
+  return context.json({ material: item }, 201);
+});
+materialRoutes.post("/materials/import", async (context) => {
+  const parsed = await parseImport(context.req.raw);
+  if (parsed.status !== "ok") {
+    return error(
+      parsed.status === "large" ? "MATERIAL_TOO_LARGE" : "INVALID_FILE",
+      parsed.message,
+      parsed.status === "large" ? 413 : 422,
+    );
+  }
+  const item = await createMaterial(
+    context.get("materialUserId"),
+    parsed.value,
+  );
   return context.json({ material: item }, 201);
 });
 materialRoutes.get("/materials/:id", async (context) => {

@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { ui } from "@/lib/styles";
 import { LogoutButton } from "@/modules/identity/client/logout-button";
 import { requireSession } from "@/modules/identity/server/session";
 
@@ -7,41 +10,48 @@ export default async function HomePage() {
   const isAdmin = session.user.role === "admin";
 
   return (
-    <main className="shell">
-      <header className="masthead app-header">
-        <Link className="brand" href="/home">
-          <span className="mark">文</span>
+    <main className={ui.shell}>
+      <header className={`${ui.header} justify-between`}>
+        <Link className={ui.brand} href="/home">
+          <span className={ui.mark}>文</span>
           <span>公众号内容工作台</span>
         </Link>
         <LogoutButton />
       </header>
-      <section className="intro app-intro">
-        <p className="stage">写作空间</p>
-        <h1>你好，{session.user.name}。</h1>
-        <p className="lead">你的账号已可以使用。现在可以保存和整理文字素材。</p>
+      <section className="max-w-[760px] pt-[110px] pb-[100px] max-[680px]:pt-20 max-[680px]:pb-[70px]">
+        <p className={ui.stage}>写作空间</p>
+        <h1 className={ui.heroTitle}>你好，{session.user.name}。</h1>
+        <p className={ui.lead}>
+          你的账号已可以使用。现在可以保存和整理文字素材。
+        </p>
       </section>
       <section
-        className="status account-status"
+        className="flex items-center justify-between gap-6 border-y py-7 max-[680px]:flex-col max-[680px]:items-start"
         aria-labelledby="account-heading"
       >
         <div>
-          <h2 id="account-heading">当前账号</h2>
-          <p>{session.user.email}</p>
+          <h2 id="account-heading" className="mb-2 text-xl">
+            当前账号
+          </h2>
+          <p className="text-sm text-muted-foreground">{session.user.email}</p>
         </div>
         {isAdmin ? (
-          <Link className="outline-link" href="/admin/users">
+          <Link
+            className={buttonVariants({ variant: "outline" })}
+            href="/admin/users"
+          >
             创建受邀账号
           </Link>
         ) : (
-          <span className="status-muted">受邀作者</span>
+          <Badge variant="secondary">受邀作者</Badge>
         )}
       </section>
-      <p className="note">
-        <Link className="outline-link" href="/inbox">
+      <p className="mt-[22px]">
+        <Link className={buttonVariants({ variant: "outline" })} href="/inbox">
           打开素材箱
         </Link>
       </p>
-      <p className="note">
+      <p className="mt-[22px] text-sm text-muted-foreground">
         选题与写作流程将在后续开放；打开首页不会自动调用模型。
       </p>
     </main>

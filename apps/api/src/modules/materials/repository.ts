@@ -4,6 +4,10 @@ import { materialRevisions, materials } from "@content-write/db/schema";
 import { and, desc, eq } from "drizzle-orm";
 
 export type MaterialInput = { title: string; content: string };
+export type MaterialCreation = MaterialInput & {
+  kind?: "text" | "markdown";
+  sourceFilename?: string;
+};
 
 export async function listMaterials(userId: string) {
   return getDb()
@@ -11,6 +15,7 @@ export async function listMaterials(userId: string) {
       id: materials.id,
       title: materials.title,
       kind: materials.kind,
+      sourceFilename: materials.sourceFilename,
       currentVersion: materials.currentVersion,
       createdAt: materials.createdAt,
       updatedAt: materials.updatedAt,
@@ -30,7 +35,7 @@ export async function getMaterial(userId: string, id: string) {
   return item ?? null;
 }
 
-export async function createMaterial(userId: string, input: MaterialInput) {
+export async function createMaterial(userId: string, input: MaterialCreation) {
   return getDb().transaction(async (tx) => {
     const [item] = await tx
       .insert(materials)
@@ -88,6 +93,8 @@ export async function updateMaterial(
       materialId: id,
       userId,
       version: item.currentVersion,
+      kind: item.kind,
+      sourceFilename: item.sourceFilename,
       ...input,
     });
     return { status: "updated" as const, item };
