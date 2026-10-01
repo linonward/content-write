@@ -119,6 +119,7 @@ export const aiJobs = pgTable(
       .notNull()
       .references(() => materials.id, { onDelete: "cascade" }),
     materialVersion: integer("material_version").notNull(),
+    sourceCount: integer("source_count").notNull().default(1),
     kind: text("kind").notNull(),
     status: text("status").notNull().default("queued"),
     idempotencyKey: text("idempotency_key").notNull(),
@@ -159,3 +160,77 @@ export const aiRuns = pgTable("ai_runs", {
     .notNull()
     .defaultNow(),
 });
+
+export const ideaJobSources = pgTable(
+  "idea_job_sources",
+  {
+    id: text("id").primaryKey(),
+    jobId: text("job_id")
+      .notNull()
+      .references(() => aiJobs.id, { onDelete: "cascade" }),
+    materialId: text("material_id")
+      .notNull()
+      .references(() => materials.id, { onDelete: "cascade" }),
+    materialVersion: integer("material_version").notNull(),
+  },
+  (table) => [
+    uniqueIndex("idea_job_sources_job_material_idx").on(
+      table.jobId,
+      table.materialId,
+    ),
+    index("idea_job_sources_material_idx").on(table.materialId),
+  ],
+);
+
+export const ideas = pgTable(
+  "ideas",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    jobId: text("job_id")
+      .notNull()
+      .references(() => aiJobs.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    audience: text("audience").notNull(),
+    thesis: text("thesis").notNull(),
+    rationale: text("rationale").notNull(),
+    evidenceGaps: jsonb("evidence_gaps").$type<string[]>().notNull(),
+    suggestedStructure: jsonb("suggested_structure")
+      .$type<string[]>()
+      .notNull(),
+    status: text("status").notNull().default("new"),
+    mode: text("mode").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("ideas_user_created_idx").on(table.userId, table.createdAt),
+  ],
+);
+
+export const ideaSources = pgTable(
+  "idea_sources",
+  {
+    id: text("id").primaryKey(),
+    ideaId: text("idea_id")
+      .notNull()
+      .references(() => ideas.id, { onDelete: "cascade" }),
+    materialId: text("material_id")
+      .notNull()
+      .references(() => materials.id, { onDelete: "cascade" }),
+    materialVersion: integer("material_version").notNull(),
+  },
+  (table) => [
+    uniqueIndex("idea_sources_idea_material_idx").on(
+      table.ideaId,
+      table.materialId,
+    ),
+    index("idea_sources_material_idx").on(table.materialId),
+  ],
+);

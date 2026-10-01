@@ -20,3 +20,11 @@ T007 新增：
 - `GET /api/materials`：本人素材列表。可选 `q`（标题、正文、来源 URL 子串，最多 100 字）、`kind`（text/markdown/link）、`status`（unprocessed/processing/failed/analyzed）和 `tag`（当前版本分析的完整标签，最多 50 字）。过滤在数据库执行，最多返回最近 100 条匹配素材，并附 `hasMore`。每条包含当前版本分析状态和标签；旧版本分析不参与过滤。
 - `POST /api/jobs/:id/retry`：仅本人失败任务可重试，需可信 Origin 与 `Idempotency-Key`。使用原任务绑定的素材版本重新创建逻辑任务；重复键返回同一新任务。版本变化或任务非失败返回 409；空正文 422，配额或并发超额 429，模型不可用 503。成功返回 202 `{jobId,status:"queued",mode:"mock"}`。
 - 删除素材后，其历史版本、分析、任务和运行记录随数据库外键级联删除；已领取任务无法再提交结果。
+
+T008 新增：
+
+- `GET /api/ideas/materials`：列出本人当前版本已有分析的素材，最多 100 条并附 `hasMore` 与 `generationAvailable`。无分析或旧版本分析的素材不在选择列表。
+- `POST /api/ideas/generate`：请求体 `{sources:[{id,version}]}`，选择 1～10 条不同的本人当前已整理素材，需可信 Origin 与 `Idempotency-Key`。同键同输入返回同一 jobId，不同输入 409；来源版本变化 409，未整理 422，跨用户或不存在 404，配额/并发超额 429，模型不可用 503。成功返回 202 `{jobId,status:"queued",mode:"mock"}`。输入摘要绑定排序后的全部素材版本。
+- `GET /api/ideas`：返回本人最近 100 条选题及其来源素材版本、摘要，并附最近一个选题生成任务状态。`GET /api/jobs/:id` 可轮询本人生成任务。
+- `PATCH /api/ideas/:id`：请求体 `{status:"new"|"saved"|"ignored"}`；只修改本人选题，需可信 Origin；其他用户返回 404。
+- 素材删除会清理引用该素材的选题及其生成任务。素材编辑后，未完成生成任务在 worker 提交前失效；已生成选题继续标明原来源版本。

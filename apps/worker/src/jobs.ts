@@ -2,12 +2,16 @@ import { randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
 import { getPool } from "@content-write/db/client";
 import { createMockAnalysis, validateAnalysis } from "./analysis";
+import { completeIdeaJob, loadIdeaSources } from "./idea-jobs";
+import { createMockIdeas } from "./ideas";
 
-type Claimed = {
+export type Claimed = {
   id: string;
   user_id: string;
   material_id: string;
   material_version: number;
+  source_count: number;
+  kind: string;
   claim_token: string;
   attempts: number;
 };
@@ -25,14 +29,14 @@ export async function claimJob(): Promise<Claimed | null> {
     const result = await client.query<Claimed>(
       `WITH next_job AS (
          SELECT id FROM ai_jobs
-          WHERE kind = 'material_analysis' AND deadline_at > now()
+          WHERE kind IN ('material_analysis', 'idea_generation') AND deadline_at > now()
             AND attempts < 3 AND (status = 'queued' OR (status = 'running' AND lease_until < now()))
           ORDER BY created_at, id FOR UPDATE SKIP LOCKED LIMIT 1
        )
        UPDATE ai_jobs j SET status = 'running', claim_token = $1, lease_until = now() + interval '30 seconds',
          attempts = attempts + 1, updated_at = now()
        FROM next_job WHERE j.id = next_job.id
-       RETURNING j.id, j.user_id, j.material_id, j.material_version, j.claim_token, j.attempts`,
+       RETURNING j.id, j.user_id, j.material_id, j.material_version, j.source_count, j.kind, j.claim_token, j.attempts`,
       [randomUUID()],
     );
     await client.query("COMMIT");
@@ -142,6 +146,23 @@ export async function processOneJob() {
     void renewLease(job).catch(() => undefined);
   }, 10_000);
   try {
+    if (job.kind === "idea_generation") {
+      const sources = await loadIdeaSources(job);
+      if (!sources || sources.length !== job.source_count) {
+        await staleJob(job);
+        return true;
+      }
+      if (process.env.AI_MODE !== "mock") {
+        await failJob(job, "AI_NOT_CONFIGURED");
+        return true;
+      }
+      await completeIdeaJob(
+        job,
+        createMockIdeas(sources),
+        performance.now() - started,
+      );
+      return true;
+    }
     const material = await getPool().query<{
       content: string;
       current_version: number;
@@ -163,7 +184,12 @@ export async function processOneJob() {
     const analysis = createMockAnalysis(material.rows[0].content);
     await completeJob(job, analysis, performance.now() - started);
   } catch {
-    await failJob(job, "ANALYSIS_FAILED");
+    await failJob(
+      job,
+      job.kind === "idea_generation"
+        ? "IDEA_GENERATION_FAILED"
+        : "ANALYSIS_FAILED",
+    );
   } finally {
     clearInterval(renewal);
   }
