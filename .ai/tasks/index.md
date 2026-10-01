@@ -1,11 +1,11 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-01 16:48 CST
-已完成：5 / 25
+更新时间：2026-10-01 16:59 CST
+已完成：6 / 25
 待合并：1
 阻塞：0
-当前任务：T005 capture-link、T006 analyze-material（并行）
-下一项：T007 retry-and-find（待 T005、T006 合并及集成验收）
+当前任务：T006 analyze-material（待合并，处理与 T005 的集成冲突）
+下一项：T007 retry-and-find（待 T006 合并及集成验收）
 真实模型验收：未开始
 线上验收：未开始
 
@@ -15,8 +15,8 @@
 | T002 | 邀请账号登录、退出、保护页面和身份隔离 | 已完成 | T001 | feat/T002-account-access | 已清理 | a0568a5 | e9d5b9c | .ai/verifications/T002.md |
 | T003 | 保存、查看、编辑、删除文字素材，版本与权限完整 | 已完成 | T002 | feat/T003-capture-text | 已清理 | ee2dcdc | af5e587 | .ai/verifications/T003.md |
 | T004 | 上传 Markdown，解析、限制、持久化和失败反馈 | 已完成 | T003 | feat/T004-import-markdown | 已清理 | 1d95e3e | 59debba | .ai/verifications/T004.md |
-| T005 | 保存 URL、安全抓取、失败粘贴正文与开关 | 待合并 | T003 | feat/T005-capture-link | ../content-write-capture-link | 8d55e7d | 无 | .ai/verifications/T005.md |
-| T006 | 处理素材获得摘要、观点和片段；包含任务、worker、轮询、基础配额 | 待开始 | T003 | feat/T006-analyze-material | 未创建 | 无 | 无 | 无 |
+| T005 | 保存 URL、安全抓取、失败粘贴正文与开关 | 已完成 | T003 | feat/T005-capture-link | 已清理 | 8d55e7d | 92ee463 | .ai/verifications/T005.md |
+| T006 | 处理素材获得摘要、观点和片段；包含任务、worker、轮询、基础配额 | 待合并 | T003 | feat/T006-analyze-material | ../content-write-analyze-material | e12f1d9 | 无 | .ai/verifications/T006.md |
 | T007 | 搜索、过滤、处理失败重试、删除失效 | 待开始 | T004、T005、T006 | feat/T007-retry-and-find | 未创建 | 无 | 无 | 无 |
 | T008 | 选择素材生成、收藏、忽略选题并查看来源 | 待开始 | T006 | feat/T008-source-based-ideas | 未创建 | 无 | 无 | 无 |
 | T009 | 创建文章 brief，生成、修改、确认大纲 | 待开始 | T008 | feat/T009-confirm-outline | 未创建 | 无 | 无 | 无 |
@@ -66,3 +66,5 @@
 - 2026-10-01 16:48 CST：T005 与 T006 从已合并的主分支并行开发；T005 链接保存、安全抓取与真实数据库检查通过，准备提交 PR。
 
 - 2026-10-01 16:50 CST：T005 实现提交 `8d55e7d`，创建 PR #13。
+
+- 2026-10-01 16:59 CST：T005 PR #13 合并；主分支独立 PostgreSQL 空库迁移和完整检查通过，任务 worktree 已清理。T006 PR #12 待更新主分支、处理迁移编号冲突后合并。
