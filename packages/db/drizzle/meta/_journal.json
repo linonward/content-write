@@ -43,6 +43,13 @@
       "when": 1790845419691,
       "tag": "0005_acoustic_chronomancer",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790849833971,
+      "tag": "0006_legal_blue_marvel",
+      "breakpoints": true
     }
   ]
 }

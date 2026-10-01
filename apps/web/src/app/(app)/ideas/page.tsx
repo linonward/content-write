@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { ui } from "@/lib/styles";
+import { IdeasWorkspace } from "@/modules/ideas/client/ideas-workspace";
 import { LogoutButton } from "@/modules/identity/client/logout-button";
-import { MaterialWorkspace } from "@/modules/materials/client/material-workspace";
 
-export default function InboxPage() {
+export default function IdeasPage() {
   return (
     <main className={ui.shell}>
       <header className={`${ui.header} justify-between`}>
@@ -14,21 +14,21 @@ export default function InboxPage() {
         <LogoutButton />
       </header>
       <section className="pt-20 pb-12 max-[680px]:pt-[70px]">
-        <p className={ui.stage}>素材箱</p>
+        <p className={ui.stage}>选题</p>
         <h1 className="text-[clamp(36px,5vw,54px)] leading-[1.18] tracking-[-0.04em]">
-          先保存你的想法。
+          从素材找到下一篇。
         </h1>
-        <p className="mt-[18px] max-w-[570px] text-base leading-[1.8] text-[#66716c]">
-          收集文字素材，随时回来修改。打开素材后可主动整理当前版本。
+        <p className="mt-[18px] max-w-[680px] text-base leading-[1.8] text-muted-foreground">
+          选择 1～10 条已整理素材，主动生成有来源和证据缺口的选题。
         </p>
         <Link
-          href="/ideas"
+          href="/inbox"
           className="mt-4 inline-block text-sm text-primary underline"
         >
-          从已整理素材找选题
+          返回素材箱
         </Link>
       </section>
-      <MaterialWorkspace />
+      <IdeasWorkspace />
     </main>
   );
 }

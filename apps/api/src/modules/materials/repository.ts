@@ -168,9 +168,28 @@ export async function allowLinkFetch(userId: string) {
 }
 
 export async function deleteMaterial(userId: string, id: string) {
-  const [deleted] = await getDb()
-    .delete(materials)
-    .where(and(eq(materials.id, id), eq(materials.userId, userId)))
-    .returning({ id: materials.id });
-  return Boolean(deleted);
+  const client = await getPool().connect();
+  try {
+    await client.query("BEGIN");
+    // Removing a selected source invalidates its entire generated result and pending job.
+    await client.query(
+      "DELETE FROM ai_jobs WHERE user_id = $1 AND id IN (SELECT job_id FROM idea_job_sources WHERE material_id = $2)",
+      [userId, id],
+    );
+    await client.query(
+      "DELETE FROM ideas WHERE user_id = $1 AND id IN (SELECT idea_id FROM idea_sources WHERE material_id = $2)",
+      [userId, id],
+    );
+    const deleted = await client.query(
+      "DELETE FROM materials WHERE id = $1 AND user_id = $2 RETURNING id",
+      [id, userId],
+    );
+    await client.query("COMMIT");
+    return deleted.rowCount === 1;
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
 }
