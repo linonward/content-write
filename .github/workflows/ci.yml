@@ -39,4 +39,6 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm test:integration
+      - run: pnpm --filter @content-write/e2e exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
       - run: pnpm build

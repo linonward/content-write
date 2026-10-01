@@ -19,6 +19,6 @@ pnpm dev
 
 ## 检查
 
-`pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm test:integration`、`pnpm build`。
+`pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm test:integration`、`pnpm test:e2e`、`pnpm build`。E2E 首次运行前安装浏览器：`pnpm --filter @content-write/e2e exec playwright install chromium`。
 
 需求与任务表见 [产品指南](docs/product.md) 和 [.ai/tasks/index.md](.ai/tasks/index.md)。

@@ -20,6 +20,7 @@
     "worker:start": "pnpm --filter @content-write/worker start",
     "api:dev": "pnpm --filter @content-write/api dev",
     "web:dev": "pnpm --filter @content-write/web dev",
+    "test:e2e": "pnpm --filter @content-write/e2e e2e",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm test:integration && pnpm build",
     "auth:check": "pnpm --filter @content-write/api auth:check",
     "auth:create-admin": "pnpm --filter @content-write/api auth:create-admin"

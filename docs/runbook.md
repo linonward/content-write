@@ -14,6 +14,17 @@ pnpm dev
 
 `pnpm dev` 通过 Turborepo 启动 Web（3000）和 API（3001）。另一个终端运行 `pnpm worker:dev`。素材整理需要常驻 worker：API 持久化任务并返回 202，worker 从 PostgreSQL 领取任务，页面轮询本人任务。`AI_MODE=mock` 使用确定性来源摘录，仅用于开发验证；真实模型在 T021 接入。其他模式当前返回 503，不会伪称已完成真实分析。
 
+## 浏览器端到端测试
+
+E2E 位于 `e2e/` 工作区包，使用 Playwright 在桌面与手机（Pixel 7）视口运行。首次运行先安装浏览器：
+
+```bash
+pnpm --filter @content-write/e2e exec playwright install chromium
+pnpm test:e2e
+```
+
+配置读取根目录 `.env.local`，shell 中已设置的变量优先。`E2E_BASE_URL` 指定 Web 地址（默认 `http://localhost:3000`），API 地址取 `NEXT_PUBLIC_API_URL`。本地已有 Web 和 API 在对应端口运行时直接复用，否则由 Playwright 启动；CI 中总是启动新进程。每次运行在 `DATABASE_URL` 指向的数据库中创建一个随机邮箱和随机密码的受邀用户，结束后删除，不使用固定测试密码。登录接口按 IP 限流（每分钟 5 次），一分钟内反复运行可能触发 429。建议在独立数据库上运行，例如为 worktree 单独启动 Compose 项目并设置 `E2E_BASE_URL`、`NEXT_PUBLIC_API_URL`、`API_PORT`、`WEB_ORIGIN` 与 `BETTER_AUTH_URL`。
+
 `AI_DAILY_JOB_LIMIT` 默认每用户每日 20 个逻辑任务（按 Asia/Shanghai 自然日），`AI_USER_CONCURRENCY` 默认每用户同时 2 个任务。任务截止时间 5 分钟，租约 30 秒；失败或租约失效最多尝试 3 次。素材箱支持搜索标题、正文和来源链接，按类型、当前处理状态与完整标签过滤。失败的素材整理任务可从素材详情重试；重试创建新逻辑任务，仍受每日和并发限制。每日额度记入独立账本，删除素材不会回退。删除素材会级联清理历史、分析与任务；模型运行记录（无正文）保留用于用量统计。worker 将未配置模型等不可恢复错误直接标记失败，日志只记录任务 ID、类型、尝试次数和错误类别。生产环境必须设置 `WEB_ORIGIN`，否则 API 拒绝启动。
 
 作者可从首页或素材箱进入 `/ideas`，选择 1～10 条当前版本已整理素材，主动生成 3 个选题，并查看来源、证据缺口，收藏或忽略。选题任务复用 PostgreSQL 持久队列和 worker；页面刷新后恢复轮询。素材删除会清理依赖该素材的选题和任务。
