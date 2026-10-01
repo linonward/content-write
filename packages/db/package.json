@@ -7,6 +7,7 @@
     "node": ">=24"
   },
   "exports": {
+    "./article-sources": "./src/article-sources.ts",
     "./client": "./src/client.ts",
     "./health": "./src/health.ts",
     "./schema": "./src/schema.ts",

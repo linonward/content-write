@@ -279,6 +279,9 @@ importers:
       '@content-write/db':
         specifier: workspace:*
         version: link:../../packages/db
+      drizzle-orm:
+        specifier: 0.45.3
+        version: 0.45.3(@types/pg@8.15.5)(kysely@0.29.6)(pg@8.23.1)
       tsx:
         specifier: 4.23.15
         version: 4.23.15

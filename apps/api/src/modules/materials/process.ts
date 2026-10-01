@@ -1,4 +1,4 @@
-import { getPool } from "@content-write/db/client";
+import { fromClient, getPool } from "@content-write/db/client";
 import { aiAvailable } from "../../config";
 import {
   enqueueJob,
@@ -30,7 +30,9 @@ export async function startAnalysis(
   const client = await getPool().connect();
   try {
     await client.query("BEGIN");
-    await lockUserQueue(client, userId);
+    // T027b/c move this module to getDb().transaction(); until then share the pg transaction.
+    const db = fromClient(client);
+    await lockUserQueue(db, userId);
     const item = await client.query<{
       current_version: number;
       content: string;
@@ -55,7 +57,7 @@ export async function startAnalysis(
     }
     const version = item.rows[0].current_version;
     const inputHash = hashInput({ materialId, version, mode: "mock" });
-    const prior = await findIdempotentJob(client, userId, key, inputHash);
+    const prior = await findIdempotentJob(db, userId, key, inputHash);
     if (prior) {
       await client.query("COMMIT");
       return prior;
@@ -68,7 +70,7 @@ export async function startAnalysis(
       await client.query("COMMIT");
       return { status: "already_done" };
     }
-    const result = await enqueueJob(client, {
+    const result = await enqueueJob(db, {
       kind: "material_analysis",
       userId,
       idempotencyKey: key,

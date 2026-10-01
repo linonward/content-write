@@ -1,5 +1,12 @@
 import { randomUUID } from "node:crypto";
-import { getPool } from "@content-write/db/client";
+import {
+  type ArticleSource,
+  readArticleSources,
+  sourcesIntact,
+} from "@content-write/db/article-sources";
+import { type Executor, getDb } from "@content-write/db/client";
+import { aiJobs, aiRuns, articles } from "@content-write/db/schema";
+import { and, eq, gt, sql } from "drizzle-orm";
 import type { Claimed } from "./jobs";
 import {
   type Brief,
@@ -8,54 +15,64 @@ import {
   validateOutline,
 } from "./outline";
 
+function toOutlineSources(sources: ArticleSource[]): OutlineSource[] {
+  return sources.map((source) => ({
+    id: source.materialId,
+    title: source.title ?? "",
+    summary: source.summary ?? "",
+    evidenceIds: source.evidenceIds,
+  }));
+}
+
+/** The job still applies only to the article version and source set it was queued for. */
+function jobCurrent(
+  job: Claimed,
+  article: { version: number; sourceCount: number } | undefined,
+  sources: ArticleSource[],
+) {
+  return (
+    article !== undefined &&
+    article.version === job.article_version &&
+    sources.length === job.source_count &&
+    sourcesIntact(sources, article.sourceCount)
+  );
+}
+
+async function readArticle(
+  db: Executor,
+  job: Claimed,
+  articleId: string,
+  lock: boolean,
+) {
+  const query = db
+    .select({
+      workingTitle: articles.workingTitle,
+      audience: articles.audience,
+      thesis: articles.thesis,
+      version: articles.version,
+      sourceCount: articles.sourceCount,
+    })
+    .from(articles)
+    .where(and(eq(articles.id, articleId), eq(articles.userId, job.user_id)));
+  const [article] = await (lock ? query.for("update") : query);
+  return article;
+}
+
 export async function loadOutlineContext(
   job: Claimed,
 ): Promise<{ brief: Brief; sources: OutlineSource[] } | null> {
   if (!job.article_id || !job.article_version) return null;
-  const article = await getPool().query<{
-    working_title: string;
-    audience: string;
-    thesis: string;
-    version: number;
-    source_count: number;
-  }>(
-    "SELECT working_title, audience, thesis, version, source_count FROM articles WHERE id = $1 AND user_id = $2",
-    [job.article_id, job.user_id],
-  );
-  if (!article.rows[0] || article.rows[0].version !== job.article_version)
-    return null;
-  const sources = await getPool().query<{
-    id: string;
-    title: string | null;
-    summary: string | null;
-    evidenceSpans: { id: string }[] | null;
-  }>(
-    `SELECT s.material_id AS id, r.title, a.result ->> 'summary' AS summary,
-            a.result -> 'evidenceSpans' AS "evidenceSpans"
-       FROM article_sources s JOIN materials m ON m.id = s.material_id AND m.user_id = $2
-       LEFT JOIN material_revisions r ON r.material_id = s.material_id AND r.version = s.material_version
-       LEFT JOIN material_analyses a ON a.material_id = s.material_id AND a.material_version = s.material_version
-      WHERE s.article_id = $1 ORDER BY s.material_id`,
-    [job.article_id, job.user_id],
-  );
-  if (
-    sources.rows.length !== job.source_count ||
-    sources.rows.length !== article.rows[0].source_count ||
-    sources.rows.some((source) => !source.title || !source.summary)
-  )
-    return null;
+  const db = getDb();
+  const article = await readArticle(db, job, job.article_id, false);
+  const sources = await readArticleSources(db, job.article_id, job.user_id);
+  if (!article || !jobCurrent(job, article, sources)) return null;
   return {
     brief: {
-      workingTitle: article.rows[0].working_title,
-      audience: article.rows[0].audience,
-      thesis: article.rows[0].thesis,
+      workingTitle: article.workingTitle,
+      audience: article.audience,
+      thesis: article.thesis,
     },
-    sources: sources.rows.map((source) => ({
-      id: source.id,
-      title: source.title ?? "",
-      summary: source.summary ?? "",
-      evidenceIds: (source.evidenceSpans ?? []).map((span) => span.id),
-    })),
+    sources: toOutlineSources(sources),
   };
 }
 
@@ -64,80 +81,68 @@ export async function completeOutlineJob(
   output: Outline,
   durationMs: number,
 ) {
-  const client = await getPool().connect();
-  try {
-    await client.query("BEGIN");
-    const owned = await client.query(
-      "SELECT id FROM ai_jobs WHERE id = $1 AND claim_token = $2 AND status = 'running' AND lease_until > now() AND deadline_at > now() FOR UPDATE",
-      [job.id, job.claim_token],
-    );
-    if (!owned.rowCount) {
-      await client.query("ROLLBACK");
-      return "lost" as const;
-    }
-    const article = await client.query<{
-      version: number;
-      source_count: number;
-    }>(
-      "SELECT version, source_count FROM articles WHERE id = $1 AND user_id = $2 FOR UPDATE",
-      [job.article_id, job.user_id],
-    );
-    const sources = await client.query<{
-      id: string;
-      title: string | null;
-      summary: string | null;
-      evidenceSpans: { id: string }[] | null;
-    }>(
-      `SELECT s.material_id AS id, r.title, a.result ->> 'summary' AS summary,
-              a.result -> 'evidenceSpans' AS "evidenceSpans"
-         FROM article_sources s JOIN materials m ON m.id = s.material_id AND m.user_id = $2
-         LEFT JOIN material_revisions r ON r.material_id = s.material_id AND r.version = s.material_version
-         LEFT JOIN material_analyses a ON a.material_id = s.material_id AND a.material_version = s.material_version
-        WHERE s.article_id = $1 ORDER BY s.material_id FOR UPDATE OF m`,
-      [job.article_id, job.user_id],
-    );
-    if (
-      !article.rows[0] ||
-      article.rows[0].version !== job.article_version ||
-      sources.rows.length !== job.source_count ||
-      sources.rows.length !== article.rows[0].source_count ||
-      sources.rows.some((source) => !source.title || !source.summary)
-    ) {
-      await client.query(
-        "UPDATE ai_jobs SET status = 'stale', error_code = 'ARTICLE_OR_SOURCE_CHANGED', claim_token = NULL, lease_until = NULL, updated_at = now() WHERE id = $1",
-        [job.id],
-      );
-      await client.query("COMMIT");
+  const articleId = job.article_id;
+  if (!articleId) throw new Error("Outline job without an article");
+  return getDb().transaction(async (tx) => {
+    const [owned] = await tx
+      .select({ id: aiJobs.id })
+      .from(aiJobs)
+      .where(
+        and(
+          eq(aiJobs.id, job.id),
+          eq(aiJobs.claimToken, job.claim_token),
+          eq(aiJobs.status, "running"),
+          gt(aiJobs.leaseUntil, sql`now()`),
+          gt(aiJobs.deadlineAt, sql`now()`),
+        ),
+      )
+      .for("update");
+    if (!owned) return "lost" as const;
+    const article = await readArticle(tx, job, articleId, true);
+    const sources = await readArticleSources(tx, articleId, job.user_id, {
+      lock: true,
+    });
+    if (!jobCurrent(job, article, sources)) {
+      await tx
+        .update(aiJobs)
+        .set({
+          status: "stale",
+          errorCode: "ARTICLE_OR_SOURCE_CHANGED",
+          claimToken: null,
+          leaseUntil: null,
+          updatedAt: sql`now()`,
+        })
+        .where(eq(aiJobs.id, job.id));
       return "stale" as const;
     }
-    const checked = validateOutline(
-      output,
-      sources.rows.map((source) => ({
-        id: source.id,
-        title: source.title ?? "",
-        summary: source.summary ?? "",
-        evidenceIds: (source.evidenceSpans ?? []).map((span) => span.id),
-      })),
-    );
+    const checked = validateOutline(output, toOutlineSources(sources));
     if (!checked.success) throw new Error("Invalid outline output");
-    await client.query(
-      "UPDATE articles SET outline = $2::jsonb, outline_confirmed_at = NULL, version = version + 1, updated_at = now() WHERE id = $1",
-      [job.article_id, JSON.stringify(checked.data)],
-    );
-    await client.query(
-      "UPDATE ai_jobs SET status = 'succeeded', error_code = NULL, claim_token = NULL, lease_until = NULL, updated_at = now() WHERE id = $1",
-      [job.id],
-    );
-    await client.query(
-      "INSERT INTO ai_runs (id, job_id, user_id, mode, duration_ms) VALUES ($1,$2,$3,'mock',$4)",
-      [randomUUID(), job.id, job.user_id, Math.max(0, Math.round(durationMs))],
-    );
-    await client.query("COMMIT");
+    await tx
+      .update(articles)
+      .set({
+        outline: checked.data,
+        outlineConfirmedAt: null,
+        version: sql`${articles.version} + 1`,
+        updatedAt: sql`now()`,
+      })
+      .where(eq(articles.id, articleId));
+    await tx
+      .update(aiJobs)
+      .set({
+        status: "succeeded",
+        errorCode: null,
+        claimToken: null,
+        leaseUntil: null,
+        updatedAt: sql`now()`,
+      })
+      .where(eq(aiJobs.id, job.id));
+    await tx.insert(aiRuns).values({
+      id: randomUUID(),
+      jobId: job.id,
+      userId: job.user_id,
+      mode: "mock",
+      durationMs: Math.max(0, Math.round(durationMs)),
+    });
     return "succeeded" as const;
-  } catch (error) {
-    await client.query("ROLLBACK");
-    throw error;
-  } finally {
-    client.release();
-  }
+  });
 }

@@ -8,15 +8,16 @@ import {
   readJson,
   requireUser,
 } from "../../http";
+import { listArticles } from "./repository";
 import {
+  ArticleError,
   confirmOutline,
   createArticle,
   getArticle,
-  listArticles,
   saveOutline,
   startOutlineGeneration,
   updateBrief,
-} from "./repository";
+} from "./service";
 
 const text = (max: number) => z.string().trim().min(1).max(max);
 const briefSchema = z.strictObject({
@@ -51,6 +52,57 @@ const createInput = z.strictObject({ ideaId: z.string().uuid() });
 export const articleRoutes = new Hono<AuthedEnv>();
 
 const readBody = (request: Request) => readJson(request, 32_768);
+
+/** Maps a rejected article action to its response; `action` completes the version-conflict hint. */
+function articleFailure(
+  error: unknown,
+  action?: "修改" | "生成" | "保存" | "确认",
+) {
+  if (!(error instanceof ArticleError)) throw error;
+  switch (error.reason) {
+    case "idea_missing":
+      return apiError("IDEA_NOT_FOUND", "选题不存在。", 404);
+    case "idea_sources_stale":
+      return apiError(
+        "IDEA_SOURCES_STALE",
+        "选题来源已变化，请重新生成选题。",
+        409,
+      );
+    case "article_missing":
+      return apiError("ARTICLE_NOT_FOUND", "文章不存在。", 404);
+    case "version_conflict":
+      return apiError(
+        "ARTICLE_VERSION_CONFLICT",
+        `文章已有新版本，请刷新后再${action ?? "操作"}。`,
+        409,
+      );
+    case "sources_missing":
+      return apiError("ARTICLE_SOURCES_MISSING", "文章来源已失效。", 422);
+    case "invalid_evidence":
+      return apiError("INVALID_EVIDENCE", "大纲引用了无效的来源片段。", 422);
+    case "outline_required":
+      return apiError("OUTLINE_REQUIRED", "请先生成或保存大纲。", 422);
+    case "idempotency_conflict":
+      return apiError("IDEMPOTENCY_CONFLICT", "请求键已用于其他输入。", 409);
+    case "job_active":
+      return apiError(
+        "OUTLINE_JOB_ACTIVE",
+        "这篇文章已有正在生成的大纲。",
+        409,
+      );
+    case "quota":
+      return apiError("AI_DAILY_LIMIT", "今日生成次数已用完。", 429);
+    case "concurrency":
+      return apiError(
+        "AI_CONCURRENCY_LIMIT",
+        "同时处理的任务已达上限。",
+        429,
+        true,
+      );
+    case "ai_unavailable":
+      return apiError("AI_NOT_CONFIGURED", "当前尚未配置可用模型服务。", 503);
+  }
+}
 articleRoutes.use("/articles", requireUser);
 articleRoutes.use("/articles/*", requireUser);
 
@@ -65,28 +117,24 @@ articleRoutes.post("/articles", async (context) => {
     return apiError("INVALID_JSON", "请求内容不是有效 JSON。", 400);
   const parsed = createInput.safeParse(body.value);
   if (!parsed.success) return apiError("INVALID_IDEA", "请选择有效选题。", 422);
-  const result = await createArticle(context.get("userId"), parsed.data.ideaId);
-  if (result.status === "missing")
-    return apiError("IDEA_NOT_FOUND", "选题不存在。", 404);
-  if (result.status === "stale")
-    return apiError(
-      "IDEA_SOURCES_STALE",
-      "选题来源已变化，请重新生成选题。",
-      409,
+  try {
+    const result = await createArticle(
+      context.get("userId"),
+      parsed.data.ideaId,
     );
-  return context.json(
-    { articleId: result.id },
-    result.status === "created" ? 201 : 200,
-  );
+    return context.json({ articleId: result.id }, result.created ? 201 : 200);
+  } catch (error) {
+    return articleFailure(error);
+  }
 });
 articleRoutes.get("/articles/:id", async (context) => {
-  const result = await getArticle(
-    context.get("userId"),
-    context.req.param("id"),
-  );
-  return result
-    ? context.json(result)
-    : apiError("ARTICLE_NOT_FOUND", "文章不存在。", 404);
+  try {
+    return context.json(
+      await getArticle(context.get("userId"), context.req.param("id")),
+    );
+  } catch (error) {
+    return articleFailure(error);
+  }
 });
 articleRoutes.patch("/articles/:id/brief", async (context) => {
   const body = await readBody(context.req.raw);
@@ -98,21 +146,17 @@ articleRoutes.patch("/articles/:id/brief", async (context) => {
   if (!parsed.success)
     return apiError("INVALID_BRIEF", "请填写标题、目标读者和核心观点。", 422);
   const { expectedVersion, ...brief } = parsed.data;
-  const result = await updateBrief(
-    context.get("userId"),
-    context.req.param("id"),
-    expectedVersion,
-    brief,
-  );
-  if (result.status === "missing")
-    return apiError("ARTICLE_NOT_FOUND", "文章不存在。", 404);
-  if (result.status === "conflict")
-    return apiError(
-      "ARTICLE_VERSION_CONFLICT",
-      "文章已有新版本，请刷新后再修改。",
-      409,
+  try {
+    const version = await updateBrief(
+      context.get("userId"),
+      context.req.param("id"),
+      expectedVersion,
+      brief,
     );
-  return context.json({ version: result.version });
+    return context.json({ version });
+  } catch (error) {
+    return articleFailure(error, "修改");
+  }
 });
 articleRoutes.post("/articles/:id/outline/generate", async (context) => {
   const key = idempotencyKey(context.req.raw);
@@ -125,41 +169,17 @@ articleRoutes.post("/articles/:id/outline/generate", async (context) => {
   const parsed = versionInput.safeParse(body.value);
   if (!parsed.success)
     return apiError("INVALID_ARTICLE_VERSION", "请提供当前文章版本。", 422);
-  const result = await startOutlineGeneration(
-    context.get("userId"),
-    context.req.param("id"),
-    parsed.data.expectedVersion,
-    key,
-  );
-  if (result.status === "missing")
-    return apiError("ARTICLE_NOT_FOUND", "文章不存在。", 404);
-  if (result.status === "sources_missing")
-    return apiError("ARTICLE_SOURCES_MISSING", "文章来源已失效。", 422);
-  if (result.status === "version_conflict")
-    return apiError(
-      "ARTICLE_VERSION_CONFLICT",
-      "文章已有新版本，请刷新后再生成。",
-      409,
+  try {
+    const jobId = await startOutlineGeneration(
+      context.get("userId"),
+      context.req.param("id"),
+      parsed.data.expectedVersion,
+      key,
     );
-  if (result.status === "conflict")
-    return apiError("IDEMPOTENCY_CONFLICT", "请求键已用于其他输入。", 409);
-  if (result.status === "active")
-    return apiError("OUTLINE_JOB_ACTIVE", "这篇文章已有正在生成的大纲。", 409);
-  if (result.status === "quota")
-    return apiError("AI_DAILY_LIMIT", "今日生成次数已用完。", 429);
-  if (result.status === "concurrency")
-    return apiError(
-      "AI_CONCURRENCY_LIMIT",
-      "同时处理的任务已达上限。",
-      429,
-      true,
-    );
-  if (result.status === "unavailable")
-    return apiError("AI_NOT_CONFIGURED", "当前尚未配置可用模型服务。", 503);
-  return context.json(
-    { jobId: result.jobId, status: "queued", mode: "mock" },
-    202,
-  );
+    return context.json({ jobId, status: "queued", mode: "mock" }, 202);
+  } catch (error) {
+    return articleFailure(error, "生成");
+  }
 });
 articleRoutes.put("/articles/:id/outline", async (context) => {
   const body = await readBody(context.req.raw);
@@ -174,25 +194,17 @@ articleRoutes.put("/articles/:id/outline", async (context) => {
       "请填写完整大纲；至少两节，每节包含标题、目的和要点。",
       422,
     );
-  const result = await saveOutline(
-    context.get("userId"),
-    context.req.param("id"),
-    parsed.data.expectedVersion,
-    parsed.data.outline,
-  );
-  if (result.status === "missing")
-    return apiError("ARTICLE_NOT_FOUND", "文章不存在。", 404);
-  if (result.status === "conflict")
-    return apiError(
-      "ARTICLE_VERSION_CONFLICT",
-      "文章已有新版本，请刷新后再保存。",
-      409,
+  try {
+    const version = await saveOutline(
+      context.get("userId"),
+      context.req.param("id"),
+      parsed.data.expectedVersion,
+      parsed.data.outline,
     );
-  if (result.status === "sources_missing")
-    return apiError("ARTICLE_SOURCES_MISSING", "文章来源已失效。", 422);
-  if (result.status === "invalid_evidence")
-    return apiError("INVALID_EVIDENCE", "大纲引用了无效的来源片段。", 422);
-  return context.json({ version: result.version });
+    return context.json({ version });
+  } catch (error) {
+    return articleFailure(error, "保存");
+  }
 });
 articleRoutes.post("/articles/:id/outline/confirm", async (context) => {
   const body = await readBody(context.req.raw);
@@ -203,22 +215,14 @@ articleRoutes.post("/articles/:id/outline/confirm", async (context) => {
   const parsed = versionInput.safeParse(body.value);
   if (!parsed.success)
     return apiError("INVALID_ARTICLE_VERSION", "请提供当前文章版本。", 422);
-  const result = await confirmOutline(
-    context.get("userId"),
-    context.req.param("id"),
-    parsed.data.expectedVersion,
-  );
-  if (result.status === "missing")
-    return apiError("ARTICLE_NOT_FOUND", "文章不存在。", 404);
-  if (result.status === "conflict")
-    return apiError(
-      "ARTICLE_VERSION_CONFLICT",
-      "文章已有新版本，请刷新后再确认。",
-      409,
+  try {
+    const version = await confirmOutline(
+      context.get("userId"),
+      context.req.param("id"),
+      parsed.data.expectedVersion,
     );
-  if (result.status === "sources_missing")
-    return apiError("ARTICLE_SOURCES_MISSING", "文章来源已失效。", 422);
-  if (result.status === "no_outline")
-    return apiError("OUTLINE_REQUIRED", "请先生成或保存大纲。", 422);
-  return context.json({ version: result.version, status: "confirmed" });
+    return context.json({ version, status: "confirmed" });
+  } catch (error) {
+    return articleFailure(error, "确认");
+  }
 });

@@ -1,401 +1,255 @@
 import { randomUUID } from "node:crypto";
-import { getPool, type PoolClient } from "@content-write/db/client";
-import { aiAvailable } from "../../config";
+import { type Executor, getDb } from "@content-write/db/client";
 import {
-  enqueueJob,
-  findIdempotentJob,
-  hashInput,
-  lockUserQueue,
-} from "../ai-jobs/queue";
+  aiJobs,
+  articleSources,
+  articles,
+  ideaSources,
+  ideas,
+  materialAnalyses,
+  materialRevisions,
+  materials,
+} from "@content-write/db/schema";
+import { and, asc, count, desc, eq, gt, inArray, sql } from "drizzle-orm";
+import type { PgUpdateSetSource } from "drizzle-orm/pg-core";
 
-export type Outline = {
-  workingTitle: string;
-  audience: string;
-  thesis: string;
-  sections: {
-    heading: string;
-    purpose: string;
-    keyPoints: string[];
-    evidenceIds: string[];
-    missingEvidence: string[];
-  }[];
-};
+export type Outline = NonNullable<(typeof articles.$inferSelect)["outline"]>;
+type PinnedSource = { materialId: string; materialVersion: number };
 
-export async function createArticle(userId: string, ideaId: string) {
-  const client = await getPool().connect();
-  try {
-    await client.query("BEGIN");
-    const idea = await client.query<{
-      id: string;
-      title: string;
-      audience: string;
-      thesis: string;
-    }>(
-      "SELECT id, title, audience, thesis FROM ideas WHERE id = $1 AND user_id = $2 FOR UPDATE",
-      [ideaId, userId],
+export async function lockIdea(db: Executor, userId: string, ideaId: string) {
+  const [idea] = await db
+    .select({
+      title: ideas.title,
+      audience: ideas.audience,
+      thesis: ideas.thesis,
+    })
+    .from(ideas)
+    .where(and(eq(ideas.id, ideaId), eq(ideas.userId, userId)))
+    .for("update");
+  return idea;
+}
+
+/** Idea sources whose material is still at the idea's revision and analyzed; locks those materials. */
+export function lockCurrentIdeaSources(
+  db: Executor,
+  userId: string,
+  ideaId: string,
+): Promise<PinnedSource[]> {
+  return db
+    .select({
+      materialId: ideaSources.materialId,
+      materialVersion: ideaSources.materialVersion,
+    })
+    .from(ideaSources)
+    .innerJoin(
+      materials,
+      and(
+        eq(materials.id, ideaSources.materialId),
+        eq(materials.userId, userId),
+        eq(materials.currentVersion, ideaSources.materialVersion),
+      ),
+    )
+    .innerJoin(
+      materialAnalyses,
+      and(
+        eq(materialAnalyses.materialId, ideaSources.materialId),
+        eq(materialAnalyses.materialVersion, ideaSources.materialVersion),
+      ),
+    )
+    .where(eq(ideaSources.ideaId, ideaId))
+    .orderBy(asc(ideaSources.materialId))
+    .for("update", { of: materials });
+}
+
+export async function countIdeaSources(db: Executor, ideaId: string) {
+  const [row] = await db
+    .select({ count: count() })
+    .from(ideaSources)
+    .where(eq(ideaSources.ideaId, ideaId));
+  return row?.count ?? 0;
+}
+
+/** Returns the new id, or undefined when the user already has an article for this idea. */
+export async function insertArticle(
+  db: Executor,
+  values: Omit<typeof articles.$inferInsert, "id">,
+) {
+  const [row] = await db
+    .insert(articles)
+    .values({ id: randomUUID(), ...values })
+    .onConflictDoNothing({ target: [articles.userId, articles.ideaId] })
+    .returning({ id: articles.id });
+  return row?.id;
+}
+
+export async function insertArticleSources(
+  db: Executor,
+  articleId: string,
+  sources: PinnedSource[],
+) {
+  await db
+    .insert(articleSources)
+    .values(
+      sources.map((source) => ({ id: randomUUID(), articleId, ...source })),
     );
-    if (!idea.rows[0]) {
-      await client.query("ROLLBACK");
-      return { status: "missing" as const };
-    }
-    const sources = await client.query<{
-      material_id: string;
-      material_version: number;
-    }>(
-      `SELECT s.material_id, s.material_version FROM idea_sources s
-         JOIN materials m ON m.id = s.material_id AND m.user_id = $2 AND m.current_version = s.material_version
-         JOIN material_analyses a ON a.material_id = s.material_id AND a.material_version = s.material_version
-        WHERE s.idea_id = $1 ORDER BY s.material_id FOR UPDATE OF m`,
-      [ideaId, userId],
-    );
-    if (!sources.rows.length) {
-      await client.query("ROLLBACK");
-      return { status: "stale" as const };
-    }
-    const total = await client.query<{ count: string }>(
-      "SELECT count(*)::text AS count FROM idea_sources WHERE idea_id = $1",
-      [ideaId],
-    );
-    if (Number(total.rows[0]?.count) !== sources.rows.length) {
-      await client.query("ROLLBACK");
-      return { status: "stale" as const };
-    }
-    const articleId = randomUUID();
-    const created = await client.query<{ id: string }>(
-      `INSERT INTO articles (id, user_id, idea_id, working_title, audience, thesis, source_count)
-       VALUES ($1,$2,$3,$4,$5,$6,$7) ON CONFLICT (user_id, idea_id) DO NOTHING RETURNING id`,
-      [
-        articleId,
-        userId,
-        ideaId,
-        idea.rows[0].title,
-        idea.rows[0].audience,
-        idea.rows[0].thesis,
-        sources.rows.length,
-      ],
-    );
-    if (created.rows[0]) {
-      for (const source of sources.rows)
-        await client.query(
-          "INSERT INTO article_sources (id, article_id, material_id, material_version) VALUES ($1,$2,$3,$4)",
-          [
-            randomUUID(),
-            articleId,
-            source.material_id,
-            source.material_version,
-          ],
-        );
-    }
-    const id =
-      created.rows[0]?.id ??
-      (
-        await client.query<{ id: string }>(
-          "SELECT id FROM articles WHERE user_id = $1 AND idea_id = $2",
-          [userId, ideaId],
-        )
-      ).rows[0]?.id;
-    await client.query("COMMIT");
-    return {
-      status: created.rows[0] ? ("created" as const) : ("existing" as const),
-      id,
-    };
-  } catch (error) {
-    await client.query("ROLLBACK");
-    throw error;
-  } finally {
-    client.release();
-  }
+}
+
+export async function findArticleIdByIdea(
+  db: Executor,
+  userId: string,
+  ideaId: string,
+) {
+  const [row] = await db
+    .select({ id: articles.id })
+    .from(articles)
+    .where(and(eq(articles.userId, userId), eq(articles.ideaId, ideaId)));
+  return row?.id;
 }
 
 export async function listArticles(userId: string) {
-  const result = await getPool().query(
-    `SELECT id, idea_id AS "ideaId", working_title AS "workingTitle", audience, thesis, version,
-            outline IS NOT NULL AS "hasOutline", outline_confirmed_at AS "outlineConfirmedAt", updated_at AS "updatedAt"
-       FROM articles WHERE user_id = $1 ORDER BY updated_at DESC, id DESC LIMIT 100`,
-    [userId],
-  );
-  return { articles: result.rows };
+  const rows = await getDb()
+    .select({
+      id: articles.id,
+      ideaId: articles.ideaId,
+      workingTitle: articles.workingTitle,
+      audience: articles.audience,
+      thesis: articles.thesis,
+      version: articles.version,
+      hasOutline: sql<boolean>`${articles.outline} IS NOT NULL`,
+      outlineConfirmedAt: articles.outlineConfirmedAt,
+      updatedAt: articles.updatedAt,
+    })
+    .from(articles)
+    .where(eq(articles.userId, userId))
+    .orderBy(desc(articles.updatedAt), desc(articles.id))
+    .limit(100);
+  return { articles: rows };
 }
 
-export async function getArticle(userId: string, id: string) {
-  const [article, sources, job] = await Promise.all([
-    getPool().query<{
-      id: string;
-      ideaId: string | null;
-      workingTitle: string;
-      audience: string;
-      thesis: string;
-      sourceCount: number;
-      version: number;
-      outline: Outline | null;
-      outlineConfirmedAt: Date | null;
-      updatedAt: Date;
-    }>(
-      `SELECT id, idea_id AS "ideaId", working_title AS "workingTitle", audience, thesis, source_count AS "sourceCount", version, outline,
-              outline_confirmed_at AS "outlineConfirmedAt", updated_at AS "updatedAt"
-         FROM articles WHERE id = $1 AND user_id = $2`,
-      [id, userId],
-    ),
-    getPool().query(
-      `SELECT s.material_id AS "materialId", s.material_version AS "materialVersion", r.title,
-              a.result ->> 'summary' AS summary, COALESCE(a.result -> 'evidenceSpans', '[]'::jsonb) AS "evidenceSpans"
-         FROM article_sources s JOIN articles ar ON ar.id = s.article_id AND ar.user_id = $2
-         LEFT JOIN material_revisions r ON r.material_id = s.material_id AND r.version = s.material_version
-         LEFT JOIN material_analyses a ON a.material_id = s.material_id AND a.material_version = s.material_version
-        WHERE s.article_id = $1 ORDER BY s.material_id`,
-      [id, userId],
-    ),
-    getPool().query(
-      `SELECT j.id, j.status, j.error_code AS "errorCode" FROM ai_jobs j
-        WHERE j.article_id = $1 AND j.user_id = $2 AND j.kind = 'outline_generation'
-        ORDER BY j.created_at DESC, j.id DESC LIMIT 1`,
-      [id, userId],
-    ),
-  ]);
-  if (!article.rows[0]) return null;
-  return {
-    article: { ...article.rows[0], sources: sources.rows },
-    latestJob: job.rows[0] ?? null,
-    generationAvailable: process.env.AI_MODE === "mock",
-  };
+export async function findArticle(db: Executor, userId: string, id: string) {
+  const [article] = await db
+    .select({
+      id: articles.id,
+      ideaId: articles.ideaId,
+      workingTitle: articles.workingTitle,
+      audience: articles.audience,
+      thesis: articles.thesis,
+      sourceCount: articles.sourceCount,
+      version: articles.version,
+      outline: articles.outline,
+      outlineConfirmedAt: articles.outlineConfirmedAt,
+      updatedAt: articles.updatedAt,
+    })
+    .from(articles)
+    .where(and(eq(articles.id, id), eq(articles.userId, userId)));
+  return article;
 }
 
-async function lockedArticle(client: PoolClient, userId: string, id: string) {
-  const result = await client.query<{
-    version: number;
-    outline: Outline | null;
-    outline_confirmed_at: Date | null;
-  }>(
-    "SELECT version, outline, outline_confirmed_at FROM articles WHERE id = $1 AND user_id = $2 FOR UPDATE",
-    [id, userId],
-  );
-  return result.rows[0];
-}
-
-export async function updateBrief(
-  userId: string,
-  id: string,
-  expectedVersion: number,
-  brief: { workingTitle: string; audience: string; thesis: string },
-) {
-  const result = await getPool().query(
-    `UPDATE articles SET working_title = $4, audience = $5, thesis = $6, outline = NULL,
-            outline_confirmed_at = NULL, version = version + 1, updated_at = now()
-      WHERE id = $1 AND user_id = $2 AND version = $3 RETURNING version`,
-    [
-      id,
-      userId,
-      expectedVersion,
-      brief.workingTitle,
-      brief.audience,
-      brief.thesis,
-    ],
-  );
-  if (result.rows[0])
-    return {
-      status: "updated" as const,
-      version: result.rows[0].version as number,
-    };
-  return {
-    status: (
-      await getPool().query(
-        "SELECT 1 FROM articles WHERE id = $1 AND user_id = $2",
-        [id, userId],
-      )
-    ).rowCount
-      ? ("conflict" as const)
-      : ("missing" as const),
-  };
-}
-
-export async function saveOutline(
-  userId: string,
-  id: string,
-  expectedVersion: number,
-  outline: Outline,
-) {
-  const client = await getPool().connect();
-  try {
-    await client.query("BEGIN");
-    const article = await lockedArticle(client, userId, id);
-    if (!article) {
-      await client.query("ROLLBACK");
-      return { status: "missing" as const };
-    }
-    if (article.version !== expectedVersion) {
-      await client.query("ROLLBACK");
-      return { status: "conflict" as const };
-    }
-    const evidence = await client.query<{
-      material_id: string;
-      result: { evidenceSpans?: { id: string }[] } | null;
-    }>(
-      `SELECT s.material_id, a.result FROM article_sources s
-         LEFT JOIN material_analyses a ON a.material_id = s.material_id AND a.material_version = s.material_version
-        WHERE s.article_id = $1`,
-      [id],
-    );
-    const count = await client.query<{ source_count: number }>(
-      "SELECT source_count FROM articles WHERE id = $1",
-      [id],
-    );
-    if (
-      evidence.rows.length !== count.rows[0]?.source_count ||
-      evidence.rows.some((row) => !row.result)
-    ) {
-      await client.query("ROLLBACK");
-      return { status: "sources_missing" as const };
-    }
-    const available = new Set(
-      evidence.rows.flatMap((row) =>
-        (row.result?.evidenceSpans ?? []).map(
-          (span) => `${row.material_id}:${span.id}`,
-        ),
+/** Source revisions shown on the article page, with full evidence spans. */
+export function listSourceDetails(db: Executor, userId: string, id: string) {
+  return db
+    .select({
+      materialId: articleSources.materialId,
+      materialVersion: articleSources.materialVersion,
+      title: materialRevisions.title,
+      summary: sql<string | null>`${materialAnalyses.result} ->> 'summary'`,
+      evidenceSpans: sql<
+        unknown[]
+      >`COALESCE(${materialAnalyses.result} -> 'evidenceSpans', '[]'::jsonb)`,
+    })
+    .from(articleSources)
+    .innerJoin(
+      articles,
+      and(
+        eq(articles.id, articleSources.articleId),
+        eq(articles.userId, userId),
       ),
-    );
-    if (
-      outline.sections.some((section) =>
-        section.evidenceIds.some(
-          (evidenceId) =>
-            !available.has(evidenceId) ||
-            new Set(section.evidenceIds).size !== section.evidenceIds.length,
-        ),
-      )
-    ) {
-      await client.query("ROLLBACK");
-      return { status: "invalid_evidence" as const };
-    }
-    const result = await client.query<{ version: number }>(
-      `UPDATE articles SET working_title = $2, audience = $3, thesis = $4, outline = $5::jsonb,
-              outline_confirmed_at = NULL, version = version + 1, updated_at = now()
-        WHERE id = $1 RETURNING version`,
-      [
-        id,
-        outline.workingTitle,
-        outline.audience,
-        outline.thesis,
-        JSON.stringify(outline),
-      ],
-    );
-    await client.query("COMMIT");
-    return { status: "updated" as const, version: result.rows[0].version };
-  } catch (error) {
-    await client.query("ROLLBACK");
-    throw error;
-  } finally {
-    client.release();
-  }
+    )
+    .leftJoin(
+      materialRevisions,
+      and(
+        eq(materialRevisions.materialId, articleSources.materialId),
+        eq(materialRevisions.version, articleSources.materialVersion),
+      ),
+    )
+    .leftJoin(
+      materialAnalyses,
+      and(
+        eq(materialAnalyses.materialId, articleSources.materialId),
+        eq(materialAnalyses.materialVersion, articleSources.materialVersion),
+      ),
+    )
+    .where(eq(articleSources.articleId, id))
+    .orderBy(asc(articleSources.materialId));
 }
 
-export async function confirmOutline(
+export async function findLatestOutlineJob(
+  db: Executor,
   userId: string,
   id: string,
-  expectedVersion: number,
 ) {
-  const result = await getPool().query<{ version: number }>(
-    `UPDATE articles SET outline_confirmed_at = now(), version = version + 1, updated_at = now()
-      WHERE id = $1 AND user_id = $2 AND version = $3 AND outline IS NOT NULL
-        AND source_count = (SELECT count(*) FROM article_sources WHERE article_id = $1)
-      RETURNING version`,
-    [id, userId, expectedVersion],
-  );
-  if (result.rows[0])
-    return { status: "confirmed" as const, version: result.rows[0].version };
-  const article = await getPool().query<{
-    version: number;
-    outline: Outline | null;
-    source_count: number;
-    actual_count: string;
-  }>(
-    "SELECT version, outline, source_count, (SELECT count(*)::text FROM article_sources WHERE article_id = $1) AS actual_count FROM articles WHERE id = $1 AND user_id = $2",
-    [id, userId],
-  );
-  if (!article.rows[0]) return { status: "missing" as const };
-  if (article.rows[0].version !== expectedVersion)
-    return { status: "conflict" as const };
-  if (Number(article.rows[0].actual_count) !== article.rows[0].source_count)
-    return { status: "sources_missing" as const };
-  return { status: "no_outline" as const };
+  const [job] = await db
+    .select({
+      id: aiJobs.id,
+      status: aiJobs.status,
+      errorCode: aiJobs.errorCode,
+    })
+    .from(aiJobs)
+    .where(
+      and(
+        eq(aiJobs.articleId, id),
+        eq(aiJobs.userId, userId),
+        eq(aiJobs.kind, "outline_generation"),
+      ),
+    )
+    .orderBy(desc(aiJobs.createdAt), desc(aiJobs.id))
+    .limit(1);
+  return job;
 }
 
-export async function startOutlineGeneration(
-  userId: string,
+export async function lockArticle(db: Executor, userId: string, id: string) {
+  const [article] = await db
+    .select({
+      version: articles.version,
+      sourceCount: articles.sourceCount,
+      outline: articles.outline,
+    })
+    .from(articles)
+    .where(and(eq(articles.id, id), eq(articles.userId, userId)))
+    .for("update");
+  return article;
+}
+
+/** Applies the changes as a new article version and returns that version. */
+export async function updateArticle(
+  db: Executor,
   id: string,
-  expectedVersion: number,
-  key: string,
+  changes: PgUpdateSetSource<typeof articles>,
 ) {
-  if (!aiAvailable()) return { status: "unavailable" as const };
-  const client = await getPool().connect();
-  try {
-    await client.query("BEGIN");
-    await lockUserQueue(client, userId);
-    const article = await client.query<{
-      version: number;
-      source_count: number;
-    }>(
-      "SELECT version, source_count FROM articles WHERE id = $1 AND user_id = $2 FOR UPDATE",
-      [id, userId],
-    );
-    if (!article.rows[0]) {
-      await client.query("ROLLBACK");
-      return { status: "missing" as const };
-    }
-    const sources = await client.query<{
-      material_id: string;
-      material_version: number;
-    }>(
-      `SELECT s.material_id, s.material_version FROM article_sources s
-         JOIN materials m ON m.id = s.material_id AND m.user_id = $2
-         JOIN material_analyses a ON a.material_id = s.material_id AND a.material_version = s.material_version
-        WHERE s.article_id = $1 ORDER BY s.material_id FOR UPDATE OF m`,
-      [id, userId],
-    );
-    if (
-      !sources.rows.length ||
-      sources.rows.length !== article.rows[0].source_count
-    ) {
-      await client.query("ROLLBACK");
-      return { status: "sources_missing" as const };
-    }
-    const hash = hashInput({
-      kind: "outline_generation",
-      id,
-      expectedVersion,
-      sources: sources.rows,
-      mode: "mock",
-    });
-    const prior = await findIdempotentJob(client, userId, key, hash);
-    if (prior) {
-      await client.query("COMMIT");
-      return prior;
-    }
-    if (article.rows[0].version !== expectedVersion) {
-      await client.query("ROLLBACK");
-      return { status: "version_conflict" as const };
-    }
-    const active = await client.query(
-      "SELECT 1 FROM ai_jobs WHERE article_id = $1 AND kind = 'outline_generation' AND status IN ('queued','running') AND deadline_at > now() LIMIT 1",
-      [id],
-    );
-    if (active.rowCount) {
-      await client.query("COMMIT");
-      return { status: "active" as const };
-    }
-    const result = await enqueueJob(client, {
-      kind: "outline_generation",
-      userId,
-      idempotencyKey: key,
-      inputHash: hash,
-      sourceCount: sources.rows.length,
-      articleId: id,
-      articleVersion: expectedVersion,
-    });
-    await client.query("COMMIT");
-    return result;
-  } catch (error) {
-    await client.query("ROLLBACK");
-    throw error;
-  } finally {
-    client.release();
-  }
+  const [row] = await db
+    .update(articles)
+    .set({
+      ...changes,
+      version: sql`${articles.version} + 1`,
+      updatedAt: sql`now()`,
+    })
+    .where(eq(articles.id, id))
+    .returning({ version: articles.version });
+  return row.version;
+}
+
+export async function hasActiveOutlineJob(db: Executor, articleId: string) {
+  const [job] = await db
+    .select({ id: aiJobs.id })
+    .from(aiJobs)
+    .where(
+      and(
+        eq(aiJobs.articleId, articleId),
+        eq(aiJobs.kind, "outline_generation"),
+        inArray(aiJobs.status, ["queued", "running"]),
+        gt(aiJobs.deadlineAt, sql`now()`),
+      ),
+    )
+    .limit(1);
+  return Boolean(job);
 }
