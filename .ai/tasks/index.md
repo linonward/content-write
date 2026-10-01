@@ -1,11 +1,11 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-02 00:51 CST
-已完成：14 / 26
+更新时间：2026-10-02 01:30 CST
+已完成：14 / 30（T021 已取消）
 待合并：0
 阻塞：0
 当前任务：无
-下一项：T013 ai-edit-selection
+下一项：T028 deepseek-provider（产品方向 PR 合并后）；T029 另需新方向设计更新合并
 真实模型验收：未开始
 线上验收：未开始
 
@@ -31,19 +31,25 @@
 | T018 | 记录手动发布链接、时间和文章版本 | 待开始 | T017 | feat/T018-record-publication | 未创建 | 无 | 无 | 无 |
 | T019 | 首页、初次引导、目标、聚合信息和响应式布局 | 待开始 | T007、T009、T011、T014、T018 | feat/T019-home-onboarding | 未创建 | 无 | 无 | 无 |
 | T020 | 用户反馈、事件、去重、漏斗和隐私配置 | 待开始 | T013、T016、T018、T019 | feat/T020-feedback-and-funnel | 未创建 | 无 | 无 | 无 |
-| T021 | 真实模型接入、用量和完整真实生成链路 | 待开始 | T013、T016、T017；凭证 | feat/T021-real-provider | 未创建 | 无 | 无 | 无 |
-| T022 | 完整 E2E、安全与故障回归、10 组质量评估 | 待开始 | T020、T021；授权素材 | feat/T022-quality-and-regression | 未创建 | 无 | 无 | 无 |
+| T021 | 真实模型接入、用量和完整真实生成链路 | 已取消（由 T028 取代） | 无 | 无 | 未创建 | 无 | 无 | .ai/plans/product-direction-2026-10.md |
+| T022 | 完整 E2E、安全与故障回归、10 组质量评估 | 待开始 | T020、T028；授权素材 | feat/T022-quality-and-regression | 未创建 | 无 | 无 | 无 |
 | T023 | 生产镜像、完整 CI、部署、HTTPS、迁移和备份恢复 | 待开始 | T022；环境授权 | feat/T023-staging-delivery | 未创建 | 无 | 无 | 无 |
 | T024 | 试用交付、七天实验、说明和最终验收 | 待开始 | T023 | feat/T024-trial-handoff | 未创建 | 无 | 无 | 无 |
 | T025 | Web/API/worker 分离与 Turborepo 编排 | 已完成 | T001、T002 | chore/T025-turborepo-hono | 已清理 | 638fa04 | 8ec3dfc | .ai/verifications/T025.md |
 | T026 | 任务额度账本、用量保留、任务类型隔离、API 共享辅助与 worker 失败分类 | 已完成 | T009 | chore/T026-ai-jobs-hardening | 已清理 | 260960e | bf5100c | .ai/verifications/T026.md |
 | T027 | API 按 route/service/repository 分层，数据访问收敛到 Drizzle；用户行为不变 | T027a 已完成；b/c 待开始 | T026；T027a 先于 T010 | refactor/T027a-articles-layering | 已清理 | 11180c1 | d6acd92 | .ai/verifications/T027.md |
+| T028 | DeepSeek 真实模型接入，现有整理、选题、大纲、初稿真实调用与用量记录 | 待开始 | T026；凭证 | feat/T028-deepseek-provider | 未创建 | 无 | 无 | 无 |
+| T029 | 参考文章与拆解：保存与抓取、拆解任务、`/breakdowns`、删除清除、10 篇质量评估 | 待开始 | T028；新方向设计更新 | feat/T029-reference-breakdown | 未创建 | 无 | 无 | 无 |
+| T030 | 按框架写：用框架创建文章、槽位大纲、框架标签、参考文章不作证据 | 待开始 | T029 | feat/T030-framework-outline | 未创建 | 无 | 无 | 无 |
+| T031 | 本人公众号草稿箱：只创建草稿、结果待确认、版本落后提示 | 待开始 | T017；公众号凭证与固定出口 IP | feat/T031-wechat-draft | 未创建 | 无 | 无 | 无 |
 
 ## 当前阻塞
 
 暂无已确认阻塞。
 
 ## 最近更新
+
+- 2026-10-02 01:30 CST：产品方向调整：增加“从爆款开始”入口（拆解写作框架，用自己的素材写），真实模型改为 DeepSeek（T028 取代 T021），本人公众号草稿箱提前为 T031。执行顺序 T028、T029、T030、T017、T031；T013 到 T016、T018 到 T020、T027b/c 顺延。依据 `.ai/plans/product-direction-2026-10.md`。
 
 - 2026-10-02 00:51 CST：PR #33 合并为 `9d663d3`；主分支独立 PostgreSQL 空库迁移 0000–0011 与完整检查通过，API 集成测试 38/38。验证数据库和 T012 worktree 已清理。T013 可以开始。
 
