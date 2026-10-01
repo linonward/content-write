@@ -15,6 +15,13 @@
       "when": 1790837053703,
       "tag": "0001_glossy_bastion",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790840352708,
+      "tag": "0002_blushing_the_captain",
+      "breakpoints": true
     }
   ]
 }
