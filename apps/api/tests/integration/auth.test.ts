@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { user } from "@content-write/db/auth-schema";
+import { rateLimit, user } from "@content-write/db/auth-schema";
 import { getDb, getPool } from "@content-write/db/client";
 import { eq } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
@@ -62,6 +62,8 @@ describe("account access", () => {
   });
 
   it("limits account creation to admins and isolates sessions", async () => {
+    // In-process requests have no socket IP and share a single test rate-limit bucket.
+    await getDb().delete(rateLimit);
     const admin = await auth.api.createUser({
       body: { email: adminEmail, name: "Admin", password, role: "admin" },
     });

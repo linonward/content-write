@@ -25,6 +25,7 @@ export const materials = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     kind: text("kind").notNull().default("text"),
+    sourceFilename: text("source_filename"),
     title: text("title").notNull(),
     content: text("content").notNull(),
     currentVersion: integer("current_version").notNull().default(1),
@@ -51,6 +52,8 @@ export const materialRevisions = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     version: integer("version").notNull(),
+    kind: text("kind").notNull().default("text"),
+    sourceFilename: text("source_filename"),
     title: text("title").notNull(),
     content: text("content").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })

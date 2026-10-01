@@ -358,6 +358,32 @@ h1 {
 .material-actions .primary-button {
   margin-top: 0;
 }
+.upload-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e2e7e2;
+}
+.upload-form h3 {
+  margin: 0;
+  font-size: 18px;
+}
+.upload-form label {
+  font-size: 14px;
+  font-weight: 700;
+}
+.upload-form input {
+  width: 100%;
+  font: inherit;
+}
+.upload-form .outline-link {
+  justify-self: start;
+  background: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
 .danger-button {
   padding: 12px 18px;
   border: 1px solid #bd6a5b;

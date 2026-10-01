@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { user } from "@content-write/db/auth-schema";
+import { rateLimit, user } from "@content-write/db/auth-schema";
 import { getDb, getPool } from "@content-write/db/client";
 import { materialRevisions } from "@content-write/db/schema";
 import { eq } from "drizzle-orm";
@@ -13,6 +13,8 @@ const origin = process.env.WEB_ORIGIN ?? "http://localhost:3000";
 const users: string[] = [];
 
 async function signIn(email: string) {
+  // In-process requests have no socket IP and share a single test rate-limit bucket.
+  await getDb().delete(rateLimit);
   const created = await auth.api.createUser({
     body: { email, name: email, password, role: "user" },
   });

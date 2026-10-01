@@ -6,7 +6,8 @@ type Material = {
   id: string;
   title: string;
   content: string;
-  kind: "text";
+  kind: "text" | "markdown";
+  sourceFilename: string | null;
   currentVersion: number;
   createdAt: string;
   updatedAt: string;
@@ -20,7 +21,9 @@ async function api<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
     credentials: "include",
     headers: {
-      ...(init?.body ? { "content-type": "application/json" } : {}),
+      ...(typeof init?.body === "string"
+        ? { "content-type": "application/json" }
+        : {}),
       ...init?.headers,
     },
   });
@@ -124,6 +127,60 @@ export function MaterialWorkspace() {
     }
   }
 
+  async function upload(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    const file = new FormData(formElement).get("file");
+    if (!(file instanceof File) || !file.name) {
+      setError("请选择 .md 或 .txt 文件。");
+      return;
+    }
+    if (!/\.(md|txt)$/i.test(file.name)) {
+      setError("只支持 .md 和 .txt 文件。");
+      return;
+    }
+    if (file.size > 1_048_576) {
+      setError("文件不能超过 1 MiB。");
+      return;
+    }
+    try {
+      const content = new TextDecoder("utf-8", { fatal: true })
+        .decode(await file.arrayBuffer())
+        .replace(/^\uFEFF/, "");
+      if (
+        !content.trim() ||
+        content.length > 50_000 ||
+        content.includes("\u0000")
+      ) {
+        setError("文件正文不能为空，最多 50000 字，且不能包含空字符。");
+        return;
+      }
+    } catch {
+      setError("文件必须是 UTF-8 编码。");
+      return;
+    }
+    setPending(true);
+    setError("");
+    setNotice("");
+    try {
+      const result = await api<{ material: Material }>("/import", {
+        method: "POST",
+        body: new FormData(formElement),
+      });
+      setSelected(result.material);
+      setTitle(result.material.title);
+      setContent(result.material.content);
+      setMode("view");
+      formElement.reset();
+      await refresh();
+      setNotice("文件已导入素材箱。");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "导入失败，请重试。");
+    } finally {
+      setPending(false);
+    }
+  }
+
   async function remove() {
     if (
       !selected ||
@@ -148,7 +205,7 @@ export function MaterialWorkspace() {
   }
 
   return (
-    <section className="material-workspace" aria-label="文字素材">
+    <section className="material-workspace" aria-label="素材箱">
       <aside className="material-list">
         <div className="material-list-head">
           <h2>最近素材</h2>
@@ -171,7 +228,8 @@ export function MaterialWorkspace() {
                 >
                   <strong>{item.title}</strong>
                   <span>
-                    版本 {item.currentVersion} ·{" "}
+                    {item.sourceFilename ? "文件导入" : "文字"} · 版本{" "}
+                    {item.currentVersion} ·{" "}
                     {new Date(item.updatedAt).toLocaleDateString("zh-CN")}
                   </span>
                 </button>
@@ -211,6 +269,12 @@ export function MaterialWorkspace() {
             <p className="material-meta">
               更新于 {new Date(selected.updatedAt).toLocaleString("zh-CN")}
             </p>
+            {selected.sourceFilename && (
+              <p className="material-meta">
+                来源文件：{selected.sourceFilename} ·{" "}
+                {selected.kind === "markdown" ? "Markdown" : "纯文本"}
+              </p>
+            )}
             <div className="material-body">{selected.content}</div>
             <div className="material-actions">
               <button
@@ -276,6 +340,28 @@ export function MaterialWorkspace() {
                 </button>
               )}
             </div>
+          </form>
+        )}
+        {mode === "create" && (
+          <form
+            className="upload-form"
+            onSubmit={(event) => void upload(event)}
+          >
+            <h3>从文件导入</h3>
+            <label htmlFor="material-file">选择 Markdown 或纯文本文件</label>
+            <input
+              id="material-file"
+              name="file"
+              type="file"
+              accept=".md,.txt,text/markdown,text/plain"
+              required
+            />
+            <p className="form-note">
+              仅支持 UTF-8；单文件不超过 1 MiB，正文不超过 50000 字。
+            </p>
+            <button className="outline-link" type="submit" disabled={pending}>
+              {pending ? "导入中…" : "导入文件"}
+            </button>
           </form>
         )}
       </div>
