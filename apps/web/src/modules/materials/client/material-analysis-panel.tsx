@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,8 @@ type Analysis = {
 };
 type AnalysisResponse = {
   currentVersion: number;
+  processingAvailable: boolean;
+  hasContent: boolean;
   job: { id: string; status: string } | null;
   analysis: { materialVersion: number; mode: string; result: Analysis } | null;
 };
@@ -55,17 +57,9 @@ export function MaterialAnalysisPanel({
   const [jobId, setJobId] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-
-  const load = useCallback(async () => {
-    const response = await request<AnalysisResponse>(
-      `/materials/${materialId}/analysis`,
-    );
-    setAnalysis(
-      response.analysis?.materialVersion === version ? response.analysis : null,
-    );
-    if (response.job && ["queued", "running"].includes(response.job.status))
-      setJobId(response.job.id);
-  }, [materialId, version]);
+  const [processingAvailable, setProcessingAvailable] = useState(false);
+  const [hasContent, setHasContent] = useState(false);
+  const [starting, setStarting] = useState(false);
 
   useEffect(() => {
     let live = true;
@@ -73,7 +67,23 @@ export function MaterialAnalysisPanel({
     setJobId(null);
     setError("");
     setLoading(true);
-    void load()
+    void request<AnalysisResponse>(`/materials/${materialId}/analysis`)
+      .then((response) => {
+        if (!live) return;
+        setAnalysis(
+          response.analysis?.materialVersion === version
+            ? response.analysis
+            : null,
+        );
+        setProcessingAvailable(response.processingAvailable);
+        setHasContent(response.hasContent);
+        if (response.job && ["queued", "running"].includes(response.job.status))
+          setJobId(response.job.id);
+        if (response.job?.status === "failed")
+          setError("上次处理失败，请重新整理。");
+        if (response.job?.status === "stale")
+          setError("素材版本已变化，请重新整理。");
+      })
       .catch((cause: unknown) => {
         if (live)
           setError(cause instanceof Error ? cause.message : "加载分析失败。");
@@ -84,7 +94,7 @@ export function MaterialAnalysisPanel({
     return () => {
       live = false;
     };
-  }, [load]);
+  }, [materialId, version]);
 
   useEffect(() => {
     if (!jobId) return;
@@ -124,6 +134,7 @@ export function MaterialAnalysisPanel({
 
   async function start() {
     setError("");
+    setStarting(true);
     try {
       const response = await request<{ jobId: string }>(
         `/materials/${materialId}/process`,
@@ -137,6 +148,8 @@ export function MaterialAnalysisPanel({
       setError(
         cause instanceof Error ? cause.message : "处理失败，请稍后重试。",
       );
+    } finally {
+      setStarting(false);
     }
   }
 
@@ -148,8 +161,10 @@ export function MaterialAnalysisPanel({
       </CardHeader>
       <CardContent className="space-y-5">
         <p className="text-sm text-muted-foreground">
-          AI 整理仅归纳来源，不代表事实已核实。当前使用确定性
-          mock，结果不计入真实模型指标。
+          AI 整理仅归纳来源，不代表事实已核实。
+          {processingAvailable
+            ? "当前使用确定性 mock，结果不计入真实模型指标。"
+            : "当前未配置处理服务。"}
         </p>
         {error && (
           <Alert variant="destructive">
@@ -220,10 +235,20 @@ export function MaterialAnalysisPanel({
         ) : (
           <Button
             type="button"
-            disabled={Boolean(jobId)}
+            disabled={
+              Boolean(jobId) || starting || !processingAvailable || !hasContent
+            }
             onClick={() => void start()}
           >
-            {jobId ? "处理中…" : "整理当前版本"}
+            {jobId
+              ? "处理中…"
+              : starting
+                ? "提交中…"
+                : !hasContent
+                  ? "请先粘贴正文"
+                  : processingAvailable
+                    ? "整理当前版本"
+                    : "处理服务未配置"}
           </Button>
         )}
       </CardContent>

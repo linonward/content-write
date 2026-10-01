@@ -10,6 +10,7 @@ type StartResult =
         | "quota"
         | "concurrency"
         | "unavailable"
+        | "no_content"
         | "already_done";
     };
 
@@ -28,13 +29,20 @@ export async function startAnalysis(
   try {
     await client.query("BEGIN");
     await client.query("SELECT pg_advisory_xact_lock(hashtext($1))", [userId]);
-    const item = await client.query<{ current_version: number }>(
-      "SELECT current_version FROM materials WHERE id = $1 AND user_id = $2 FOR UPDATE",
+    const item = await client.query<{
+      current_version: number;
+      content: string;
+    }>(
+      "SELECT current_version, content FROM materials WHERE id = $1 AND user_id = $2 FOR UPDATE",
       [materialId, userId],
     );
     if (!item.rows[0]) {
       await client.query("ROLLBACK");
       return { status: "missing" };
+    }
+    if (!item.rows[0].content.trim()) {
+      await client.query("ROLLBACK");
+      return { status: "no_content" };
     }
     const version = item.rows[0].current_version;
     const inputHash = createHash("sha256")
@@ -95,13 +103,14 @@ export async function startAnalysis(
 export async function getAnalysis(userId: string, materialId: string) {
   const result = await getPool().query<{
     current_version: number;
+    has_content: boolean;
     result: unknown;
     mode: string | null;
     material_version: number | null;
     job_id: string | null;
     job_status: string | null;
   }>(
-    `SELECT m.current_version, a.result, a.mode, a.material_version, j.id AS job_id, j.status AS job_status
+    `SELECT m.current_version, length(trim(m.content)) > 0 AS has_content, a.result, a.mode, a.material_version, j.id AS job_id, j.status AS job_status
        FROM materials m LEFT JOIN material_analyses a ON a.material_id = m.id AND a.material_version = m.current_version
        LEFT JOIN LATERAL (SELECT id, status FROM ai_jobs WHERE material_id = m.id AND material_version = m.current_version ORDER BY created_at DESC LIMIT 1) j ON true
       WHERE m.id = $1 AND m.user_id = $2`,

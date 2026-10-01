@@ -136,6 +136,8 @@ materialRoutes.get("/materials/:id/analysis", async (context) => {
   if (!item) return error("MATERIAL_NOT_FOUND", "素材不存在。", 404);
   return context.json({
     currentVersion: item.current_version,
+    processingAvailable: process.env.AI_MODE === "mock",
+    hasContent: item.has_content,
     job: item.job_id ? { id: item.job_id, status: item.job_status } : null,
     analysis: item.result
       ? {
@@ -161,6 +163,12 @@ materialRoutes.post("/materials/:id/process", async (context) => {
   );
   if (result.status === "missing")
     return error("MATERIAL_NOT_FOUND", "素材不存在。", 404);
+  if (result.status === "no_content")
+    return error(
+      "MATERIAL_CONTENT_REQUIRED",
+      "请先为链接素材粘贴正文，再整理素材。",
+      422,
+    );
   if (result.status === "conflict")
     return error("IDEMPOTENCY_CONFLICT", "请求键已用于不同素材版本。", 409);
   if (result.status === "already_done")
