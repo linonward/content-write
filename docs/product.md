@@ -488,13 +488,13 @@ Cookie 写接口验证 Origin 并采用适用的 CSRF 防护。
 ## 10. 目录建议
 ```text
 apps/web/src/app/
-apps/web/src/components/
-apps/web/src/features/
+apps/web/src/modules/
 apps/api/src/modules/
 apps/api/src/app.ts
 apps/worker/src/
 packages/db/src/
 packages/db/drizzle/
+apps/api/tests/integration/
 packages/db/tests/integration/
 docs/product.md
 docs/runbook.md
@@ -550,7 +550,7 @@ docs/runbook.md
 | T022 | quality-and-regression | 完整 E2E、安全与故障回归、10 组质量评估 | T020、T021；授权素材 |
 | T023 | staging-delivery | 生产镜像、完整 CI、部署、HTTPS、迁移和备份恢复 | T022；环境授权 |
 | T024 | trial-handoff | 试用交付、七天实验、说明和最终验收 | T023 |
-| T025 | turborepo-hono | Web/API/worker 分离，Turborepo 编排与数据库包迁移 | T001；T002 合并前适配 |
+| T025 | turborepo-hono | Web/API/worker 分离，Turborepo 编排与数据库包迁移 | T001、T002 |
 每项功能实施时就完成相关权限和错误测试。
 不得等 T022 才首次验证数据隔离。
 依赖任务合并主分支后才开始下游任务。

@@ -9,7 +9,8 @@
   "exports": {
     "./client": "./src/client.ts",
     "./health": "./src/health.ts",
-    "./schema": "./src/schema.ts"
+    "./schema": "./src/schema.ts",
+    "./auth-schema": "./src/auth-schema.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

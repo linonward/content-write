@@ -1,6 +1,6 @@
 # 公众号内容工作台
 
-Phase 0 开发中。工程采用 pnpm workspace + Turborepo：`apps/web` 提供 Next.js 页面，`apps/api` 提供模块化 Hono API，`apps/worker` 独立运行后台任务，`packages/db` 仅供服务端使用。当前可用功能仍是基础页面、数据库迁移和健康检查。
+Phase 0 开发中。工程采用 pnpm workspace + Turborepo：`apps/web` 仅提供 Next.js 页面，`apps/api` 提供独立的模块化 Hono API，`apps/worker` 独立运行后台任务，`packages/db` 仅供服务端使用。受邀账号登录和管理已实现；素材与写作能力尚未开放。
 
 ## 本地运行
 
@@ -11,10 +11,11 @@ pnpm install --frozen-lockfile
 cp .env.example .env.local
 docker compose up -d --wait
 pnpm db:migrate
+pnpm auth:create-admin
 pnpm dev
 ```
 
-Web 位于 `http://localhost:3000`，API 位于 `http://localhost:3001`。浏览器直接调用 API；Web 不提供 `/api/*` 路由。独立 worker 使用 `pnpm worker:dev` 启动。
+将 `BETTER_AUTH_SECRET` 改为至少 32 字符的随机值。Web 位于 `http://localhost:3000`，API 位于 `http://localhost:3001`；Web 不提供 `/api/*` 路由。打开 `/sign-in` 登录，再由管理员在 `/admin/users` 创建受邀账号。独立 worker 使用 `pnpm worker:dev` 启动。
 
 ## 检查
 

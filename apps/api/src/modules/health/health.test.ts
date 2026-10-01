@@ -1,5 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 
+vi.hoisted(() => {
+  process.env.BETTER_AUTH_SECRET ??=
+    "unit-test-only-secret-at-least-32-characters";
+  process.env.DATABASE_URL ??=
+    "postgresql://app:app@localhost:5432/content_write_test";
+});
+
 vi.mock("@content-write/db/health", () => ({ checkDatabase: vi.fn() }));
 
 import { checkDatabase } from "@content-write/db/health";
