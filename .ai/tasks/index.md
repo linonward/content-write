@@ -1,11 +1,11 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-01 19:04 CST
-已完成：8 / 25
-待合并：1
+更新时间：2026-10-01 19:11 CST
+已完成：9 / 25
+待合并：0
 阻塞：0
-当前任务：T008 source-based-ideas（待合并）
-下一项：T009 confirm-outline（等待 T008 集成验收）
+当前任务：无
+下一项：T009 confirm-outline
 真实模型验收：未开始
 线上验收：未开始
 
@@ -18,7 +18,7 @@
 | T005 | 保存 URL、安全抓取、失败粘贴正文与开关 | 已完成 | T003 | feat/T005-capture-link | 已清理 | 8d55e7d | 92ee463 | .ai/verifications/T005.md |
 | T006 | 处理素材获得摘要、观点和片段；包含任务、worker、轮询、基础配额 | 已完成 | T003、T005 | feat/T006-analyze-material | 已清理 | e12f1d9 | 4eb24a8 | .ai/verifications/T006.md |
 | T007 | 搜索、过滤、处理失败重试、删除失效 | 已完成 | T004、T005、T006 | feat/T007-retry-and-find | 已清理 | 6e61e4c | 98ddc74 | .ai/verifications/T007.md |
-| T008 | 选择素材生成、收藏、忽略选题并查看来源 | 待合并 | T006 | feat/T008-source-based-ideas | `/Users/kaelen/workspace/github/linonward/content-write-source-based-ideas` | 197d15a | 无 | .ai/verifications/T008.md |
+| T008 | 选择素材生成、收藏、忽略选题并查看来源 | 已完成 | T006 | feat/T008-source-based-ideas | 已清理 | 197d15a | ce1044b | .ai/verifications/T008.md |
 | T009 | 创建文章 brief，生成、修改、确认大纲 | 待开始 | T008 | feat/T009-confirm-outline | 未创建 | 无 | 无 | 无 |
 | T010 | 根据确认大纲生成初稿，来源、缺口、预算和冲突处理 | 待开始 | T009 | feat/T010-generate-draft | 未创建 | 无 | 无 | 无 |
 | T011 | Markdown 编辑、自动保存、版本冲突和本地恢复 | 待开始 | T010 | feat/T011-edit-and-save | 未创建 | 无 | 无 | 无 |
@@ -42,6 +42,8 @@
 暂无已确认阻塞。
 
 ## 最近更新
+
+- 2026-10-01 19:11 CST：PR #18 合并为 `ce1044b`；主分支独立 PostgreSQL 空库迁移与完整检查通过，API 集成测试 22/22。验证数据库和 T008 worktree 已清理。
 
 - 2026-10-01 19:04 CST：T008 从已集成的主分支建立独立 worktree，完成持久选题任务、来源关系与 `/ideas` 页面。独立 PostgreSQL 空库迁移、完整检查和 Playwright 本地流程通过；实现提交 `197d15a`，PR #18 两项 CI 通过，待评审。
 
