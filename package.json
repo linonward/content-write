@@ -12,7 +12,7 @@
     "start": "next start",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run --exclude tests/integration/**",
     "test:integration": "node --env-file-if-exists=.env.local node_modules/vitest/vitest.mjs run tests/integration",
     "db:migrate": "node --env-file-if-exists=.env.local --import tsx scripts/migrate.ts",

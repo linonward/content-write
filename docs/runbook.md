@@ -6,7 +6,7 @@
 
 ```bash
 pnpm install --frozen-lockfile
-docker compose up -d
+docker compose up -d --wait
 pnpm db:migrate
 pnpm dev
 ```

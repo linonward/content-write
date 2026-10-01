@@ -9,7 +9,7 @@ Phase 0 开发中。当前 T001 提供可运行的 Web 基础工程、PostgreSQL
 ```bash
 pnpm install --frozen-lockfile
 cp .env.example .env.local
-docker compose up -d
+docker compose up -d --wait
 pnpm db:migrate
 pnpm dev
 ```
