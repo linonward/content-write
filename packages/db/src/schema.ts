@@ -285,6 +285,13 @@ export const articles = pgTable(
     outlineConfirmedAt: timestamp("outline_confirmed_at", {
       withTimezone: true,
     }),
+    // Body fields stay null until the first draft is applied.
+    title: text("title"),
+    body: text("body"),
+    currentDraftId: text("current_draft_id").references(
+      (): AnyPgColumn => articleDrafts.id,
+      { onDelete: "set null" },
+    ),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -314,6 +321,51 @@ export const articleSources = pgTable(
     uniqueIndex("article_sources_article_material_idx").on(
       table.articleId,
       table.materialId,
+    ),
+  ],
+);
+
+export type DraftSourceLink = {
+  claim: string;
+  materialId: string;
+  materialVersion: number;
+  evidenceIds: string[];
+};
+
+// One row per generated draft. `applied` became the body, `candidate` waits for the author.
+export const articleDrafts = pgTable(
+  "article_drafts",
+  {
+    id: text("id").primaryKey(),
+    articleId: text("article_id")
+      .notNull()
+      .references((): AnyPgColumn => articles.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    jobId: text("job_id").references(() => aiJobs.id, {
+      onDelete: "set null",
+    }),
+    baseVersion: integer("base_version").notNull(),
+    title: text("title").notNull(),
+    markdown: text("markdown").notNull(),
+    sourceMap: jsonb("source_map").$type<DraftSourceLink[]>().notNull(),
+    evidenceGaps: jsonb("evidence_gaps").$type<string[]>().notNull(),
+    status: text("status").notNull(),
+    mode: text("mode").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    // A retried job must not store a second result.
+    uniqueIndex("article_drafts_job_idx").on(table.jobId),
+    index("article_drafts_article_created_idx").on(
+      table.articleId,
+      table.createdAt,
     ),
   ],
 );

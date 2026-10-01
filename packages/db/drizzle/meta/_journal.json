@@ -64,6 +64,13 @@
       "when": 1790863874431,
       "tag": "0008_bouncy_sally_floyd",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790868466815,
+      "tag": "0009_petite_wallop",
+      "breakpoints": true
     }
   ]
 }

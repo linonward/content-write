@@ -17,9 +17,9 @@ export default async function ArticlePage({
         <LogoutButton />
       </header>
       <section className="pt-16 pb-8 max-[680px]:pt-[60px]">
-        <p className={ui.stage}>文章大纲</p>
+        <p className={ui.stage}>文章</p>
         <h1 className="text-[clamp(32px,5vw,48px)] leading-[1.18] tracking-[-0.04em]">
-          从想法到结构。
+          从结构到初稿。
         </h1>
         <Link
           href="/articles"

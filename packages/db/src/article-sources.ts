@@ -13,6 +13,7 @@ export type ArticleSource = {
   title: string | null;
   summary: string | null;
   evidenceIds: string[];
+  evidence: { id: string; quote: string }[];
 };
 
 /**
@@ -33,7 +34,7 @@ export async function readArticleSources(
       title: materialRevisions.title,
       summary: sql<string | null>`${materialAnalyses.result} ->> 'summary'`,
       evidenceSpans: sql<
-        { id: string }[] | null
+        { id: string; quote: string }[] | null
       >`${materialAnalyses.result} -> 'evidenceSpans'`,
     })
     .from(articleSources)
@@ -63,10 +64,13 @@ export async function readArticleSources(
   const rows = await (options.lock
     ? query.for("update", { of: materials })
     : query);
-  return rows.map(({ evidenceSpans, ...row }) => ({
-    ...row,
-    evidenceIds: (evidenceSpans ?? []).map((span) => span.id),
-  }));
+  return rows.map(({ evidenceSpans, ...row }) => {
+    const evidence = (evidenceSpans ?? []).map(({ id, quote }) => ({
+      id,
+      quote,
+    }));
+    return { ...row, evidenceIds: evidence.map((span) => span.id), evidence };
+  });
 }
 
 /**

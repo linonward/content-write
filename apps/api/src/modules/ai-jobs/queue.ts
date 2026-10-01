@@ -7,7 +7,8 @@ import { positiveIntEnv } from "../../config";
 export type JobKind =
   | "material_analysis"
   | "idea_generation"
-  | "outline_generation";
+  | "outline_generation"
+  | "draft_generation";
 
 export type NewJob = {
   kind: JobKind;

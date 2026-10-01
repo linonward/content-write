@@ -2,6 +2,8 @@ import { randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
 import { getPool } from "@content-write/db/client";
 import { createMockAnalysis, validateAnalysis } from "./analysis";
+import { createMockDraft } from "./draft";
+import { completeDraftJob, loadDraftContext } from "./draft-jobs";
 import { describeFailure, TerminalJobError } from "./failures";
 import { completeIdeaJob, loadIdeaSources } from "./idea-jobs";
 import { createMockIdeas } from "./ideas";
@@ -203,6 +205,20 @@ async function runOutline(job: Claimed, started: number) {
   );
 }
 
+async function runDraft(job: Claimed, started: number) {
+  const context = await loadDraftContext(job);
+  if (!context) {
+    await staleJob(job);
+    return;
+  }
+  requireModel();
+  await completeDraftJob(
+    job,
+    createMockDraft(context),
+    performance.now() - started,
+  );
+}
+
 // Every claimable kind has exactly one handler; claimJob only selects these kinds.
 const handlers: Record<
   string,
@@ -211,6 +227,7 @@ const handlers: Record<
   material_analysis: runAnalysis,
   idea_generation: runIdeas,
   outline_generation: runOutline,
+  draft_generation: runDraft,
 };
 export const claimableKinds = Object.keys(handlers);
 

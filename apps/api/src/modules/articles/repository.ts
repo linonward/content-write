@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { type Executor, getDb } from "@content-write/db/client";
 import {
   aiJobs,
+  articleDrafts,
   articleSources,
   articles,
   ideaSources,
@@ -138,6 +139,9 @@ export async function findArticle(db: Executor, userId: string, id: string) {
       version: articles.version,
       outline: articles.outline,
       outlineConfirmedAt: articles.outlineConfirmedAt,
+      title: articles.title,
+      body: articles.body,
+      currentDraftId: articles.currentDraftId,
       updatedAt: articles.updatedAt,
     })
     .from(articles)
@@ -183,10 +187,11 @@ export function listSourceDetails(db: Executor, userId: string, id: string) {
     .orderBy(asc(articleSources.materialId));
 }
 
-export async function findLatestOutlineJob(
+export async function findLatestJob(
   db: Executor,
   userId: string,
   id: string,
+  kind: "outline_generation" | "draft_generation",
 ) {
   const [job] = await db
     .select({
@@ -199,7 +204,7 @@ export async function findLatestOutlineJob(
       and(
         eq(aiJobs.articleId, id),
         eq(aiJobs.userId, userId),
-        eq(aiJobs.kind, "outline_generation"),
+        eq(aiJobs.kind, kind),
       ),
     )
     .orderBy(desc(aiJobs.createdAt), desc(aiJobs.id))
@@ -213,6 +218,7 @@ export async function lockArticle(db: Executor, userId: string, id: string) {
       version: articles.version,
       sourceCount: articles.sourceCount,
       outline: articles.outline,
+      outlineConfirmedAt: articles.outlineConfirmedAt,
     })
     .from(articles)
     .where(and(eq(articles.id, id), eq(articles.userId, userId)))
@@ -238,18 +244,108 @@ export async function updateArticle(
   return row.version;
 }
 
-export async function hasActiveOutlineJob(db: Executor, articleId: string) {
+export async function hasActiveJob(
+  db: Executor,
+  articleId: string,
+  kind: "outline_generation" | "draft_generation",
+) {
   const [job] = await db
     .select({ id: aiJobs.id })
     .from(aiJobs)
     .where(
       and(
         eq(aiJobs.articleId, articleId),
-        eq(aiJobs.kind, "outline_generation"),
+        eq(aiJobs.kind, kind),
         inArray(aiJobs.status, ["queued", "running"]),
         gt(aiJobs.deadlineAt, sql`now()`),
       ),
     )
     .limit(1);
   return Boolean(job);
+}
+
+const draftFields = {
+  id: articleDrafts.id,
+  baseVersion: articleDrafts.baseVersion,
+  title: articleDrafts.title,
+  markdown: articleDrafts.markdown,
+  sourceMap: articleDrafts.sourceMap,
+  evidenceGaps: articleDrafts.evidenceGaps,
+  status: articleDrafts.status,
+  mode: articleDrafts.mode,
+  createdAt: articleDrafts.createdAt,
+};
+
+export async function findDraft(
+  db: Executor,
+  userId: string,
+  articleId: string,
+  draftId: string,
+) {
+  const [draft] = await db
+    .select(draftFields)
+    .from(articleDrafts)
+    .where(
+      and(
+        eq(articleDrafts.id, draftId),
+        eq(articleDrafts.articleId, articleId),
+        eq(articleDrafts.userId, userId),
+      ),
+    );
+  return draft;
+}
+
+export async function lockDraft(
+  db: Executor,
+  userId: string,
+  articleId: string,
+  draftId: string,
+) {
+  const [draft] = await db
+    .select({
+      status: articleDrafts.status,
+      title: articleDrafts.title,
+      markdown: articleDrafts.markdown,
+    })
+    .from(articleDrafts)
+    .where(
+      and(
+        eq(articleDrafts.id, draftId),
+        eq(articleDrafts.articleId, articleId),
+        eq(articleDrafts.userId, userId),
+      ),
+    )
+    .for("update");
+  return draft;
+}
+
+/** Newest candidates first; older ones stay stored but are not listed. */
+export function listCandidateDrafts(
+  db: Executor,
+  userId: string,
+  articleId: string,
+) {
+  return db
+    .select(draftFields)
+    .from(articleDrafts)
+    .where(
+      and(
+        eq(articleDrafts.articleId, articleId),
+        eq(articleDrafts.userId, userId),
+        eq(articleDrafts.status, "candidate"),
+      ),
+    )
+    .orderBy(desc(articleDrafts.createdAt), desc(articleDrafts.id))
+    .limit(10);
+}
+
+export async function setDraftStatus(
+  db: Executor,
+  draftId: string,
+  status: "applied" | "discarded",
+) {
+  await db
+    .update(articleDrafts)
+    .set({ status, updatedAt: sql`now()` })
+    .where(eq(articleDrafts.id, draftId));
 }
