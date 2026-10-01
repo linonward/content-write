@@ -28,3 +28,13 @@ T008 新增：
 - `GET /api/ideas`：返回本人最近 100 条选题及其来源素材版本、摘要，并附最近一个选题生成任务状态。`GET /api/jobs/:id` 可轮询本人生成任务。
 - `PATCH /api/ideas/:id`：请求体 `{status:"new"|"saved"|"ignored"}`；只修改本人选题，需可信 Origin；其他用户返回 404。
 - 素材删除会清理引用该素材的选题及其生成任务。素材编辑后，未完成生成任务在 worker 提交前失效；已生成选题继续标明原来源版本。
+
+T009 新增：
+
+- `POST /api/articles`：请求体 `{ideaId}`，从本人选题创建文章 brief，并绑定当时来源版本；同一选题重复创建返回同一文章。来源版本过期返回 409，跨用户或不存在返回 404。
+- `GET /api/articles`、`GET /api/articles/:id`：只返回本人文章；详情包含 brief、版本、大纲、确认时间、来源版本及片段、最近生成任务，以及 `generationAvailable`。
+- `PATCH /api/articles/:id/brief`：携带 `expectedVersion`、`workingTitle`、`audience`、`thesis`；成功版本加一并清除大纲与确认。版本冲突 409。
+- `POST /api/articles/:id/outline/generate`：携带 `expectedVersion` 和 `Idempotency-Key`，返回 202 `{jobId,status:"queued",mode:"mock"}`。同键同输入返回同一任务；版本或幂等冲突 409，缺来源 422，配额/并发 429，模型不可用 503。任务复用 `/api/jobs/:id` 与持久 worker。
+- `PUT /api/articles/:id/outline`：携带 `expectedVersion` 和完整结构化 `outline`；校验标题、读者、主张、2～10 节，以及 `materialId:evidenceId` 是否属于文章绑定的来源片段。成功版本加一并撤销确认。
+- `POST /api/articles/:id/outline/confirm`：携带 `expectedVersion`；只允许确认完整且来源仍存在的大纲，成功版本加一并记录确认时间。无大纲或来源不完整返回 422。
+- 所有写请求校验会话与可信 Origin，跨用户读取和修改返回 404。文章来源保留创建时的素材版本；原素材修改不自动替换它。删除素材会同步删除引用它的文章、大纲任务及选题，避免保留已删除来源的派生文字。

@@ -1,6 +1,8 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 
+export type { PoolClient } from "pg";
+
 let pool: Pool | undefined;
 
 export function getPool(): Pool {
