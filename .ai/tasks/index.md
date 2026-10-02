@@ -1,11 +1,11 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-02（T016 交付）
-已完成：26 / 35（T021 已取消）
-待合并：1
+更新时间：2026-10-02（T016 集成验收）
+已完成：27 / 35（T021 已取消）
+待合并：0
 阻塞：0
 当前任务：无
-下一项：T016 合并并集成验收；T031 wechat-draft（需要公众号凭证与固定出口 IP）；T017 已完成，可开始 5 位作者付费意愿验证
+下一项：T031 wechat-draft（需要公众号凭证与固定出口 IP）；T017 已完成，可开始 5 位作者付费意愿验证
 真实模型验收：T028 冒烟通过（DeepSeek，整理、选题、大纲、初稿各一次）；T029 拆解 10 篇真实文章评估 10/10 可用（`deepseek-flash`）
 线上验收：未开始
 
@@ -26,7 +26,7 @@
 | T013 | AI 修改选区、差异预览、应用、拒绝、过期校验 | 已完成 | T011、T012 | feat/T013-ai-edit-selection | 已清理 | 17e3773、8be6250 | d8f7276 | .ai/verifications/T013.md |
 | T014 | 作者画像与表达偏好保存并影响后续生成 | 已完成 | T002、T010 | feat/T014-author-preferences | 已清理 | 1d34041 | 62101b6 | .ai/verifications/T014.md |
 | T015 | 添加、启停、删除历史文章并用于风格示例 | 已完成 | T014 | feat/T015-writing-samples | ../content-write-writing-samples（已清理） | daf051d | 1a9f354 | .ai/verifications/T015.md |
-| T016 | 候选记忆、确认、修改、禁用、删除和上下文版本 | 待合并 | T015 | feat/T016-confirmed-memory | ../content-write-confirmed-memory | 21349be | 无 | .ai/verifications/T016.md |
+| T016 | 候选记忆、确认、修改、禁用、删除和上下文版本 | 已完成 | T015 | feat/T016-confirmed-memory | ../content-write-confirmed-memory（已清理） | 21349be | 72b9f9a | .ai/verifications/T016.md |
 | T017 | 手机预览、安全渲染、Markdown 与 HTML 下载 | 已完成 | T011 | feat/T017-preview-export | 已清理 | b0cb9ef | 3d03285 | .ai/verifications/T017.md |
 | T018 | 记录手动发布链接、时间和文章版本 | 待开始 | T017 | feat/T018-record-publication | 未创建 | 无 | 无 | 无 |
 | T019 | 首页、初次引导、目标、聚合信息和页面响应式（外壳响应式见 T034） | 待开始 | T007、T009、T011、T014、T018 | feat/T019-home-onboarding | 未创建 | 无 | 无 | 无 |
@@ -176,3 +176,5 @@
 - 2026-10-02：T016 从 `a486af4` 开始；用户确认候选记忆来源为“从启用的历史文章主动提取 + 手动添加”，不从编辑行为归纳。
 
 - 2026-10-02：T016 从 `a486af4` 完成记忆提取（`memory_extraction`）、候选证据、确认/修改/启停/删除与四类生成的记忆版本上下文；空库迁移 0000–0018、完整检查（worker 51/51、API 集成 77/77）与 Playwright 44/44 通过，均为 mock。实现 `21349be`，PR #64 待合并；任务服务/验证库已清理，保留 worktree。
+
+- 2026-10-02：PR #64（合入 T036 后的 `71734ee`，CI 两组通过）合并为 `72b9f9a`；独立空库主分支迁移 0000–0018、完整检查（API 集成 77/77）与 Playwright 46/46 通过，全部 mock。T016 已完成；服务、验证库已清理，任务 worktree 由合并时 gh 删除分支一并移除，不自动开始后续任务。
