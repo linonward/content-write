@@ -13,7 +13,7 @@ if (!baseURL || !secret) {
 }
 
 export const auth = betterAuth({
-  appName: "公众号内容工作台",
+  appName: "拆写",
   baseURL,
   secret,
   trustedOrigins: [webOrigin()],

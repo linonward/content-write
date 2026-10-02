@@ -41,7 +41,8 @@
               "content": "纸色底面、墨绿点题、细线分隔，几乎不用阴影。来源可追溯是唯一的视觉签名。",
               "lineHeight": 1.7,
               "fontFamily": "$font-sans",
-              "fontSize": 14
+              "fontSize": 14,
+              "fontWeight": "normal"
             }
           ]
         },
@@ -124,7 +125,8 @@
                           "fill": "$ink-2",
                           "content": "#F1EEE7",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -164,7 +166,8 @@
                           "fill": "$ink-2",
                           "content": "#E8E5DC",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -204,7 +207,8 @@
                           "fill": "$ink-2",
                           "content": "#FDFCFA",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -244,7 +248,8 @@
                           "fill": "$ink-2",
                           "content": "#F4F2EC",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -313,7 +318,8 @@
                           "fill": "$ink-2",
                           "content": "#1B2A27",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -353,7 +359,8 @@
                           "fill": "$ink-2",
                           "content": "#56645F",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -393,7 +400,8 @@
                           "fill": "$ink-2",
                           "content": "#7D8985",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -433,7 +441,8 @@
                           "fill": "$ink-2",
                           "content": "#DAD8CF",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -473,7 +482,8 @@
                           "fill": "$ink-2",
                           "content": "#89938D",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -542,7 +552,8 @@
                           "fill": "$ink-2",
                           "content": "#174A42",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -582,7 +593,8 @@
                           "fill": "$ink-2",
                           "content": "#103B35",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -622,7 +634,8 @@
                           "fill": "$ink-2",
                           "content": "#E2EEE8",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -662,7 +675,8 @@
                           "fill": "$ink-2",
                           "content": "#B98A2C",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -702,7 +716,8 @@
                           "fill": "$ink-2",
                           "content": "#F3E6B8",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -742,7 +757,8 @@
                           "fill": "$ink-2",
                           "content": "#7A5A12",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -782,7 +798,8 @@
                           "fill": "$ink-2",
                           "content": "#8C2F23",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -822,7 +839,8 @@
                           "fill": "$ink-2",
                           "content": "#F7E8E4",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -891,7 +909,8 @@
                       "fill": "$ink-2",
                       "content": "20 / 1.4 / 600",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -949,7 +968,8 @@
                       "fill": "$ink-2",
                       "content": "28 / 1.35 / 600",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -1007,7 +1027,8 @@
                       "fill": "$ink-2",
                       "content": "17 / 1.45 / 600",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -1065,7 +1086,8 @@
                       "fill": "$ink-2",
                       "content": "15 / 1.5 / 600",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -1123,7 +1145,8 @@
                       "fill": "$ink-2",
                       "content": "14 / 1.7 / 400",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -1135,7 +1158,8 @@
                   "content": "选择 1 到 10 条已整理素材，主动生成有来源的选题。",
                   "lineHeight": 1.7,
                   "fontFamily": "$font-sans",
-                  "fontSize": 14
+                  "fontSize": 14,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -1180,7 +1204,8 @@
                       "fill": "$ink-2",
                       "content": "17 / 1.85 / 400",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -1192,7 +1217,8 @@
                   "content": "作者记录了一个待验证的观点：小团队最贵的不是工时，而是来回确认。",
                   "lineHeight": 1.85,
                   "fontFamily": "$font-serif",
-                  "fontSize": 17
+                  "fontSize": 17,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -1237,7 +1263,8 @@
                       "fill": "$ink-2",
                       "content": "13 / 1.4 / 500",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -1295,7 +1322,8 @@
                       "fill": "$ink-2",
                       "content": "12 / 1.5 / 400",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -1307,7 +1335,8 @@
                   "content": "文字 · 版本 3 · 2026/10/01",
                   "lineHeight": 1.5,
                   "fontFamily": "$font-sans",
-                  "fontSize": 12
+                  "fontSize": 12,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -1352,7 +1381,8 @@
                       "fill": "$ink-2",
                       "content": "12 / 1.5 / 500",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -1398,7 +1428,8 @@
               "width": "fill_container",
               "content": "只用 padding 与 gap，不用 margin。布局层只用 4 到 48 的刻度；2、6、10 只允许出现在可复用组件内部。下方长度条按 4 倍显示。",
               "fontFamily": "$font-sans",
-              "fontSize": 14
+              "fontSize": 14,
+              "fontWeight": "normal"
             },
             {
               "type": "frame",
@@ -1450,7 +1481,8 @@
                           "fill": "$ink-2",
                           "content": "p-1 / gap-1 · 4px",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -1501,7 +1533,8 @@
                           "fill": "$ink-2",
                           "content": "p-2 / gap-2 · 8px",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -1552,7 +1585,8 @@
                           "fill": "$ink-2",
                           "content": "p-3 / gap-3 · 12px",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -1603,7 +1637,8 @@
                           "fill": "$ink-2",
                           "content": "p-4 / gap-4 · 16px",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -1654,7 +1689,8 @@
                           "fill": "$ink-2",
                           "content": "p-6 / gap-6 · 24px",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -1705,7 +1741,8 @@
                           "fill": "$ink-2",
                           "content": "p-8 / gap-8 · 32px",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -1756,7 +1793,8 @@
                           "fill": "$ink-2",
                           "content": "p-12 / gap-12 · 48px",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -1827,7 +1865,8 @@
                           "fill": "$ink-2",
                           "content": "gap-0.5 · 标题与说明 · 2px",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -1878,7 +1917,8 @@
                           "fill": "$ink-2",
                           "content": "gap-1.5 · 小图标与文字 · 6px",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -1929,7 +1969,8 @@
                           "fill": "$ink-2",
                           "content": "px-2.5 · 22 到 30 高控件 · 10px",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -2179,7 +2220,8 @@
                           "fill": "$ink-3",
                           "content": "给这条素材起个名字",
                           "fontFamily": "$font-sans",
-                          "fontSize": 14
+                          "fontSize": 14,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -2232,7 +2274,8 @@
                           "width": "fill_container",
                           "content": "全部类型",
                           "fontFamily": "$font-sans",
-                          "fontSize": 14
+                          "fontSize": 14,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "icon",
@@ -2406,7 +2449,8 @@
                           "width": "fill_container",
                           "content": "未整理",
                           "fontFamily": "$font-sans",
-                          "fontSize": 13
+                          "fontSize": 13,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -2444,7 +2488,8 @@
                           "width": "fill_container",
                           "content": "处理中",
                           "fontFamily": "$font-sans",
-                          "fontSize": 13
+                          "fontSize": 13,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -2482,7 +2527,8 @@
                           "width": "fill_container",
                           "content": "已整理",
                           "fontFamily": "$font-sans",
-                          "fontSize": 13
+                          "fontSize": 13,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -2520,7 +2566,8 @@
                           "width": "fill_container",
                           "content": "失败",
                           "fontFamily": "$font-sans",
-                          "fontSize": 13
+                          "fontSize": 13,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -2543,7 +2590,8 @@
                       "width": "fill_container",
                       "content": "展开态 · 键盘可用 ↑↓ 选择，Enter 确认，Esc 关闭",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     },
                     {
                       "id": "mVSYo",
@@ -2625,7 +2673,8 @@
                       "fill": "$danger",
                       "content": "请选择目标读者。",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -2704,7 +2753,7 @@
                               "id": "q0O4B",
                               "name": "Mark Text",
                               "fill": "#FFFFFF",
-                              "content": "文",
+                              "content": "拆",
                               "fontFamily": "$font-serif",
                               "fontSize": 18,
                               "fontWeight": "600"
@@ -2716,7 +2765,7 @@
                           "id": "ZeZUq",
                           "name": "Product",
                           "fill": "$ink",
-                          "content": "公众号内容工作台",
+                          "content": "拆写",
                           "fontFamily": "$font-sans",
                           "fontSize": 13,
                           "fontWeight": "600"
@@ -2871,7 +2920,8 @@
                               "fill": "$ink-2",
                               "content": "lin@example.com",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -2925,7 +2975,7 @@
                           "id": "W4JRuS",
                           "name": "Mark Text",
                           "fill": "#FFFFFF",
-                          "content": "文",
+                          "content": "拆",
                           "fontFamily": "$font-serif",
                           "fontSize": 18,
                           "fontWeight": "600"
@@ -3161,7 +3211,8 @@
                       "content": "· 切换按钮在主区顶栏最左侧（距侧栏边 16），两态位置与图标相同；其后 1×16 竖线，再接标题或面包屑。也可按 ⌘\\（Windows 为 Ctrl+\\）。",
                       "lineHeight": 1.6,
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "text",
@@ -3173,7 +3224,8 @@
                       "content": "· 折叠后图标栏 56 宽；悬停或聚焦图标时显示名称提示。",
                       "lineHeight": 1.6,
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "text",
@@ -3185,7 +3237,8 @@
                       "content": "· 状态按设备记住；文章工作区默认折叠，离开后恢复原状态。",
                       "lineHeight": 1.6,
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "text",
@@ -3197,7 +3250,8 @@
                       "content": "· 1024 到 1279 宽默认折叠，768 以下改为底部标签栏。",
                       "lineHeight": 1.6,
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "text",
@@ -3209,7 +3263,8 @@
                       "content": "· 宽度过渡 200ms ease-out；减少动效时直接切换。",
                       "lineHeight": 1.6,
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -3230,7 +3285,8 @@
                       "width": "fill_container",
                       "content": "账号菜单 · 在侧栏右侧弹出，底边与用户区对齐；展开态与折叠态相同",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "frame",
@@ -3326,7 +3382,8 @@
                                   "fill": "$ink-2",
                                   "content": "lin@example.com",
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -3390,7 +3447,8 @@
                                   "width": "fill_container",
                                   "content": "作者设置",
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 13
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -3428,7 +3486,8 @@
                                   "width": "fill_container",
                                   "content": "账号管理",
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 13
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
                                 },
                                 {
                                   "type": "text",
@@ -3437,7 +3496,8 @@
                                   "fill": "$ink-2",
                                   "content": "管理员",
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -3501,7 +3561,8 @@
                                   "width": "fill_container",
                                   "content": "退出登录",
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 13
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -3518,7 +3579,8 @@
                       "width": "fill_container",
                       "content": "退出登录会清除本机未同步的恢复副本；有未保存内容时先提示确认。",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -3610,7 +3672,8 @@
                               "fill": "$ink-2",
                               "content": "收集文字、Markdown 与链接，整理后用于选题。",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -3694,7 +3757,8 @@
                               "fill": "$ink-2",
                               "content": "文字 · 版本 3 · 2026/10/01",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -3959,7 +4023,8 @@
                       "fill": "$ink-2",
                       "content": "悬停 e1 时，素材原文中的对应片段被高亮",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "frame",
@@ -3978,7 +4043,8 @@
                           "content": "小团队最贵的不是工时。",
                           "lineHeight": 1.85,
                           "fontFamily": "$font-serif",
-                          "fontSize": 17
+                          "fontSize": 17,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "frame",
@@ -4002,7 +4068,8 @@
                               "content": "真正拖慢交付的，是每个决定都要来回确认三次。",
                               "lineHeight": 1.85,
                               "fontFamily": "$font-serif",
-                              "fontSize": 17
+                              "fontSize": 17,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -4273,7 +4340,8 @@
                               "fill": "$ink-3",
                               "content": "搜索标题、正文或链接",
                               "fontFamily": "$font-sans",
-                              "fontSize": 14
+                              "fontSize": 14,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -4573,7 +4641,8 @@
                               "fill": "$ink-2",
                               "content": "文字素材 · 版本 3 · 更新于 2026/10/01 14:20 · 1,284 字",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -4652,7 +4721,8 @@
                               "content": "离职那天，我以为自己会有大把时间写东西。第一周睡到自然醒，第二周开始焦虑，第三周才真正坐下来。",
                               "lineHeight": 1.85,
                               "fontFamily": "$font-serif",
-                              "fontSize": 17
+                              "fontSize": 17,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "frame",
@@ -4679,7 +4749,8 @@
                                   "content": "真正拖慢我的不是时间，而是没有一个固定的开始动作。",
                                   "lineHeight": 1.85,
                                   "fontFamily": "$font-serif",
-                                  "fontSize": 17
+                                  "fontSize": 17,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -4693,7 +4764,8 @@
                               "content": "后来我把每天早上的第一件事改成整理前一天的笔记，写作才慢慢有了节奏。",
                               "lineHeight": 1.85,
                               "fontFamily": "$font-serif",
-                              "fontSize": 17
+                              "fontSize": 17,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -4748,7 +4820,8 @@
                                       "fill": "$ink-2",
                                       "content": "模拟 · 基于版本 3",
                                       "fontFamily": "$font-sans",
-                                      "fontSize": 12
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 }
@@ -4782,7 +4855,8 @@
                                   "content": "作者离职后发现写作停滞的原因不是时间不足，而是缺少固定的开始动作；把整理笔记作为每天第一件事后恢复了节奏。",
                                   "lineHeight": 1.7,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 14
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -4832,7 +4906,8 @@
                                           "fill": "$ink",
                                           "content": "写作习惯",
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 12
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -4858,7 +4933,8 @@
                                           "fill": "$ink",
                                           "content": "离职",
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 12
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -4884,7 +4960,8 @@
                                           "fill": "$ink",
                                           "content": "自由职业",
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 12
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     }
@@ -4927,7 +5004,8 @@
                                       "content": "时间充裕不等于产出增加。",
                                       "lineHeight": 1.7,
                                       "fontFamily": "$font-sans",
-                                      "fontSize": 14
+                                      "fontSize": 14,
+                                      "fontWeight": "normal"
                                     },
                                     {
                                       "id": "BrzMA",
@@ -4959,7 +5037,8 @@
                                       "content": "固定的开始动作比时长更能维持写作。",
                                       "lineHeight": 1.7,
                                       "fontFamily": "$font-sans",
-                                      "fontSize": 14
+                                      "fontSize": 14,
+                                      "fontWeight": "normal"
                                     },
                                     {
                                       "id": "LhM5p",
@@ -5005,7 +5084,8 @@
                                   "content": "· 离职后的写作陷阱：时间多了反而写不出",
                                   "lineHeight": 1.7,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 14
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
                                 },
                                 {
                                   "type": "text",
@@ -5017,7 +5097,8 @@
                                   "content": "· 一个开始动作，如何撑起每天的写作",
                                   "lineHeight": 1.7,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 14
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -5031,7 +5112,8 @@
                               "content": "整理结果是对原文的归纳，不代表事实已经核实。",
                               "lineHeight": 1.5,
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -5186,7 +5268,8 @@
                                       "fill": "$ink",
                                       "content": "失业后的第一个月 · v3",
                                       "fontFamily": "$font-sans",
-                                      "fontSize": 12
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
                                     },
                                     {
                                       "type": "icon",
@@ -5225,7 +5308,8 @@
                                       "fill": "$ink",
                                       "content": "写作的最小可行习惯 · v1",
                                       "fontFamily": "$font-sans",
-                                      "fontSize": 12
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
                                     },
                                     {
                                       "type": "icon",
@@ -5388,7 +5472,8 @@
                               "fill": "$ink-2",
                               "content": "模拟生成 · 2026/10/01 15:02 · 基于 2 条素材的当前版本",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -5444,7 +5529,8 @@
                               "fill": "$ink",
                               "content": "刚离职或准备做自由职业的程序员",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -5463,7 +5549,8 @@
                               "content": "核心主张：写作停滞的原因不是时间，而是缺少固定的开始动作。",
                               "lineHeight": 1.7,
                               "fontFamily": "$font-sans",
-                              "fontSize": 14
+                              "fontSize": 14,
+                              "fontWeight": "normal"
                             },
                             {
                               "id": "aeNwF",
@@ -5549,7 +5636,8 @@
                                   "content": "· 作者愿意公开的离职时间线与当时的具体焦虑",
                                   "lineHeight": 1.6,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 13
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
                                 },
                                 {
                                   "type": "text",
@@ -5561,7 +5649,8 @@
                                   "content": "· 第二周到第三周之间发生了什么改变",
                                   "lineHeight": 1.6,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 13
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -5593,7 +5682,8 @@
                                   "content": "1. 提出反直觉现象",
                                   "lineHeight": 1.6,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 13
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
                                 },
                                 {
                                   "type": "text",
@@ -5605,7 +5695,8 @@
                                   "content": "2. 作者的三周记录",
                                   "lineHeight": 1.6,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 13
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
                                 },
                                 {
                                   "type": "text",
@@ -5617,7 +5708,8 @@
                                   "content": "3. 开始动作的设计方法",
                                   "lineHeight": 1.6,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 13
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
                                 },
                                 {
                                   "type": "text",
@@ -5629,7 +5721,8 @@
                                   "content": "4. 给读者的一周练习",
                                   "lineHeight": 1.6,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 13
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -5660,7 +5753,8 @@
                               "fill": "$ink-2",
                               "content": "来源：失业后的第一个月 v3 · 写作的最小可行习惯 v1",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "frame",
@@ -5758,7 +5852,8 @@
                               "fill": "$ink",
                               "content": "想养成写作习惯的知识工作者",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -5777,7 +5872,8 @@
                               "content": "核心主张：把整理前一天的笔记作为每天第一件事，比设定时长更容易坚持。",
                               "lineHeight": 1.7,
                               "fontFamily": "$font-sans",
-                              "fontSize": 14
+                              "fontSize": 14,
+                              "fontWeight": "normal"
                             },
                             {
                               "id": "sn9Tl",
@@ -5852,7 +5948,8 @@
                                   "content": "· 除作者本人外的案例或数据",
                                   "lineHeight": 1.6,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 13
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -5884,7 +5981,8 @@
                                   "content": "1. 为什么时长目标会失败",
                                   "lineHeight": 1.6,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 13
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
                                 },
                                 {
                                   "type": "text",
@@ -5896,7 +5994,8 @@
                                   "content": "2. 开始动作的三个条件",
                                   "lineHeight": 1.6,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 13
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
                                 },
                                 {
                                   "type": "text",
@@ -5908,7 +6007,8 @@
                                   "content": "3. 作者的实践与调整",
                                   "lineHeight": 1.6,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 13
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -5939,7 +6039,8 @@
                               "fill": "$ink-2",
                               "content": "来源：失业后的第一个月 v3 · 写作的最小可行习惯 v1",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "frame",
@@ -6094,7 +6195,8 @@
                       "fill": "$ink-2",
                       "content": "文章",
                       "fontFamily": "$font-sans",
-                      "fontSize": 13
+                      "fontSize": 13,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "icon",
@@ -6333,7 +6435,8 @@
                       "fill": "$ink-2",
                       "content": "已保存 · 版本 7",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     },
                     {
                       "id": "VrwSX",
@@ -6420,7 +6523,8 @@
                               "fill": "$ink-2",
                               "content": "v3",
                               "fontFamily": "$font-mono",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -6434,7 +6538,8 @@
                           "content": "离职那天，我以为自己会有大把时间写东西……",
                           "lineHeight": 1.8,
                           "fontFamily": "$font-serif",
-                          "fontSize": 15
+                          "fontSize": 15,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "frame",
@@ -6461,7 +6566,8 @@
                               "content": "真正拖慢我的不是时间，而是没有一个固定的开始动作。",
                               "lineHeight": 1.8,
                               "fontFamily": "$font-serif",
-                              "fontSize": 15
+                              "fontSize": 15,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -6498,7 +6604,8 @@
                           "fill": "$ink-2",
                           "content": "v1",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -6551,7 +6658,8 @@
                           "fill": "$ink-2",
                           "content": "约 1,640 字 · 初稿由大纲版本 5 生成 · 模拟",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "text",
@@ -6576,7 +6684,8 @@
                           "content": "离职后的第一周，我把写作排进了每天的计划。可到第二周，计划还在，文档却一直是空的。",
                           "lineHeight": 1.85,
                           "fontFamily": "$font-sans",
-                          "fontSize": 16
+                          "fontSize": 16,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "frame",
@@ -6605,7 +6714,8 @@
                                   "content": "后来我发现，真正拖慢我的不是时间，而是没有一个固定的开始动作。",
                                   "lineHeight": 1.85,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 16
+                                  "fontSize": 16,
+                                  "fontWeight": "normal"
                                 },
                                 {
                                   "id": "g75SsQ",
@@ -6633,7 +6743,8 @@
                           "content": "> 待补证据：第二周到第三周之间发生了什么改变。",
                           "lineHeight": 1.85,
                           "fontFamily": "$font-sans",
-                          "fontSize": 16
+                          "fontSize": 16,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "text",
@@ -6658,7 +6769,8 @@
                           "content": "我把每天早上的第一件事改成整理前一天的笔记……",
                           "lineHeight": 1.85,
                           "fontFamily": "$font-sans",
-                          "fontSize": 16
+                          "fontSize": 16,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -6800,7 +6912,8 @@
                           "fill": "$ink-2",
                           "content": "未实现 · T013 AI 修改选区",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -6846,7 +6959,8 @@
                               "content": "真正拖慢我的不是时间，而是没有一个固定的开始动作。",
                               "lineHeight": 1.7,
                               "fontFamily": "$font-sans",
-                              "fontSize": 14
+                              "fontSize": 14,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -6869,7 +6983,8 @@
                               "content": "拖慢我的从来不是时间，而是每天缺一个固定的开始动作。",
                               "lineHeight": 1.7,
                               "fontFamily": "$font-sans",
-                              "fontSize": 14
+                              "fontSize": 14,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -6883,7 +6998,8 @@
                           "content": "说明：把判断提前，让句子先给结论。未新增事实。",
                           "lineHeight": 1.6,
                           "fontFamily": "$font-sans",
-                          "fontSize": 13
+                          "fontSize": 13,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "frame",
@@ -6934,7 +7050,8 @@
                           "fill": "$ink-2",
                           "content": "对选中的 1 段文字提出修改要求",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "frame",
@@ -6955,7 +7072,8 @@
                               "fill": "$ink-3",
                               "content": "例如：更口语一点，保留原意",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -7088,7 +7206,8 @@
                   "fill": "$ink-2",
                   "content": "完整首页未实现 · T019；当前首页只有账号信息与三个入口。示例数据不计入使用指标。",
                   "fontFamily": "$font-sans",
-                  "fontSize": 12
+                  "fontSize": 12,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -7178,7 +7297,8 @@
                                   "fill": "$ink-2",
                                   "content": "初稿 · 版本 7 · 1,640 字 · 2 处证据缺口待补 · 10 分钟前",
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -7443,7 +7563,8 @@
                                   "fill": "$ink-2",
                                   "content": "已创建文章 · 10/01",
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -7484,7 +7605,8 @@
                                   "fill": "$ink-2",
                                   "content": "收藏 · 10/01",
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -7525,7 +7647,8 @@
                                   "fill": "$ink-2",
                                   "content": "待看 · 09/29",
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -7601,7 +7724,8 @@
                               "fill": "$ink-2",
                               "content": "/ 2 篇",
                               "fontFamily": "$font-sans",
-                              "fontSize": 14
+                              "fontSize": 14,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -7635,7 +7759,8 @@
                           "content": "发布数由你手动记录，不连接公众号后台。",
                           "lineHeight": 1.5,
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -7686,7 +7811,8 @@
                               "fill": "$ink-2",
                               "content": "素材",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -7714,7 +7840,8 @@
                               "fill": "$ink-2",
                               "content": "选题",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -7742,7 +7869,8 @@
                               "fill": "$ink-2",
                               "content": "已发布",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -8056,7 +8184,8 @@
                               "fill": "$evidence-ink",
                               "content": "2 处",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -8073,7 +8202,8 @@
                               "fill": "$ink-2",
                               "content": "v7",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -8090,7 +8220,8 @@
                               "fill": "$ink-2",
                               "content": "10 分钟前",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -8191,7 +8322,8 @@
                               "fill": "$evidence-ink",
                               "content": "1 处",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -8208,7 +8340,8 @@
                               "fill": "$ink-2",
                               "content": "v5",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -8225,7 +8358,8 @@
                               "fill": "$ink-2",
                               "content": "今天 09:12",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -8316,7 +8450,8 @@
                               "fill": "$ink-2",
                               "content": "无",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -8333,7 +8468,8 @@
                               "fill": "$ink-2",
                               "content": "v2",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -8350,7 +8486,8 @@
                               "fill": "$ink-2",
                               "content": "昨天",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -8451,7 +8588,8 @@
                               "fill": "$evidence-ink",
                               "content": "3 处",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -8468,7 +8606,8 @@
                               "fill": "$ink-2",
                               "content": "v1",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -8485,7 +8624,8 @@
                               "fill": "$ink-2",
                               "content": "09/27",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -8548,7 +8688,7 @@
                       "id": "u8iwjb",
                       "name": "文",
                       "fill": "#FFFFFF",
-                      "content": "文",
+                      "content": "拆",
                       "fontFamily": "$font-serif",
                       "fontSize": 18,
                       "fontWeight": "600"
@@ -8560,7 +8700,7 @@
                   "id": "eXU0e",
                   "name": "公众号内容工作台",
                   "fill": "$ink",
-                  "content": "公众号内容工作台",
+                  "content": "拆写",
                   "fontFamily": "$font-sans",
                   "fontSize": 14,
                   "fontWeight": "600"
@@ -8599,7 +8739,7 @@
                   "fill": "$ink",
                   "textGrowth": "fixed-width",
                   "width": "fill_container",
-                  "content": "把零散的素材，写成有你自己表达的文章。",
+                  "content": "看懂一篇爆款，写出你自己的那篇。",
                   "lineHeight": 1.45,
                   "fontFamily": "$font-serif",
                   "fontSize": 28,
@@ -8612,10 +8752,11 @@
                   "fill": "$ink-2",
                   "textGrowth": "fixed-width",
                   "width": "fill_container",
-                  "content": "每一段建议都标出来源和证据缺口；生成的内容不会直接覆盖你的正文。",
+                  "content": "拆出爆款的结构与写法，再用你自己的素材写；每一句标出出处，由你决定是否采用。",
                   "lineHeight": 1.8,
                   "fontFamily": "$font-sans",
-                  "fontSize": 15
+                  "fontSize": 15,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -8626,7 +8767,8 @@
               "fill": "$ink-2",
               "content": "邀请制试用 · Phase 0",
               "fontFamily": "$font-sans",
-              "fontSize": 12
+              "fontSize": 12,
+              "fontWeight": "normal"
             }
           ]
         },
@@ -8672,7 +8814,8 @@
                   "width": "fill_container",
                   "content": "使用管理员为你创建的邮箱和密码。",
                   "fontFamily": "$font-sans",
-                  "fontSize": 14
+                  "fontSize": 14,
+                  "fontWeight": "normal"
                 },
                 {
                   "id": "p9Dycd",
@@ -8727,7 +8870,8 @@
                   "width": "fill_container",
                   "content": "仅限受邀账号。忘记密码请联系管理员。",
                   "fontFamily": "$font-sans",
-                  "fontSize": 12
+                  "fontSize": 12,
+                  "fontWeight": "normal"
                 }
               ]
             }
@@ -8865,7 +9009,8 @@
                       "content": "公开注册关闭。当前没有邀请邮件或找回密码，请线下告知初始密码。",
                       "lineHeight": 1.5,
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     },
                     {
                       "id": "otCNP",
@@ -8980,7 +9125,8 @@
                               "fill": "$ink-2",
                               "content": "lin@example.com",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -8991,7 +9137,8 @@
                           "fill": "$ink-2",
                           "content": "管理员",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -9059,7 +9206,8 @@
                               "fill": "$ink-2",
                               "content": "chen@example.com",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -9070,7 +9218,8 @@
                           "fill": "$ink-2",
                           "content": "作者",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -9138,7 +9287,8 @@
                               "fill": "$ink-2",
                               "content": "wang@example.com",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -9149,7 +9299,8 @@
                           "fill": "$ink-2",
                           "content": "作者",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -9238,7 +9389,8 @@
                   "fill": "$ink-2",
                   "content": "未实现 · T014 作者画像、T015 历史样本、T016 确认记忆",
                   "fontFamily": "$font-sans",
-                  "fontSize": 12
+                  "fontSize": 12,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -9470,7 +9622,8 @@
                           "width": "fill_container",
                           "content": "从你的修改中归纳；确认后才会用于生成，可随时禁用或删除。",
                           "fontFamily": "$font-sans",
-                          "fontSize": 13
+                          "fontSize": 13,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "frame",
@@ -9517,7 +9670,8 @@
                                   "fill": "$ink-2",
                                   "content": "来自 10/01 对第 3 段的修改",
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -9590,7 +9744,8 @@
                                   "fill": "$ink-2",
                                   "content": "来自 09/30 拒绝的建议",
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -9727,7 +9882,8 @@
                       "fill": "$ink-2",
                       "content": "文章",
                       "fontFamily": "$font-sans",
-                      "fontSize": 13
+                      "fontSize": 13,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "icon",
@@ -9986,7 +10142,8 @@
                       "fill": "$ink-2",
                       "content": "已保存 · 版本 7",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     },
                     {
                       "id": "QtUhy",
@@ -10045,7 +10202,8 @@
                       "fill": "$ink-2",
                       "content": "未实现 · T017 手机预览、安全渲染与导出",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -10100,7 +10258,8 @@
                               "content": "预览与导出共用同一条安全渲染链：脚本、事件属性、iframe 和远程图片都会被移除。",
                               "lineHeight": 1.6,
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             },
                             {
                               "id": "Te7nk",
@@ -10161,7 +10320,8 @@
                               "content": "基础预览，微信编辑器可能调整最终样式。",
                               "lineHeight": 1.5,
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -10172,7 +10332,8 @@
                           "fill": "$ink-2",
                           "content": "版本 7 · 2026/10/02 10:14 渲染",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -10209,7 +10370,8 @@
                               "fill": "$ink-2",
                               "content": "公众号文章预览 · 375px",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -10242,7 +10404,8 @@
                               "fill": "$ink-2",
                               "content": "林写作 · 2026/10/02",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -10254,7 +10417,8 @@
                               "content": "离职后的第一周，我把写作排进了每天的计划。可到第二周，计划还在，文档却一直是空的。",
                               "lineHeight": 1.85,
                               "fontFamily": "$font-serif",
-                              "fontSize": 16
+                              "fontSize": 16,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -10294,7 +10458,8 @@
                                   "content": "拖慢我的从来不是时间，而是每天缺一个固定的开始动作。",
                                   "lineHeight": 1.8,
                                   "fontFamily": "$font-serif",
-                                  "fontSize": 15
+                                  "fontSize": 15,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -10308,7 +10473,8 @@
                               "content": "我把每天早上的第一件事改成整理前一天的笔记。",
                               "lineHeight": 1.85,
                               "fontFamily": "$font-serif",
-                              "fontSize": 16
+                              "fontSize": 16,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -10421,7 +10587,8 @@
                       "fill": "$ink-2",
                       "content": "文章",
                       "fontFamily": "$font-sans",
-                      "fontSize": 13
+                      "fontSize": 13,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "icon",
@@ -10680,7 +10847,8 @@
                       "fill": "$ink-2",
                       "content": "已保存 · 版本 7",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     },
                     {
                       "id": "BI6Q0",
@@ -10739,7 +10907,8 @@
                       "fill": "$ink-2",
                       "content": "未实现 · T031 草稿箱（仅本人账号）、T018 发布记录；只创建草稿，不调用发布接口",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -10836,7 +11005,8 @@
                                   "content": "把版本 7 以 HTML 存为公众号草稿。",
                                   "lineHeight": 1.5,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 },
                                 {
                                   "type": "frame",
@@ -10878,7 +11048,8 @@
                                           "width": "fill_container",
                                           "content": "推送后内容会标注为 AI 辅助生成",
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 13
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -10909,7 +11080,8 @@
                                           "width": "fill_container",
                                           "content": "只会存为草稿，请在公众号后台检查并发布",
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 13
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -10971,7 +11143,8 @@
                                           "fill": "$ink-2",
                                           "content": "版本 7 · 10/02 14:32 · 当前文章仍是版本 7",
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 12
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
                                         },
                                         {
                                           "type": "frame",
@@ -11070,7 +11243,8 @@
                                   "content": "图片与样式以后台预览为准；发布由你完成。",
                                   "lineHeight": 1.5,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -11136,7 +11310,8 @@
                                   "content": "记录绑定文章版本，方便以后回看。",
                                   "lineHeight": 1.5,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -11212,7 +11387,8 @@
                               "fill": "$ink-2",
                               "content": "对应文章版本：v7（当前）",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "id": "mFvAO",
@@ -11290,7 +11466,8 @@
                                   "fill": "$ink-2",
                                   "content": "发布后在上方记录链接，首页的发布数会随之更新。",
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 13
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -11416,7 +11593,8 @@
                   "fill": "$ink-3",
                   "content": "搜索素材",
                   "fontFamily": "$font-sans",
-                  "fontSize": 14
+                  "fontSize": 14,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -11941,7 +12119,8 @@
                   "fill": "$ink-2",
                   "content": "初稿 · 已保存 · 版本 7",
                   "fontFamily": "$font-sans",
-                  "fontSize": 12
+                  "fontSize": 12,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -12119,7 +12298,8 @@
               "content": "离职后的第一周，我把写作排进了每天的计划。可到第二周，计划还在，文档却一直是空的。",
               "lineHeight": 1.85,
               "fontFamily": "$font-sans",
-              "fontSize": 16
+              "fontSize": 16,
+              "fontWeight": "normal"
             },
             {
               "type": "frame",
@@ -12141,7 +12321,8 @@
                   "content": "后来我发现，真正拖慢我的不是时间，而是没有一个固定的开始动作。",
                   "lineHeight": 1.85,
                   "fontFamily": "$font-sans",
-                  "fontSize": 16
+                  "fontSize": 16,
+                  "fontWeight": "normal"
                 },
                 {
                   "id": "bNazD",
@@ -12185,7 +12366,8 @@
               "fill": "$ink-2",
               "content": "已选 1 段",
               "fontFamily": "$font-sans",
-              "fontSize": 13
+              "fontSize": 13,
+              "fontWeight": "normal"
             },
             {
               "type": "frame",
@@ -12273,7 +12455,7 @@
                       "id": "j3gu9d",
                       "name": "文",
                       "fill": "#FFFFFF",
-                      "content": "文",
+                      "content": "拆",
                       "fontFamily": "$font-serif",
                       "fontSize": 18,
                       "fontWeight": "600"
@@ -12285,7 +12467,7 @@
                   "id": "GyFh1",
                   "name": "公众号内容工作台",
                   "fill": "$ink",
-                  "content": "公众号内容工作台",
+                  "content": "拆写",
                   "fontFamily": "$font-sans",
                   "fontSize": 15,
                   "fontWeight": "600"
@@ -12306,7 +12488,8 @@
                   "fill": "$ink-2",
                   "content": "怎么写",
                   "fontFamily": "$font-sans",
-                  "fontSize": 14
+                  "fontSize": 14,
+                  "fontWeight": "normal"
                 },
                 {
                   "type": "text",
@@ -12315,7 +12498,8 @@
                   "fill": "$ink-2",
                   "content": "来源与原则",
                   "fontFamily": "$font-sans",
-                  "fontSize": 14
+                  "fontSize": 14,
+                  "fontWeight": "normal"
                 },
                 {
                   "type": "text",
@@ -12324,7 +12508,8 @@
                   "fill": "$ink-2",
                   "content": "常见问题",
                   "fontFamily": "$font-sans",
-                  "fontSize": 14
+                  "fontSize": 14,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -12410,7 +12595,8 @@
                       "fill": "$ink-2",
                       "content": "写给有专业积累的公众号作者 · 邀请制试用准备中",
                       "fontFamily": "$font-sans",
-                      "fontSize": 13
+                      "fontSize": 13,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -12437,7 +12623,8 @@
                   "content": "贴入一篇爆款，拆出它的结构与写法；再用你自己的素材按这个结构写，每一句都标出出处，确认后推送到草稿箱。",
                   "lineHeight": 1.8,
                   "fontFamily": "$font-sans",
-                  "fontSize": 18
+                  "fontSize": 18,
+                  "fontWeight": "normal"
                 },
                 {
                   "type": "frame",
@@ -12484,7 +12671,8 @@
                   "width": "fill_container",
                   "content": "只取结构，不搬文字；草稿由你在公众号后台检查并发布。",
                   "fontFamily": "$font-sans",
-                  "fontSize": 13
+                  "fontSize": 13,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -12559,7 +12747,8 @@
                       "fill": "$ink-2",
                       "content": "爆款的结构 → 你的稿子",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -12636,7 +12825,8 @@
                               "fill": "$ink",
                               "content": "反常识开头",
                               "fontFamily": "$font-sans",
-                              "fontSize": 14
+                              "fontSize": 14,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -12731,7 +12921,8 @@
                               "fill": "$ink",
                               "content": "明白的第一件事",
                               "fontFamily": "$font-sans",
-                              "fontSize": 14
+                              "fontSize": 14,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -12778,7 +12969,8 @@
                               "fill": "$ink",
                               "content": "明白的第二件事",
                               "fontFamily": "$font-sans",
-                              "fontSize": 14
+                              "fontSize": 14,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -12825,7 +13017,8 @@
                               "fill": "$ink",
                               "content": "留白提问",
                               "fontFamily": "$font-sans",
-                              "fontSize": 14
+                              "fontSize": 14,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -12905,7 +13098,8 @@
                               "content": "离职第一周，我把写作排进了计划。",
                               "lineHeight": 1.7,
                               "fontFamily": "$font-sans",
-                              "fontSize": 15
+                              "fontSize": 15,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -12954,7 +13148,8 @@
                               "content": "到第二周，计划还在，文档却一直是空的。",
                               "lineHeight": 1.7,
                               "fontFamily": "$font-sans",
-                              "fontSize": 15
+                              "fontSize": 15,
+                              "fontWeight": "normal"
                             },
                             {
                               "id": "FDaPK",
@@ -12978,7 +13173,8 @@
                           "width": "fill_container",
                           "content": "论据来自你的素材「失业后的第一个月」，不是那篇爆款。",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -13057,7 +13253,8 @@
                   "content": "可以从一篇爆款的结构出发，也可以从你自己的素材出发。两条路都由你一步步确认，模型只在你点击时工作。",
                   "lineHeight": 1.8,
                   "fontFamily": "$font-sans",
-                  "fontSize": 16
+                  "fontSize": 16,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -13785,7 +13982,8 @@
               "width": "fill_container",
               "content": "当前处于 Phase 0：生成使用开发用的模拟数据，真实模型（DeepSeek）正在接入；草稿箱只创建草稿，发布由你在公众号后台完成。",
               "fontFamily": "$font-sans",
-              "fontSize": 13
+              "fontSize": 13,
+              "fontWeight": "normal"
             }
           ]
         },
@@ -13842,7 +14040,8 @@
                   "content": "把光标放在正文的证据标记上，左侧素材原文里对应的片段就会被标出。没有素材支撑的说法不会被悄悄写进去，而是列为待补证据。",
                   "lineHeight": 1.8,
                   "fontFamily": "$font-sans",
-                  "fontSize": 16
+                  "fontSize": 16,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -13939,7 +14138,8 @@
                                   "fill": "$ink-2",
                                   "content": "v3",
                                   "fontFamily": "$font-mono",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -13953,7 +14153,8 @@
                               "content": "离职那天，我以为自己会有大把时间写东西……",
                               "lineHeight": 1.8,
                               "fontFamily": "$font-serif",
-                              "fontSize": 15
+                              "fontSize": 15,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "frame",
@@ -13980,7 +14181,8 @@
                                   "content": "真正拖慢我的不是时间，而是没有一个固定的开始动作。",
                                   "lineHeight": 1.8,
                                   "fontFamily": "$font-serif",
-                                  "fontSize": 15
+                                  "fontSize": 15,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -14017,7 +14219,8 @@
                               "fill": "$ink-2",
                               "content": "v1",
                               "fontFamily": "$font-mono",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -14070,7 +14273,8 @@
                               "fill": "$ink-2",
                               "content": "约 1,640 字 · 初稿由大纲版本 5 生成 · 模拟",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -14095,7 +14299,8 @@
                               "content": "离职后的第一周，我把写作排进了每天的计划。可到第二周，计划还在，文档却一直是空的。",
                               "lineHeight": 1.85,
                               "fontFamily": "$font-sans",
-                              "fontSize": 16
+                              "fontSize": 16,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "frame",
@@ -14124,7 +14329,8 @@
                                       "content": "后来我发现，真正拖慢我的不是时间，而是没有一个固定的开始动作。",
                                       "lineHeight": 1.85,
                                       "fontFamily": "$font-sans",
-                                      "fontSize": 16
+                                      "fontSize": 16,
+                                      "fontWeight": "normal"
                                     },
                                     {
                                       "id": "UL064",
@@ -14152,7 +14358,8 @@
                               "content": "> 待补证据：第二周到第三周之间发生了什么改变。",
                               "lineHeight": 1.85,
                               "fontFamily": "$font-sans",
-                              "fontSize": 16
+                              "fontSize": 16,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "text",
@@ -14177,7 +14384,8 @@
                               "content": "我把每天早上的第一件事改成整理前一天的笔记……",
                               "lineHeight": 1.85,
                               "fontFamily": "$font-sans",
-                              "fontSize": 16
+                              "fontSize": 16,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -14322,7 +14530,8 @@
                               "fill": "$ink-2",
                               "content": "未实现 · T013 AI 修改选区",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -14368,7 +14577,8 @@
                                   "content": "真正拖慢我的不是时间，而是没有一个固定的开始动作。",
                                   "lineHeight": 1.7,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 14
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -14391,7 +14601,8 @@
                                   "content": "拖慢我的从来不是时间，而是每天缺一个固定的开始动作。",
                                   "lineHeight": 1.7,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 14
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -14405,7 +14616,8 @@
                               "content": "说明：把判断提前，让句子先给结论。未新增事实。",
                               "lineHeight": 1.6,
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "frame",
@@ -14456,7 +14668,8 @@
                               "fill": "$ink-2",
                               "content": "对选中的 1 段文字提出修改要求",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "frame",
@@ -14477,7 +14690,8 @@
                                   "fill": "$ink-3",
                                   "content": "例如：更口语一点，保留原意",
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 13
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -14531,10 +14745,11 @@
                   "fill": "$ink-inverse-2",
                   "textGrowth": "fixed-width",
                   "width": "fill_container",
-                  "content": "产品价值来自你自己的素材和判断。工具负责整理和提示，不负责替你成为作者。",
+                  "content": "像庖丁解牛那样，顺着文章本来的结构拆开；然后用你自己的素材，写出你自己的那篇。工具负责拆解和提示，不替你成为作者。",
                   "lineHeight": 1.8,
                   "fontFamily": "$font-sans",
-                  "fontSize": 16
+                  "fontSize": 16,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -14595,7 +14810,8 @@
                           "content": "不捏造数字、引用、链接或个人经历。缺少证据时明确标出，假设的案例会注明是假设。",
                           "lineHeight": 1.8,
                           "fontFamily": "$font-sans",
-                          "fontSize": 15
+                          "fontSize": 15,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -14654,7 +14870,8 @@
                           "content": "拆解只提取爆款的结构与写法；原文仅你可见，不会进入你的大纲、初稿或导出。",
                           "lineHeight": 1.8,
                           "fontFamily": "$font-sans",
-                          "fontSize": 15
+                          "fontSize": 15,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -14713,7 +14930,8 @@
                           "content": "每一步由你触发和确认；推送只创建草稿并标注 AI 辅助生成，发布永远由你在公众号后台完成。",
                           "lineHeight": 1.8,
                           "fontFamily": "$font-sans",
-                          "fontSize": 15
+                          "fontSize": 15,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -14772,7 +14990,8 @@
                           "content": "素材只在你点击整理或生成时发送给配置的模型服务；首次使用前会明确告知。",
                           "lineHeight": 1.8,
                           "fontFamily": "$font-sans",
-                          "fontSize": 15
+                          "fontSize": 15,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -14831,7 +15050,8 @@
                           "content": "删除素材后，它不会再进入任何检索或生成；依赖它的选题与大纲一并清理。",
                           "lineHeight": 1.8,
                           "fontFamily": "$font-sans",
-                          "fontSize": 15
+                          "fontSize": 15,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -14921,7 +15141,8 @@
                       "content": "把踩过的坑和读过的文档写成别人能用的经验。",
                       "lineHeight": 1.7,
                       "fontFamily": "$font-sans",
-                      "fontSize": 14
+                      "fontSize": 14,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -14963,7 +15184,8 @@
                       "content": "把会议记录和用户访谈整理成有观点的复盘。",
                       "lineHeight": 1.7,
                       "fontFamily": "$font-sans",
-                      "fontSize": 14
+                      "fontSize": 14,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -15005,7 +15227,8 @@
                       "content": "把做产品的过程变成持续的公开记录。",
                       "lineHeight": 1.7,
                       "fontFamily": "$font-sans",
-                      "fontSize": 14
+                      "fontSize": 14,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -15047,7 +15270,8 @@
                       "content": "收藏很多却不知道写什么时，从已有素材找方向。",
                       "lineHeight": 1.7,
                       "fontFamily": "$font-sans",
-                      "fontSize": 14
+                      "fontSize": 14,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -15124,7 +15348,8 @@
                       "content": "会写出初稿：按你确认的大纲，用你自己的素材。证据不足的地方会标出来，修改和取舍由你完成。",
                       "lineHeight": 1.8,
                       "fontFamily": "$font-sans",
-                      "fontSize": 15
+                      "fontSize": 15,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -15181,7 +15406,8 @@
                       "content": "不算。拆解只提取结构与写法，原文不会进入你的稿子；论据只来自你自己的素材，并标注出处。平台禁止的是脱离真实创作者的改写、拼接和搬运。",
                       "lineHeight": 1.8,
                       "fontFamily": "$font-sans",
-                      "fontSize": 15
+                      "fontSize": 15,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -15406,7 +15632,8 @@
               "content": "邀请制试用，名额有限。留下邮箱和你常写的主题，开放后我们会联系你。",
               "lineHeight": 1.8,
               "fontFamily": "$font-sans",
-              "fontSize": 16
+              "fontSize": 16,
+              "fontWeight": "normal"
             },
             {
               "type": "frame",
@@ -15438,7 +15665,8 @@
                       "fill": "$ink-3",
                       "content": "你的邮箱",
                       "fontFamily": "$font-sans",
-                      "fontSize": 15
+                      "fontSize": 15,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -15502,7 +15730,7 @@
                       "id": "iE0AG",
                       "name": "文",
                       "fill": "#FFFFFF",
-                      "content": "文",
+                      "content": "拆",
                       "fontFamily": "$font-serif",
                       "fontSize": 14,
                       "fontWeight": "600"
@@ -15514,7 +15742,7 @@
                   "id": "tOgdu",
                   "name": "公众号内容工作台",
                   "fill": "$ink",
-                  "content": "公众号内容工作台",
+                  "content": "拆写",
                   "fontFamily": "$font-sans",
                   "fontSize": 13,
                   "fontWeight": "500"
@@ -15535,7 +15763,8 @@
               "fill": "$ink-2",
               "content": "隐私说明",
               "fontFamily": "$font-sans",
-              "fontSize": 13
+              "fontSize": 13,
+              "fontWeight": "normal"
             },
             {
               "type": "text",
@@ -15544,7 +15773,8 @@
               "fill": "$ink-2",
               "content": "使用条款",
               "fontFamily": "$font-sans",
-              "fontSize": 13
+              "fontSize": 13,
+              "fontWeight": "normal"
             },
             {
               "type": "text",
@@ -15553,7 +15783,8 @@
               "fill": "$ink-2",
               "content": "联系我们",
               "fontFamily": "$font-sans",
-              "fontSize": 13
+              "fontSize": 13,
+              "fontWeight": "normal"
             },
             {
               "type": "text",
@@ -15562,7 +15793,8 @@
               "fill": "$ink-2",
               "content": "© 2026",
               "fontFamily": "$font-sans",
-              "fontSize": 13
+              "fontSize": 13,
+              "fontWeight": "normal"
             }
           ]
         }
@@ -15612,7 +15844,7 @@
                   "id": "ldp3v",
                   "name": "文",
                   "fill": "#FFFFFF",
-                  "content": "文",
+                  "content": "拆",
                   "fontFamily": "$font-serif",
                   "fontSize": 16,
                   "fontWeight": "600"
@@ -15624,7 +15856,7 @@
               "id": "iKyK5",
               "name": "内容工作台",
               "fill": "$ink",
-              "content": "公众号内容工作台",
+              "content": "拆写",
               "fontFamily": "$font-sans",
               "fontSize": 14,
               "fontWeight": "600"
@@ -15667,7 +15899,8 @@
               "fill": "$ink-2",
               "content": "写给有专业积累的公众号作者",
               "fontFamily": "$font-sans",
-              "fontSize": 13
+              "fontSize": 13,
+              "fontWeight": "normal"
             },
             {
               "type": "text",
@@ -15692,7 +15925,8 @@
               "content": "拆出爆款的结构与写法，再用你自己的素材写；每一句标出出处，确认后推送到草稿箱。",
               "lineHeight": 1.8,
               "fontFamily": "$font-sans",
-              "fontSize": 16
+              "fontSize": 16,
+              "fontWeight": "normal"
             },
             {
               "id": "F1CSFn",
@@ -15728,7 +15962,8 @@
                   "fill": "$ink-2",
                   "content": "爆款的结构 · 槽位 2：代价浮现",
                   "fontFamily": "$font-sans",
-                  "fontSize": 12
+                  "fontSize": 12,
+                  "fontWeight": "normal"
                 },
                 {
                   "type": "frame",
@@ -15755,7 +15990,8 @@
                       "content": "第三个月的具体困境，制造共鸣（只取写法，不取原文）",
                       "lineHeight": 1.8,
                       "fontFamily": "$font-serif",
-                      "fontSize": 15
+                      "fontSize": 15,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -15779,7 +16015,8 @@
                       "content": "到第二周，计划还在，文档却一直是空的。",
                       "lineHeight": 1.8,
                       "fontFamily": "$font-sans",
-                      "fontSize": 15
+                      "fontSize": 15,
+                      "fontWeight": "normal"
                     },
                     {
                       "id": "aQuc4",
@@ -16349,7 +16586,8 @@
               "width": "fill_container",
               "content": "当前为 Phase 0，生成使用模拟数据，真实模型接入中。",
               "fontFamily": "$font-sans",
-              "fontSize": 13
+              "fontSize": 13,
+              "fontWeight": "normal"
             }
           ]
         },
@@ -16375,6 +16613,19 @@
               "fontFamily": "$font-serif",
               "fontSize": 24,
               "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "aIM0J",
+              "name": "Story",
+              "fill": "$ink-inverse-2",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "像庖丁解牛那样，顺着文章本来的结构拆开；然后用你自己的素材，写出你自己的那篇。",
+              "lineHeight": 1.7,
+              "fontFamily": "$font-sans",
+              "fontSize": 14,
+              "fontWeight": "normal"
             },
             {
               "type": "frame",
@@ -16421,7 +16672,8 @@
                       "content": "缺少证据时明确标出，不捏造数字、引用或经历。",
                       "lineHeight": 1.7,
                       "fontFamily": "$font-sans",
-                      "fontSize": 14
+                      "fontSize": 14,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -16472,7 +16724,8 @@
                       "content": "原文仅你可见，不会进入你的稿子。",
                       "lineHeight": 1.7,
                       "fontFamily": "$font-sans",
-                      "fontSize": 14
+                      "fontSize": 14,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -16523,7 +16776,8 @@
                       "content": "只创建草稿，发布在公众号后台完成。",
                       "lineHeight": 1.7,
                       "fontFamily": "$font-sans",
-                      "fontSize": 14
+                      "fontSize": 14,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -16574,7 +16828,8 @@
                       "content": "只在你点击整理或生成时发送素材。",
                       "lineHeight": 1.7,
                       "fontFamily": "$font-sans",
-                      "fontSize": 14
+                      "fontSize": 14,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -16625,7 +16880,8 @@
                       "content": "删除后不再进入任何检索或生成。",
                       "lineHeight": 1.7,
                       "fontFamily": "$font-sans",
-                      "fontSize": 14
+                      "fontSize": 14,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -16666,7 +16922,8 @@
               "fill": "$ink-2",
               "content": "邀请制试用，名额有限。",
               "fontFamily": "$font-sans",
-              "fontSize": 15
+              "fontSize": 15,
+              "fontWeight": "normal"
             },
             {
               "type": "frame",
@@ -16691,7 +16948,8 @@
                   "fill": "$ink-3",
                   "content": "你的邮箱",
                   "fontFamily": "$font-sans",
-                  "fontSize": 15
+                  "fontSize": 15,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -16740,7 +16998,8 @@
                   "fill": "$ink-2",
                   "content": "隐私说明",
                   "fontFamily": "$font-sans",
-                  "fontSize": 13
+                  "fontSize": 13,
+                  "fontWeight": "normal"
                 },
                 {
                   "type": "text",
@@ -16749,7 +17008,8 @@
                   "fill": "$ink-2",
                   "content": "使用条款",
                   "fontFamily": "$font-sans",
-                  "fontSize": 13
+                  "fontSize": 13,
+                  "fontWeight": "normal"
                 },
                 {
                   "type": "text",
@@ -16758,7 +17018,8 @@
                   "fill": "$ink-2",
                   "content": "联系我们",
                   "fontFamily": "$font-sans",
-                  "fontSize": 13
+                  "fontSize": 13,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -16767,9 +17028,10 @@
               "id": "sj7lo",
               "name": "© 2026 公众号内容工作",
               "fill": "$ink-2",
-              "content": "© 2026 公众号内容工作台",
+              "content": "© 2026 拆写",
               "fontFamily": "$font-sans",
-              "fontSize": 12
+              "fontSize": 12,
+              "fontWeight": "normal"
             }
           ]
         }
@@ -17056,7 +17318,8 @@
                               "fill": "$ink-2",
                               "content": "参考文章 · 版本 1 · 4,812 字 · DeepSeek 拆解于 10/02 14:20",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -17146,7 +17409,8 @@
                               "content": "30 岁那年，我从大厂辞职，以为终于自由了。",
                               "lineHeight": 1.85,
                               "fontFamily": "$font-serif",
-                              "fontSize": 16
+                              "fontSize": 16,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "frame",
@@ -17173,7 +17437,8 @@
                                   "content": "结果第三个月，我连早上几点起床都决定不了。",
                                   "lineHeight": 1.85,
                                   "fontFamily": "$font-serif",
-                                  "fontSize": 16
+                                  "fontSize": 16,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -17187,7 +17452,8 @@
                               "content": "后来我才明白，自由不是没人管，而是每件小事都得自己定规则……",
                               "lineHeight": 1.85,
                               "fontFamily": "$font-serif",
-                              "fontSize": 16
+                              "fontSize": 16,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -17391,7 +17657,8 @@
                                           "content": "用一个具体失控细节打破“辞职 = 自由”的预期",
                                           "lineHeight": 1.6,
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 13
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -17477,7 +17744,8 @@
                                           "content": "第三个月的具体困境，制造共鸣",
                                           "lineHeight": 1.6,
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 13
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -17562,7 +17830,8 @@
                                           "content": "观点句 + 个人经历 + 一句可复制的做法",
                                           "lineHeight": 1.6,
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 13
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -17647,7 +17916,8 @@
                                           "content": "同上结构，换一个生活场景",
                                           "lineHeight": 1.6,
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 13
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -17732,7 +18002,8 @@
                                           "content": "收束到普遍道理，承认仍未解决的部分",
                                           "lineHeight": 1.6,
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 13
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -17817,7 +18088,8 @@
                                           "content": "把问题抛给读者，引导留言",
                                           "lineHeight": 1.6,
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 13
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -17871,7 +18143,8 @@
                                       "content": "· 反差开头让人想知道“为什么”",
                                       "lineHeight": 1.6,
                                       "fontFamily": "$font-sans",
-                                      "fontSize": 13
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
                                     },
                                     {
                                       "type": "text",
@@ -17883,7 +18156,8 @@
                                       "content": "· 三件事结构降低阅读负担，利于读完",
                                       "lineHeight": 1.6,
                                       "fontFamily": "$font-sans",
-                                      "fontSize": 13
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 },
@@ -17921,7 +18195,8 @@
                                       "content": "依赖作者的真实经历；没有经历支撑时，第 3 到 5 槽会变空。",
                                       "lineHeight": 1.6,
                                       "fontFamily": "$font-sans",
-                                      "fontSize": 13
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 }
@@ -17936,7 +18211,8 @@
                               "width": "fill_container",
                               "content": "拆解只提取结构与写法，不预测阅读量；原文不会进入大纲、初稿或导出。",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -18231,7 +18507,8 @@
                               "fill": "$ink-2",
                               "content": "参考文章 · 版本 1 · 4,812 字 · DeepSeek 拆解于 10/02 14:20",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -18321,7 +18598,8 @@
                               "content": "30 岁那年，我从大厂辞职，以为终于自由了。",
                               "lineHeight": 1.85,
                               "fontFamily": "$font-serif",
-                              "fontSize": 16
+                              "fontSize": 16,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "frame",
@@ -18348,7 +18626,8 @@
                                   "content": "结果第三个月，我连早上几点起床都决定不了。",
                                   "lineHeight": 1.85,
                                   "fontFamily": "$font-serif",
-                                  "fontSize": 16
+                                  "fontSize": 16,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -18362,7 +18641,8 @@
                               "content": "后来我才明白，自由不是没人管，而是每件小事都得自己定规则……",
                               "lineHeight": 1.85,
                               "fontFamily": "$font-serif",
-                              "fontSize": 16
+                              "fontSize": 16,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -18566,7 +18846,8 @@
                                           "content": "用一个具体失控细节打破“辞职 = 自由”的预期",
                                           "lineHeight": 1.6,
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 13
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -18652,7 +18933,8 @@
                                           "content": "第三个月的具体困境，制造共鸣",
                                           "lineHeight": 1.6,
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 13
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -18737,7 +19019,8 @@
                                           "content": "观点句 + 个人经历 + 一句可复制的做法",
                                           "lineHeight": 1.6,
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 13
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -18822,7 +19105,8 @@
                                           "content": "同上结构，换一个生活场景",
                                           "lineHeight": 1.6,
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 13
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -18907,7 +19191,8 @@
                                           "content": "收束到普遍道理，承认仍未解决的部分",
                                           "lineHeight": 1.6,
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 13
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -18992,7 +19277,8 @@
                                           "content": "把问题抛给读者，引导留言",
                                           "lineHeight": 1.6,
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 13
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -19046,7 +19332,8 @@
                                       "content": "· 反差开头让人想知道“为什么”",
                                       "lineHeight": 1.6,
                                       "fontFamily": "$font-sans",
-                                      "fontSize": 13
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
                                     },
                                     {
                                       "type": "text",
@@ -19058,7 +19345,8 @@
                                       "content": "· 三件事结构降低阅读负担，利于读完",
                                       "lineHeight": 1.6,
                                       "fontFamily": "$font-sans",
-                                      "fontSize": 13
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 },
@@ -19096,7 +19384,8 @@
                                       "content": "依赖作者的真实经历；没有经历支撑时，第 3 到 5 槽会变空。",
                                       "lineHeight": 1.6,
                                       "fontFamily": "$font-sans",
-                                      "fontSize": 13
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 }
@@ -19111,7 +19400,8 @@
                               "width": "fill_container",
                               "content": "拆解只提取结构与写法，不预测阅读量；原文不会进入大纲、初稿或导出。",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -19203,7 +19493,8 @@
                       "width": "fill_container",
                       "content": "框架 · 预期反转 · 6 段。框架只决定结构，论据只来自你选的素材。",
                       "fontFamily": "$font-sans",
-                      "fontSize": 13
+                      "fontSize": 13,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -19244,7 +19535,8 @@
                           "fill": "$ink-2",
                           "content": "已选 2 / 10",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -19327,7 +19619,8 @@
                                   "fill": "$ink-2",
                                   "content": "文字 · 版本 3 · 已整理",
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -19401,7 +19694,8 @@
                                   "fill": "$ink-2",
                                   "content": "文字 · 版本 1 · 已整理",
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -19463,7 +19757,8 @@
                                   "fill": "$ink-2",
                                   "content": "Markdown · 版本 4 · 已整理",
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -19525,7 +19820,8 @@
                                   "fill": "$ink-2",
                                   "content": "文字 · 版本 2 · 已整理",
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -19542,7 +19838,8 @@
                       "width": "fill_container",
                       "content": "只列出当前版本已整理的素材；参考文章不能作为素材。",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "frame",
@@ -19763,7 +20060,8 @@
                       "fill": "$ink-2",
                       "content": "文章",
                       "fontFamily": "$font-sans",
-                      "fontSize": 13
+                      "fontSize": 13,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "icon",
@@ -19818,7 +20116,8 @@
                           "fill": "$ink-2",
                           "content": "框架 · 预期反转 · 6 段",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -20042,7 +20341,8 @@
                       "fill": "$ink-2",
                       "content": "已保存 · 版本 4",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     },
                     {
                       "id": "FEnOs",
@@ -20129,7 +20429,8 @@
                               "fill": "$ink-2",
                               "content": "v3",
                               "fontFamily": "$font-mono",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -20143,7 +20444,8 @@
                           "content": "离职那天，我以为自己会有大把时间写东西……",
                           "lineHeight": 1.8,
                           "fontFamily": "$font-serif",
-                          "fontSize": 15
+                          "fontSize": 15,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "frame",
@@ -20170,7 +20472,8 @@
                               "content": "真正拖慢我的不是时间，而是没有一个固定的开始动作。",
                               "lineHeight": 1.8,
                               "fontFamily": "$font-serif",
-                              "fontSize": 15
+                              "fontSize": 15,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -20207,7 +20510,8 @@
                           "fill": "$ink-2",
                           "content": "v1",
                           "fontFamily": "$font-mono",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -20382,7 +20686,8 @@
                                   "content": "离职第一周把写作排进计划，第二周文档仍是空的。",
                                   "lineHeight": 1.7,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 14
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
                                 },
                                 {
                                   "id": "Owlcl",
@@ -20477,7 +20782,8 @@
                                   "content": "焦虑来自每天都要重新决定“从哪开始”。",
                                   "lineHeight": 1.7,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 14
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
                                 },
                                 {
                                   "id": "uaeKO",
@@ -20572,7 +20878,8 @@
                                   "content": "需要一个固定的开始动作，而不是更长的时间。",
                                   "lineHeight": 1.7,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 14
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
                                 },
                                 {
                                   "id": "cS2wY",
@@ -20667,7 +20974,8 @@
                                   "content": "整理前一天的笔记，让开始变得不需要决定。",
                                   "lineHeight": 1.7,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 14
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
                                 },
                                 {
                                   "id": "rGDWu",
@@ -20775,7 +21083,8 @@
                               "content": "你的素材里没有支撑这一槽的经历：可补充一段坚持后的变化，或删掉这一节。",
                               "lineHeight": 1.6,
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -20857,7 +21166,8 @@
                                   "content": "你每天写作的开始动作是什么？",
                                   "lineHeight": 1.7,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 14
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -20872,7 +21182,8 @@
                           "width": "fill_container",
                           "content": "证据只来自你绑定的 2 条素材；参考文章不会作为证据出现。",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     }
@@ -21017,7 +21328,8 @@
                           "fill": "$ink-2",
                           "content": "未实现 · T013 AI 修改选区",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         }
                       ]
                     },
@@ -21063,7 +21375,8 @@
                               "content": "真正拖慢我的不是时间，而是没有一个固定的开始动作。",
                               "lineHeight": 1.7,
                               "fontFamily": "$font-sans",
-                              "fontSize": 14
+                              "fontSize": 14,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -21086,7 +21399,8 @@
                               "content": "拖慢我的从来不是时间，而是每天缺一个固定的开始动作。",
                               "lineHeight": 1.7,
                               "fontFamily": "$font-sans",
-                              "fontSize": 14
+                              "fontSize": 14,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -21100,7 +21414,8 @@
                           "content": "说明：把判断提前，让句子先给结论。未新增事实。",
                           "lineHeight": 1.6,
                           "fontFamily": "$font-sans",
-                          "fontSize": 13
+                          "fontSize": 13,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "frame",
@@ -21151,7 +21466,8 @@
                           "fill": "$ink-2",
                           "content": "对选中的 1 段文字提出修改要求",
                           "fontFamily": "$font-sans",
-                          "fontSize": 12
+                          "fontSize": 12,
+                          "fontWeight": "normal"
                         },
                         {
                           "type": "frame",
@@ -21172,7 +21488,8 @@
                               "fill": "$ink-3",
                               "content": "例如：更口语一点，保留原意",
                               "fontFamily": "$font-sans",
-                              "fontSize": 13
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -21285,7 +21602,8 @@
                       "fill": "$ink-2",
                       "content": "文章",
                       "fontFamily": "$font-sans",
-                      "fontSize": 13
+                      "fontSize": 13,
+                      "fontWeight": "normal"
                     },
                     {
                       "type": "icon",
@@ -21544,7 +21862,8 @@
                       "fill": "$ink-2",
                       "content": "已保存 · 版本 7",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     },
                     {
                       "id": "AcW95",
@@ -21603,7 +21922,8 @@
                       "fill": "$ink-2",
                       "content": "未实现 · T031 草稿箱（仅本人账号）、T018 发布记录；只创建草稿，不调用发布接口",
                       "fontFamily": "$font-sans",
-                      "fontSize": 12
+                      "fontSize": 12,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -21700,7 +22020,8 @@
                                   "content": "把版本 7 以 HTML 存为公众号草稿。",
                                   "lineHeight": 1.5,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 },
                                 {
                                   "type": "frame",
@@ -21742,7 +22063,8 @@
                                           "width": "fill_container",
                                           "content": "推送后内容会标注为 AI 辅助生成",
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 13
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -21773,7 +22095,8 @@
                                           "width": "fill_container",
                                           "content": "只会存为草稿，请在公众号后台检查并发布",
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 13
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -21839,7 +22162,8 @@
                                           "content": "推送请求超时，草稿可能已经创建。先检查结果，避免在后台出现两份草稿。",
                                           "lineHeight": 1.6,
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 13
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
                                         },
                                         {
                                           "id": "v415Z5",
@@ -21920,7 +22244,8 @@
                                   "content": "图片与样式以后台预览为准；发布由你完成。",
                                   "lineHeight": 1.5,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -21986,7 +22311,8 @@
                                   "content": "记录绑定文章版本，方便以后回看。",
                                   "lineHeight": 1.5,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 12
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -22062,7 +22388,8 @@
                               "fill": "$ink-2",
                               "content": "对应文章版本：v7（当前）",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             },
                             {
                               "id": "MNrvo",
@@ -22140,7 +22467,8 @@
                                   "fill": "$ink-2",
                                   "content": "发布后在上方记录链接，首页的发布数会随之更新。",
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 13
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -22307,7 +22635,8 @@
                               "fill": "$ink-3",
                               "content": "搜索标题、正文或链接",
                               "fontFamily": "$font-sans",
-                              "fontSize": 14
+                              "fontSize": 14,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -22607,7 +22936,8 @@
                               "fill": "$ink-2",
                               "content": "文字素材 · 版本 3 · 更新于 2026/10/01 14:20 · 1,284 字",
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -22686,7 +23016,8 @@
                               "content": "离职那天，我以为自己会有大把时间写东西。第一周睡到自然醒，第二周开始焦虑，第三周才真正坐下来。",
                               "lineHeight": 1.85,
                               "fontFamily": "$font-serif",
-                              "fontSize": 17
+                              "fontSize": 17,
+                              "fontWeight": "normal"
                             },
                             {
                               "type": "frame",
@@ -22713,7 +23044,8 @@
                                   "content": "真正拖慢我的不是时间，而是没有一个固定的开始动作。",
                                   "lineHeight": 1.85,
                                   "fontFamily": "$font-serif",
-                                  "fontSize": 17
+                                  "fontSize": 17,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -22727,7 +23059,8 @@
                               "content": "后来我把每天早上的第一件事改成整理前一天的笔记，写作才慢慢有了节奏。",
                               "lineHeight": 1.85,
                               "fontFamily": "$font-serif",
-                              "fontSize": 17
+                              "fontSize": 17,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -22782,7 +23115,8 @@
                                       "fill": "$ink-2",
                                       "content": "模拟 · 基于版本 3",
                                       "fontFamily": "$font-sans",
-                                      "fontSize": 12
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 }
@@ -22816,7 +23150,8 @@
                                   "content": "作者离职后发现写作停滞的原因不是时间不足，而是缺少固定的开始动作；把整理笔记作为每天第一件事后恢复了节奏。",
                                   "lineHeight": 1.7,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 14
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -22866,7 +23201,8 @@
                                           "fill": "$ink",
                                           "content": "写作习惯",
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 12
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -22892,7 +23228,8 @@
                                           "fill": "$ink",
                                           "content": "离职",
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 12
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     },
@@ -22918,7 +23255,8 @@
                                           "fill": "$ink",
                                           "content": "自由职业",
                                           "fontFamily": "$font-sans",
-                                          "fontSize": 12
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
                                         }
                                       ]
                                     }
@@ -22961,7 +23299,8 @@
                                       "content": "时间充裕不等于产出增加。",
                                       "lineHeight": 1.7,
                                       "fontFamily": "$font-sans",
-                                      "fontSize": 14
+                                      "fontSize": 14,
+                                      "fontWeight": "normal"
                                     },
                                     {
                                       "id": "ATN1k",
@@ -22993,7 +23332,8 @@
                                       "content": "固定的开始动作比时长更能维持写作。",
                                       "lineHeight": 1.7,
                                       "fontFamily": "$font-sans",
-                                      "fontSize": 14
+                                      "fontSize": 14,
+                                      "fontWeight": "normal"
                                     },
                                     {
                                       "id": "YEPsR",
@@ -23039,7 +23379,8 @@
                                   "content": "· 离职后的写作陷阱：时间多了反而写不出",
                                   "lineHeight": 1.7,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 14
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
                                 },
                                 {
                                   "type": "text",
@@ -23051,7 +23392,8 @@
                                   "content": "· 一个开始动作，如何撑起每天的写作",
                                   "lineHeight": 1.7,
                                   "fontFamily": "$font-sans",
-                                  "fontSize": 14
+                                  "fontSize": 14,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -23065,7 +23407,8 @@
                               "content": "整理结果是对原文的归纳，不代表事实已经核实。",
                               "lineHeight": 1.5,
                               "fontFamily": "$font-sans",
-                              "fontSize": 12
+                              "fontSize": 12,
+                              "fontWeight": "normal"
                             }
                           ]
                         }
@@ -23145,7 +23488,8 @@
                   "content": "整理、选题、拆解、大纲和初稿会把相关内容发送给工作台配置的模型服务（DeepSeek）处理：",
                   "lineHeight": 1.7,
                   "fontFamily": "$font-sans",
-                  "fontSize": 14
+                  "fontSize": 14,
+                  "fontWeight": "normal"
                 },
                 {
                   "type": "frame",
@@ -23174,7 +23518,8 @@
                       "content": "本次整理：「失业后的第一个月」版本 3 的正文",
                       "lineHeight": 1.6,
                       "fontFamily": "$font-sans",
-                      "fontSize": 14
+                      "fontSize": 14,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -23205,7 +23550,8 @@
                       "content": "拆解时会发送你贴入的参考文章原文",
                       "lineHeight": 1.6,
                       "fontFamily": "$font-sans",
-                      "fontSize": 14
+                      "fontSize": 14,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -23236,7 +23582,8 @@
                       "content": "打开页面、浏览列表不会触发任何模型调用",
                       "lineHeight": 1.6,
                       "fontFamily": "$font-sans",
-                      "fontSize": 14
+                      "fontSize": 14,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -23249,7 +23596,8 @@
                   "width": "fill_container",
                   "content": "生成结果会标注为 AI 生成，由你确认后才会使用。",
                   "fontFamily": "$font-sans",
-                  "fontSize": 13
+                  "fontSize": 13,
+                  "fontWeight": "normal"
                 },
                 {
                   "type": "frame",

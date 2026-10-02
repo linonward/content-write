@@ -10,12 +10,12 @@ export default async function SignInPage() {
   return (
     <main className={ui.narrowShell}>
       <header className={ui.header}>
-        <span className={ui.mark}>文</span>
-        <span>公众号内容工作台</span>
+        <span className={ui.mark}>拆</span>
+        <span>拆写</span>
       </header>
       <section className={ui.formIntro}>
         <p className={ui.stage}>受邀访问</p>
-        <h1 className={ui.formTitle}>登录工作台</h1>
+        <h1 className={ui.formTitle}>登录拆写</h1>
         <p className="mt-[18px] max-w-[570px] text-base leading-[1.8] text-[#66716c]">
           使用管理员为你创建的邮箱和密码登录。
         </p>
