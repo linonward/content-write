@@ -1,7 +1,16 @@
 "use client";
 
 import { Menu } from "@base-ui/react/menu";
-import { ChevronsUpDown, LogOut, Settings, Users } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  LogOut,
+  Monitor,
+  Moon,
+  Settings,
+  Sun,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
@@ -21,7 +30,15 @@ import {
   hasLocalCopies,
 } from "@/modules/articles/client/local-copy";
 import { authClient } from "@/modules/identity/client/auth-client";
+import { setTheme, useTheme } from "@/modules/theme/client/theme-store";
+import { parseTheme } from "@/modules/theme/theme";
 import { hasUnsavedChanges } from "./unsaved-changes";
+
+const themeOptions = [
+  { value: "system", label: "跟随系统", Icon: Monitor },
+  { value: "light", label: "浅色", Icon: Sun },
+  { value: "dark", label: "深色", Icon: Moon },
+] as const;
 
 export type ShellUser = { name: string; email: string; role: string };
 const itemClass =
@@ -60,6 +77,7 @@ export function AccountMenu({
   const [confirm, setConfirm] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+  const theme = useTheme();
 
   async function signOut() {
     setPending(true);
@@ -140,6 +158,30 @@ export function AccountMenu({
                   </Menu.Item>
                 )}
               </div>
+              <Menu.Separator className="h-px bg-line" />
+              <Menu.RadioGroup
+                value={theme}
+                onValueChange={(value: string) => setTheme(parseTheme(value))}
+                className="p-1"
+              >
+                <Menu.GroupLabel className="px-2 py-1 text-meta text-ink-2">
+                  外观
+                </Menu.GroupLabel>
+                {themeOptions.map(({ value, label, Icon }) => (
+                  <Menu.RadioItem
+                    key={value}
+                    value={value}
+                    closeOnClick={false}
+                    className={cn(itemClass, "data-checked:text-ink")}
+                  >
+                    <Icon aria-hidden className="size-4" />
+                    {label}
+                    <Menu.RadioItemIndicator className="ml-auto flex text-accent">
+                      <Check aria-hidden className="size-4" />
+                    </Menu.RadioItemIndicator>
+                  </Menu.RadioItem>
+                ))}
+              </Menu.RadioGroup>
               <Menu.Separator className="h-px bg-line" />
               <div className="p-1">
                 <Menu.Item className={itemClass} onClick={requestLogout}>

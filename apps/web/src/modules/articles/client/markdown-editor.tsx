@@ -1,8 +1,25 @@
 "use client";
 
 import { markdown } from "@codemirror/lang-markdown";
+import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
+import { tags } from "@lezer/highlight";
 import { EditorView, minimalSetup } from "codemirror";
 import { useEffect, useRef } from "react";
+
+// 替代 CodeMirror 默认高亮（固定的浅色值），颜色引用设计 token，随浅色/深色主题切换。
+const markdownHighlight = HighlightStyle.define([
+  { tag: tags.heading, fontWeight: "bold", textDecoration: "underline" },
+  { tag: tags.emphasis, fontStyle: "italic" },
+  { tag: tags.strong, fontWeight: "bold" },
+  { tag: tags.strikethrough, textDecoration: "line-through" },
+  { tag: tags.link, textDecoration: "underline" },
+  {
+    tag: [tags.url, tags.contentSeparator, tags.labelName],
+    color: "var(--color-accent)",
+  },
+  { tag: [tags.meta, tags.comment], color: "var(--color-ink-2)" },
+  { tag: tags.monospace, fontFamily: "var(--font-mono)" },
+]);
 
 export type TextRange = { start: number; end: number };
 
@@ -37,6 +54,7 @@ export function MarkdownEditor({
       extensions: [
         minimalSetup,
         markdown(),
+        syntaxHighlighting(markdownHighlight),
         EditorView.lineWrapping,
         EditorView.contentAttributes.of({ id, "aria-label": label }),
         EditorView.updateListener.of((update) => {
@@ -50,6 +68,14 @@ export function MarkdownEditor({
           "&": { minHeight: "24rem", fontSize: "15px" },
           ".cm-content": { fontFamily: "inherit", lineHeight: "1.8" },
           "&.cm-focused": { outline: "none" },
+          ".cm-cursor, .cm-dropCursor": {
+            borderLeftColor: "var(--color-ink)",
+          },
+          "&.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection":
+            {
+              backgroundColor:
+                "color-mix(in oklab, var(--color-accent) 24%, transparent)",
+            },
         }),
       ],
     });

@@ -58,6 +58,50 @@ test("persists sidebar choice, supports shortcut and preserves editor focus", as
   ).toBeVisible();
 });
 
+test("switches light/dark theme from the account menu and remembers it", async ({
+  page,
+}) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  await login(page);
+  const html = page.locator("html");
+  const open = async () => {
+    await account(page).click();
+    return page.getByRole("menu", { name: "账号菜单", exact: true });
+  };
+  let menu = await open();
+  await expect(
+    menu.getByRole("menuitemradio", { name: "跟随系统" }),
+  ).toHaveAttribute("aria-checked", "true");
+  await expect(html).toHaveCSS("background-color", "rgb(241, 238, 231)");
+
+  await menu.getByRole("menuitemradio", { name: "深色" }).click();
+  await expect(html).toHaveAttribute("data-theme", "dark");
+  await expect(html).toHaveCSS("background-color", "rgb(20, 25, 23)");
+  await expect(
+    menu.getByRole("menuitemradio", { name: "深色" }),
+  ).toHaveAttribute("aria-checked", "true");
+  await page.keyboard.press("Escape");
+
+  // Choice survives reload and is applied before hydration by the head script.
+  await page.reload();
+  await expect(html).toHaveAttribute("data-theme", "dark");
+  await expect(html).toHaveCSS("background-color", "rgb(20, 25, 23)");
+
+  menu = await open();
+  await menu.getByRole("menuitemradio", { name: "浅色" }).click();
+  await expect(html).toHaveAttribute("data-theme", "light");
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expect(html).toHaveCSS("background-color", "rgb(241, 238, 231)");
+
+  // Following the system again drops the explicit choice.
+  await menu.getByRole("menuitemradio", { name: "跟随系统" }).click();
+  await expect(html).not.toHaveAttribute("data-theme");
+  await expect(html).toHaveCSS("background-color", "rgb(20, 25, 23)");
+  await page.emulateMedia({ colorScheme: "light" });
+  await expect(html).toHaveCSS("background-color", "rgb(241, 238, 231)");
+  await page.keyboard.press("Escape");
+});
+
 test("account menu handles arrows, Escape, profile and sign-out", async ({
   page,
 }) => {
@@ -71,7 +115,9 @@ test("account menu handles arrows, Escape, profile and sign-out", async ({
   await expect(menu.getByRole("menuitem", { name: /账号管理/ })).toHaveCount(0);
   await expect(menu.getByRole("menuitem", { name: "作者设置" })).toBeFocused();
   await page.keyboard.press("ArrowDown");
-  await expect(menu.getByRole("menuitem", { name: "退出登录" })).toBeFocused();
+  await expect(
+    menu.getByRole("menuitemradio", { name: "跟随系统" }),
+  ).toBeFocused();
   await page.keyboard.press("ArrowUp");
   await expect(menu.getByRole("menuitem", { name: "作者设置" })).toBeFocused();
   await page.keyboard.press("Escape");
