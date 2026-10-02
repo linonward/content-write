@@ -84,6 +84,8 @@ T029 新增（参考文章与拆解；全部需要会话，写操作需可信 Or
 - `DELETE /api/breakdowns/:id`：204。原文、修订、拆解结果与该文章的拆解任务一并删除（外键级联）；`ai_runs` 保留用量，`job_id` 置空。
 - `POST /api/breakdowns/:id/process`：Idempotency-Key 与 `{expectedVersion}`，DeepSeek 模式需确认（428）。202 `{jobId, status, mode}`，用 `/api/jobs/:id` 轮询，计入每日额度与并发。同键同输入返回同任务，同键不同版本 409 `IDEMPOTENCY_CONFLICT`；版本不是当前 409 `REFERENCE_VERSION_CONFLICT`；正文为空 422 `REFERENCE_CONTENT_REQUIRED`；当前版本已有结果 409 `ALREADY_BROKEN_DOWN`；已有进行中任务 409 `BREAKDOWN_JOB_ACTIVE`；额度 429，未配置 503。失败任务通过再次调用本接口重新拆解（`/api/jobs/:id/retry` 仍只用于素材整理）。
 
+T037 调整（链接抓取质量，接口不变）：`fetchStatus=fetched` 只在提取到可用正文时出现；错误页、验证页、需要 JavaScript 的空壳和不足 200 字的正文均记为 `failed`，正文为空。
+
 T017 新增（预览与导出；只读，需要会话，跨用户与不存在均 404 `ARTICLE_NOT_FOUND`，没有标题或正文 422 `ARTICLE_BODY_REQUIRED`）：
 
 - `GET /api/articles/:id/preview`：`{articleId, version, title, html, fileName, updatedAt, renderedAt}`。`html` 是正文经 remark/rehype 渲染并清理后的片段（CommonMark；原始 HTML 丢弃；无脚本、事件属性、iframe、`<img>`；链接只保留绝对 http(s)/mailto 并带 `rel="noopener noreferrer nofollow"`；图片变为 `[图片：alt]` 文字或链接，不自动加载）。`fileName` 为清理后的文件名主体。`Cache-Control: no-store`。

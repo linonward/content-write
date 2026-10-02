@@ -87,7 +87,12 @@ test("adds text and a manual link through the source dialog, then searches", asy
   await dialog.getByLabel("公开网页 URL").fill(`https://${linkHost}/source`);
   await dialog.getByRole("button", { name: "保存链接", exact: true }).click();
   await expect(dialog).not.toBeVisible();
-  await expect(page.getByText("暂无正文", { exact: true })).toBeVisible();
+  // Without fetched text the paste editor opens right away.
+  const paste = page.getByLabel("粘贴正文", { exact: true });
+  await expect(paste).toBeFocused();
+  await paste.fill("从原文复制来的正文。");
+  await page.getByRole("button", { name: "保存素材" }).click();
+  await expect(page.getByText("版本 2", { exact: true })).toBeVisible();
   const back = page.getByRole("button", { name: "返回素材列表" });
   if (await back.isVisible()) await back.click();
   await page.getByLabel("搜索素材").fill(title);

@@ -3,9 +3,19 @@ import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { BlockList, isIP } from "node:net";
 import { brotliDecompressSync, gunzipSync, inflateSync } from "node:zlib";
-import { load, loadBuffer } from "cheerio";
+import { Readability } from "@mozilla/readability";
+import { type CheerioAPI, load, loadBuffer } from "cheerio";
+import { parseHTML } from "linkedom";
 
-const MAX_BODY_BYTES = 2_097_152;
+// WeChat article pages are ~3.5 MiB of HTML for a few thousand characters of text.
+const MAX_BODY_BYTES = 8_388_608;
+const MIN_CONTENT_CHARS = 200;
+// Error, verification and JS-only shells come back as 200 with a little text.
+const BLOCKED_PAGE =
+  /环境异常|完成验证|访问过于频繁|参数错误|已被发布者删除|此内容因违规无法查看|请在微信客户端打开|enable javascript|javascript is (?:required|disabled)|doesn't work properly without javascript|just a moment|captcha/i;
+// Sites refuse non-browser user agents (WeChat redirects them to an error page).
+const USER_AGENT =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36";
 const FETCH_TIMEOUT_MS = 15_000;
 const MAX_REDIRECTS = 3;
 
@@ -128,9 +138,10 @@ export async function requestPinned(
         maxHeaderSize: 16_384,
         headers: {
           host: url.host,
-          accept: "text/html, text/plain, text/markdown",
+          accept: "text/html, application/xhtml+xml, text/plain, text/markdown",
           "accept-encoding": "gzip, deflate, br, identity",
-          "user-agent": "ContentWrite/1.0 (public article fetch)",
+          "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
+          "user-agent": USER_AGENT,
         },
       },
       (response) => {
@@ -179,13 +190,50 @@ function decodeBody(bytes: Uint8Array, encoding: string | undefined) {
   }
 }
 
+const BLOCK_TAGS =
+  "br,p,div,section,article,h1,h2,h3,h4,h5,h6,li,blockquote,pre";
+
+function textOf($: CheerioAPI, root: string) {
+  $(BLOCK_TAGS).append("\n");
+  return $(root).text();
+}
+
+function wechatArticle($: CheerioAPI) {
+  if ($("#js_content").length === 0) throw new Error("公众号页面没有正文。");
+  const title =
+    $("#activity-name").text().trim() ||
+    $('meta[property="og:title"]').attr("content")?.trim() ||
+    "";
+  $("#js_content script,#js_content style").remove();
+  return { title, content: textOf($, "#js_content") };
+}
+
+function readableArticle($: CheerioAPI) {
+  $("script,style,noscript,iframe,svg,template").remove();
+  const { document } = parseHTML($.html());
+  const article = new Readability(document).parse();
+  if (!article?.content) throw new Error("没有识别到正文。");
+  return {
+    title: article.title?.trim() || $("title").first().text().trim(),
+    content: textOf(load(article.content), "body"),
+  };
+}
+
+function checkArticle(content: string) {
+  const visible = content.replace(/\s/g, "").length;
+  if (visible < MIN_CONTENT_CHARS) throw new Error("网页正文过短。");
+  if (visible < 2_000 && BLOCKED_PAGE.test(content))
+    throw new Error("网页是错误页或验证页。");
+  if (content.length > 50_000) throw new Error("网页正文过长。");
+}
+
 function extractContent(bytes: Buffer, type: string, url: URL) {
   const mime = type.split(";")[0]?.trim().toLowerCase();
   if (
     !(["text/html", "text/plain", "text/markdown"] as string[]).includes(mime)
   )
     throw new Error("不支持的内容类型。");
-  let title = url.hostname;
+  let title = "";
   let content: string;
   if (mime === "text/html") {
     const declaredCharset = /charset\s*=\s*([^;]+)/i
@@ -195,13 +243,10 @@ function extractContent(bytes: Buffer, type: string, url: URL) {
     const $ = declaredCharset
       ? load(new TextDecoder(declaredCharset, { fatal: true }).decode(bytes))
       : loadBuffer(bytes);
-    title =
-      $("title").first().text().trim() ||
-      $("h1").first().text().trim() ||
-      title;
-    $("script,style,noscript,nav,header,footer,aside,form,iframe,svg").remove();
-    $("br,p,div,section,article,h1,h2,h3,li,blockquote").append("\n");
-    content = $("body").text();
+    ({ title, content } =
+      url.hostname === "mp.weixin.qq.com"
+        ? wechatArticle($)
+        : readableArticle($));
   } else {
     const charset =
       /charset\s*=\s*([^;]+)/i
@@ -212,12 +257,12 @@ function extractContent(bytes: Buffer, type: string, url: URL) {
   }
   content = content
     .replace(/\r\n?/g, "\n")
-    .replace(/[\t ]+/g, " ")
-    .replace(/\n\s*\n+/g, "\n\n")
+    .replace(/[\t \u00a0]+/g, " ")
+    .replace(/ *\n */g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
     .trim();
-  if (!content || content.length > 50_000)
-    throw new Error("网页正文为空或过长。");
-  return { title: title.slice(0, 200), content };
+  checkArticle(content);
+  return { title: (title || url.hostname).slice(0, 200), content };
 }
 
 function deadline<T>(promise: Promise<T>, milliseconds: number): Promise<T> {

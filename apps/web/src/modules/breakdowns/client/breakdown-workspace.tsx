@@ -166,8 +166,10 @@ export function BreakdownWorkspace() {
       );
       if (job?.status === "failed" && !detail.breakdown)
         setError("上次拆解失败，可以重新拆解。");
+      return detail;
     } catch (cause) {
       setError(message(cause, "加载失败。"));
+      return null;
     }
   }, []);
 
@@ -248,11 +250,21 @@ export function BreakdownWorkspace() {
       );
       await refresh();
       setCreateOpen(false);
-      await open(created.id);
-      if (created.fetchStatus === "failed")
-        setNotice("链接已保存，但没有抓取到正文。请打开原文复制正文后粘贴。");
-      else if (created.fetchStatus === "disabled")
-        setNotice("链接已保存。请复制文章正文后粘贴，再拆解。");
+      const detail = await open(created.id);
+      if (
+        detail &&
+        (created.fetchStatus === "failed" || created.fetchStatus === "disabled")
+      ) {
+        // Without fetched text the next step is pasting it, so open the editor.
+        setTitle(detail.reference.title);
+        setContent("");
+        setMode("edit");
+        setNotice(
+          created.fetchStatus === "failed"
+            ? "链接已保存，但没有抓到正文（网页可能需要登录或由脚本加载）。请打开原文复制正文，粘贴到下方再拆解。"
+            : "链接已保存。请打开原文复制正文，粘贴到下方再拆解。",
+        );
+      }
     } catch (cause) {
       setError(message(cause, "保存失败。"));
     } finally {
@@ -489,6 +501,7 @@ export function BreakdownWorkspace() {
                       maxLength={MAX_CHARS}
                       rows={14}
                       required
+                      autoFocus={needsText}
                       onChange={(event) => setContent(event.target.value)}
                     />
                     <FieldDescription>
