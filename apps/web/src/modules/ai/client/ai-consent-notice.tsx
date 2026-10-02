@@ -47,7 +47,7 @@ export function AiConsentNotice() {
     <Alert role="status">
       <AlertDescription className="space-y-3">
         <p>
-          首次使用真实模型：生成时，相关素材、作者设置和文章内容会发送给
+          首次使用真实模型：生成时，相关素材、作者设置、启用的历史文章节选和文章内容会发送给
           DeepSeek 模型服务处理。生成结果只是建议，事实仍需你核对。
         </p>
         {error && <p className="text-danger">{error}</p>}

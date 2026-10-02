@@ -2,7 +2,9 @@ import {
   type AuthorProfile,
   profileIsEmpty,
 } from "@content-write/db/author-profile";
+import type { StyleSample } from "@content-write/db/writing-samples";
 import type { ChatMessage, ParseResult } from "./ai/deepseek";
+import { withWritingSamples } from "./writing-samples";
 
 const PROFILE_RULES = `
 作者设置：
@@ -27,7 +29,9 @@ function describe(profile: AuthorProfile) {
 export function withProfile(
   messages: ChatMessage[],
   profile: AuthorProfile | null,
+  samples: StyleSample[] = [],
 ): ChatMessage[] {
+  messages = withWritingSamples(messages, samples);
   if (!profile || profileIsEmpty(profile)) return messages;
   return messages.map((message) =>
     message.role === "system"

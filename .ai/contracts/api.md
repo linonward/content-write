@@ -116,3 +116,11 @@ T014 新增（作者设置）：
 2026-10-02 规划（尚未实现，接口在对应任务完成后才算可用）：
 
 - T031：`POST /api/articles/:id/wechat-draft`（携带 `expectedVersion` 与 Idempotency-Key，只创建草稿）、`GET /api/articles/:id/wechat-draft`（推送记录与确认状态）；未配置公众号返回 503。
+
+## 作者历史文章（T015）
+
+- `GET /api/writing-samples` → `{ samples: [{ id, title, content, enabled, version, createdAt }] }`，仅本人，按添加时间倒序。
+- `POST /api/writing-samples` `{ title, content }` → 201 `{ sample }`，默认启用；标题 1–200 字，正文 1–20000 字，trim 后非空；最多 20 篇（包括禁用），并发创建串行校验。
+- `PATCH /api/writing-samples/:id` `{ expectedVersion, enabled }` → `{ sample }`；状态改变版本 +1，同状态不增版；旧版本 409 `SAMPLE_VERSION_CONFLICT`。
+- `DELETE /api/writing-samples/:id` → 204，物理删除正文；不影响已有文章结果。
+- 所有接口要求会话，写操作检查 Origin；其他用户或不存在的 ID 均 404 `SAMPLE_NOT_FOUND`；数量超限 409 `SAMPLE_LIMIT`，字段超限/未知字段 422 `INVALID_SAMPLE`，无效 JSON 400，请求过大 413。

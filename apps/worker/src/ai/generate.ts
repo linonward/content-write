@@ -1,6 +1,7 @@
 import type { AuthorProfile } from "@content-write/db/author-profile";
 import type { FrameworkSnapshot } from "@content-write/db/framework";
 import type { BreakdownResult } from "@content-write/db/schema";
+import type { StyleSample } from "@content-write/db/writing-samples";
 import {
   createMockAnalysis,
   type MaterialAnalysis,
@@ -135,13 +136,14 @@ export async function generateIdeas(
   sources: IdeaSource[],
   profile: AuthorProfile | null = null,
   deps?: DeepSeekDeps,
+  samples: StyleSample[] = [],
 ): Promise<Generated<GeneratedIdea[]>> {
   const mode = requireMode();
   if (mode === "mock")
     return { output: createMockIdeas(sources), meta: { mode, usage: null } };
   const { data, usage } = await generateJson(
     "idea_generation",
-    withProfile(ideasMessages(sources), profile),
+    withProfile(ideasMessages(sources), profile, samples),
     avoidingBannedWords(
       (value) =>
         asParse(
@@ -161,6 +163,7 @@ export async function generateOutline(
   framework: FrameworkSnapshot | null = null,
   profile: AuthorProfile | null = null,
   deps?: DeepSeekDeps,
+  samples: StyleSample[] = [],
 ): Promise<Generated<Outline>> {
   const mode = requireMode();
   if (mode === "mock")
@@ -184,6 +187,7 @@ export async function generateOutline(
         framework,
       ),
       profile,
+      samples,
     ),
     avoidingBannedWords(
       (value) => asParse(validateOutline(value, sources, framework)),
@@ -206,13 +210,14 @@ export async function generateDraft(
   context: DraftContext,
   profile: AuthorProfile | null = null,
   deps?: DeepSeekDeps,
+  samples: StyleSample[] = [],
 ): Promise<Generated<Draft>> {
   const mode = requireMode();
   if (mode === "mock")
     return { output: createMockDraft(context), meta: { mode, usage: null } };
   const { data, usage } = await generateJson(
     "draft_generation",
-    withProfile(draftMessages(context), profile),
+    withProfile(draftMessages(context), profile, samples),
     avoidingBannedWords(
       (value) => asParse(validateDraft(value, context.sources)),
       profile,
@@ -247,14 +252,20 @@ export async function generateBreakdown(
 export async function generateEdit(
   context: EditContext,
   deps?: DeepSeekDeps,
+  samples: StyleSample[] = [],
+  profile: AuthorProfile | null = null,
 ): Promise<Generated<Edit>> {
   const mode = requireMode();
   if (mode === "mock")
     return { output: createMockEdit(context), meta: { mode, usage: null } };
   const { data, usage } = await generateJson(
     "edit_suggestion",
-    editMessages(context),
-    (value) => asParse(validateEdit(value, context.selectionText)),
+    withProfile(editMessages(context), profile, samples),
+    avoidingBannedWords(
+      (value) => asParse(validateEdit(value, context.selectionText)),
+      profile,
+      (edit) => [edit.replacement],
+    ),
     deps,
   );
   return { output: data, meta: { mode, usage } };

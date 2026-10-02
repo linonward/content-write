@@ -24,3 +24,7 @@ pnpm dev
 `pnpm lint`、`pnpm typecheck`、`pnpm test`、`pnpm test:integration`、`pnpm test:e2e`、`pnpm build`。E2E 首次运行前安装浏览器：`pnpm --filter @content-write/e2e exec playwright install chromium`。
 
 需求与任务表见 [产品指南](docs/product.md) 和 [.ai/tasks/index.md](.ai/tasks/index.md)。
+
+### 作者历史文章（T015）
+
+在账号菜单 → 作者设置的“历史文章”中粘贴本人文章标题和正文，可查看全文、启用/禁用和删除。最多 20 篇，标题 200 字、正文 20000 字；启用样本用于选题、大纲、初稿和 AI 修改的风格参考，不作为事实依据。每次最多最近添加的 3 篇、每篇开头 2000 字。本次要求与作者设置优先。禁用/删除后尚未执行的任务不再读取正文，已发送的模型请求和已有结果保留。重新启用会产生新版本，旧任务不读新版本。不会从历史文章自动生成记忆。

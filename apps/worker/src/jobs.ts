@@ -3,6 +3,10 @@ import { performance } from "node:perf_hooks";
 import { readProfileRevision } from "@content-write/db/author-profile";
 import { getDb, getPool } from "@content-write/db/client";
 import {
+  readWritingSamples,
+  type SampleRef,
+} from "@content-write/db/writing-samples";
+import {
   generateAnalysis,
   generateBreakdown,
   generateDraft,
@@ -31,6 +35,7 @@ export type Claimed = {
   reference_article_id: string | null;
   reference_version: number | null;
   profile_version: number | null;
+  writing_samples: SampleRef[];
   kind: string;
   claim_token: string;
   attempts: number;
@@ -56,7 +61,7 @@ export async function claimJob(): Promise<Claimed | null> {
        UPDATE ai_jobs j SET status = 'running', claim_token = $1, lease_until = now() + interval '30 seconds',
          attempts = attempts + 1, updated_at = now()
        FROM next_job WHERE j.id = next_job.id
-       RETURNING j.id, j.user_id, j.material_id, j.material_version, j.source_count, j.article_id, j.article_version, j.reference_article_id, j.reference_version, j.profile_version, j.kind, j.claim_token, j.attempts`,
+       RETURNING j.id, j.user_id, j.material_id, j.material_version, j.source_count, j.article_id, j.article_version, j.reference_article_id, j.reference_version, j.profile_version, j.writing_samples, j.kind, j.claim_token, j.attempts`,
       [randomUUID(), claimableKinds],
     );
     await client.query("COMMIT");
@@ -202,8 +207,18 @@ async function runIdeas(job: Claimed, started: number) {
     await staleJob(job);
     return;
   }
-  const { output, meta } = await generateIdeas(sources, await profileFor(job));
+  const { output, meta } = await generateIdeas(
+    sources,
+    await profileFor(job),
+    undefined,
+    await samplesFor(job),
+  );
   await completeIdeaJob(job, output, performance.now() - started, meta);
+}
+
+/** Rechecks recorded sample refs before sending model input. */
+function samplesFor(job: Claimed) {
+  return readWritingSamples(getDb(), job.user_id, job.writing_samples ?? []);
 }
 
 /** The profile revision recorded when the job was queued, not the current one. */
@@ -222,6 +237,8 @@ async function runOutline(job: Claimed, started: number) {
     context.sources,
     context.framework,
     await profileFor(job),
+    undefined,
+    await samplesFor(job),
   );
   await completeOutlineJob(job, output, performance.now() - started, meta);
 }
@@ -232,7 +249,12 @@ async function runDraft(job: Claimed, started: number) {
     await staleJob(job);
     return;
   }
-  const { output, meta } = await generateDraft(context, await profileFor(job));
+  const { output, meta } = await generateDraft(
+    context,
+    await profileFor(job),
+    undefined,
+    await samplesFor(job),
+  );
   await completeDraftJob(job, output, performance.now() - started, meta);
 }
 
@@ -242,7 +264,12 @@ async function runEdit(job: Claimed, started: number) {
     await staleJob(job, "ARTICLE_CHANGED");
     return;
   }
-  const { output, meta } = await generateEdit(context);
+  const { output, meta } = await generateEdit(
+    context,
+    undefined,
+    await samplesFor(job),
+    await profileFor(job),
+  );
   await completeEditJob(job, output, performance.now() - started, meta);
 }
 
