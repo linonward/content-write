@@ -45,7 +45,7 @@
 | T032 | 设计系统 token、字体与基础组件落地，任意值检查 | 已完成 | 无；与 T013、T014 协调 | feat/T032-design-system | 已清理 | 8593364 | 94e6ecf | .ai/verifications/T032.md |
 | T033 | 落地页 `/`：未登录介绍与邮件申请试用，已登录跳转 `/home` | 已完成 | T032；申请邮箱 | feat/T033-landing | 已清理 | 00a1d7e | e694a0d | .ai/verifications/T033.md |
 | T034 | 应用外壳：可折叠侧栏、账号菜单、顶栏、底部标签栏 | 已完成 | T032；T014 设置入口迁移 | feat/T034-app-shell | ../content-write-app-shell（已清理） | 259ebef | 54e22f4 | .ai/verifications/T034.md |
-| T035 | 一级页面重排：首页、拆解、素材箱、选题、文章列表 | 待合并 | T034 | feat/T035-primary-pages | ../content-write-primary-pages | 无 | 无 | .ai/verifications/T035.md |
+| T035 | 一级页面重排：首页、拆解、素材箱、选题、文章列表 | 待合并 | T034 | feat/T035-primary-pages | ../content-write-primary-pages | e790a9f | 无 | .ai/verifications/T035.md |
 
 ## 当前阻塞
 
@@ -159,3 +159,5 @@
 - 2026-10-01 17:08 CST：T006 PR #12 两项 CI 通过并合入；主分支独立空库迁移 0000–0005、完整检查通过，T006 worktree 与本地分支已清理。
 
 - 2026-10-02：PR #56 合并为 `54e22f4`；独立空库主分支完整检查与 Playwright 36/36 通过，全部 mock。T034 验收完成，服务已停止，验证库及任务 worktree 在本次收尾中清理；T035 可开始。
+
+- 2026-10-02：T035 基于 T034 验收后的 `712cdf3` 完成五个一级页面重排、三来源素材对话框与375适配；完整检查（API 集成 67/67）、Playwright 40/40、布局收紧后的素材专项 4/4 通过，全部 mock。实现 `e790a9f`，PR #58 待合并；验证服务与数据库清理，保留 worktree。
