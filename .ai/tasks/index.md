@@ -27,7 +27,7 @@
 | T014 | 作者画像与表达偏好保存并影响后续生成 | 待开始 | T002、T010 | feat/T014-author-preferences | 未创建 | 无 | 无 | 无 |
 | T015 | 添加、启停、删除历史文章并用于风格示例 | 待开始 | T014 | feat/T015-writing-samples | 未创建 | 无 | 无 | 无 |
 | T016 | 候选记忆、确认、修改、禁用、删除和上下文版本 | 待开始 | T015 | feat/T016-confirmed-memory | 未创建 | 无 | 无 | 无 |
-| T017 | 手机预览、安全渲染、Markdown 与 HTML 下载 | 待开始 | T011 | feat/T017-preview-export | 未创建 | 无 | 无 | 无 |
+| T017 | 手机预览、安全渲染、Markdown 与 HTML 下载 | 待合并 | T011 | feat/T017-preview-export | content-write-preview-export | b0cb9ef | 无 | .ai/verifications/T017.md |
 | T018 | 记录手动发布链接、时间和文章版本 | 待开始 | T017 | feat/T018-record-publication | 未创建 | 无 | 无 | 无 |
 | T019 | 首页、初次引导、目标、聚合信息和响应式布局 | 待开始 | T007、T009、T011、T014、T018 | feat/T019-home-onboarding | 未创建 | 无 | 无 | 无 |
 | T020 | 用户反馈、事件、去重、漏斗和隐私配置 | 待开始 | T013、T016、T018、T019 | feat/T020-feedback-and-funnel | 未创建 | 无 | 无 | 无 |
@@ -48,6 +48,8 @@
 暂无已确认阻塞。
 
 ## 最近更新
+
+- 2026-10-02 11:30 CST：T017 从 `2510968` 实现手机预览与 Markdown、HTML 导出（经创始人同意与 T030 并行）：API `article-export` 模块与 remark/rehype 安全渲染链、`/articles/:id/preview` 页面；无迁移。独立空库迁移与完整检查通过（API 集成 50/50），Playwright 10/10。等待 PR。
 
 - 2026-10-02 11:05 CST：PR #41 合并为 `b1da2f1`；主分支独立 PostgreSQL 空库迁移 0000–0013、完整检查（API 集成 46/46）与 Playwright 8/8 通过。T029 验证数据库与 worktree 已清理。T030 可以开始。
 

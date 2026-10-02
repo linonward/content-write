@@ -50,6 +50,8 @@ pnpm test:e2e
 
 从选题创建文章后，进入 `/articles/:id` 编辑工作标题、目标读者和核心观点，再主动生成或手写大纲。大纲可编辑小节、要点、来源片段与证据缺口；保存后作者确认。修改 brief 会清除大纲和确认，修改大纲会撤销确认。所有写入携带文章版本，冲突返回 409；生成任务绑定文章版本及素材版本，worker 提交前复核。`/articles` 列出最近 100 篇文章。生成模式由 `AI_MODE` 决定，见下文“真实模型”。删除素材会一并清理引用它的选题、文章和大纲任务，避免已删除来源的文字留在大纲中；界面在删除前提示此影响。
 
+文章有正文后，文章页的“预览”进入 `/articles/:id/preview`：约 375px 手机宽度预览，可下载 Markdown（作者原文）和 HTML（独立文档）。预览与 HTML 导出由 API 用同一条 remark/rehype 渲染链生成：Markdown 中的原始 HTML 被丢弃，脚本、事件属性、iframe 和不安全链接被移除，图片只显示为 `[图片：说明]` 文字或链接，不会自动加载远程图片，发布到公众号时需在后台重新插图。参考文章不会进入预览或导出。
+
 Web 只负责页面和会话页面渲染，不提供 API 路由。浏览器直接请求 `NEXT_PUBLIC_API_URL` 指向的 Hono API；Web 服务端用 `API_INTERNAL_URL` 查询当前会话。API 使用 `WEB_ORIGIN` 限制浏览器跨域来源，`BETTER_AUTH_URL` 指向 API 地址。部署时分别配置这些地址，并确保认证 cookie 在 Web 与 API 域名之间可用。`GET /api/healthz` 检查 API 进程，`GET /api/readyz` 检查数据库连接；数据库不可用时后者返回 503。
 
 单独启动：`pnpm web:dev`、`pnpm api:dev`、`pnpm worker:dev`。生产运行 Web 用 `pnpm --filter @content-write/web start`，API 和 worker 分别用对应包的 `start` 脚本。数据库迁移由 `packages/db` 执行，不在 Web 启动时自动执行。
