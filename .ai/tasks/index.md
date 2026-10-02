@@ -47,7 +47,7 @@
 | T034 | 应用外壳：可折叠侧栏、账号菜单、顶栏、底部标签栏 | 已完成 | T032；T014 设置入口迁移 | feat/T034-app-shell | ../content-write-app-shell（已清理） | 259ebef | 54e22f4 | .ai/verifications/T034.md |
 | T035 | 一级页面重排：首页、拆解、素材箱、选题、文章列表 | 已完成 | T034 | feat/T035-primary-pages | ../content-write-primary-pages（已清理） | e790a9f | a6e45e8 | .ai/verifications/T035.md |
 | T036 | 深色 / 浅色主题：账号菜单切换、按设备记住、首屏不闪烁 | 已完成 | T032、T034 | feat/T036-color-theme | ../content-write-color-theme（收尾后清理） | 4ec9da9 | e971848 | .ai/verifications/T036.md |
-| T037 | 链接抓取可用：公众号与常见网站抓到干净正文，错误页判失败，失败直接打开粘贴框 | 待合并 | T005、T029 | feat/T037-link-fetch-quality | ../content-write-link-fetch | 待提交 | 无 | .ai/verifications/T037.md |
+| T037 | 链接抓取可用：公众号与常见网站抓到干净正文，错误页判失败，失败直接打开粘贴框 | 待合并 | T005、T029 | feat/T037-link-fetch-quality | ../content-write-link-fetch | 21fe85b | 无 | .ai/verifications/T037.md |
 
 ## 当前阻塞
 
@@ -55,7 +55,7 @@
 
 ## 最近更新
 
-- 2026-10-02 22:25 CST：T037（22:07 从 `1cf2117` 开始）评估发现打开抓取开关后不可用：公众号拒绝非浏览器 UA、页面超过 2 MiB，错误页与 JS 空壳会被存为“已抓取”。改为浏览器 UA、8 MiB 上限、公众号 `#js_content` 与 Readability 提取、正文质量检查；未抓到正文时直接打开粘贴框。真实网络冒烟 9/9（经本机代理，非机房 IP），独立空库完整检查（API 集成 82/82）与 Playwright 50/50 通过，mock。部署服务器复验后再开启 `REMOTE_FETCH_ENABLED`。
+- 2026-10-02 22:25 CST：T037（22:07 从 `1cf2117` 开始）评估发现打开抓取开关后不可用：公众号拒绝非浏览器 UA、页面超过 2 MiB，错误页与 JS 空壳会被存为“已抓取”。改为浏览器 UA、8 MiB 上限、公众号 `#js_content` 与 Readability 提取、正文质量检查；未抓到正文时直接打开粘贴框。真实网络冒烟 9/9（经本机代理，非机房 IP），独立空库完整检查（API 集成 82/82）与 Playwright 50/50 通过，mock。实现 `21fe85b`，PR #70 待合并；部署服务器复验后再开启 `REMOTE_FETCH_ENABLED`。
 
 - 2026-10-02 18:10 CST：T018（16:55 从 `a486af4` 开始）实现记录手动发布：`publish_records`、`publish-records` API 模块、`/articles/:id/publish` 页面与入口；PR #62。期间主分支合并 T036、T016 及其收尾（T016 占用迁移 0018），分支 rebase 到 `06b79b7`，迁移重新生成为 0019（`5877f87`，内容不变）。在 `72b9f9a` 上重建空库迁移 0000–0019、完整检查（API 集成 82/82）与 Playwright 48/48 通过，深色主题截图检查；`06b79b7` 只改 T016 文档，未重跑。全部 mock。实现提交 `34bb49a`（最初 `fa6673f`）。
 
