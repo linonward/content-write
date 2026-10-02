@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
 import { readProfileRevision } from "@content-write/db/author-profile";
 import { getDb, getPool } from "@content-write/db/client";
+import { type MemoryRef, readMemories } from "@content-write/db/memories";
 import {
   readWritingSamples,
   type SampleRef,
@@ -12,6 +13,7 @@ import {
   generateDraft,
   generateEdit,
   generateIdeas,
+  generateMemories,
   generateOutline,
   type RunMeta,
 } from "./ai/generate";
@@ -21,6 +23,7 @@ import { completeDraftJob, loadDraftContext } from "./draft-jobs";
 import { completeEditJob, loadEditContext } from "./edit-jobs";
 import { describeFailure, TerminalJobError } from "./failures";
 import { completeIdeaJob, loadIdeaSources } from "./idea-jobs";
+import { completeMemoryJob } from "./memory-jobs";
 import { completeOutlineJob, loadOutlineContext } from "./outline-jobs";
 import { mockRun, runUsage } from "./runs";
 
@@ -36,6 +39,7 @@ export type Claimed = {
   reference_version: number | null;
   profile_version: number | null;
   writing_samples: SampleRef[];
+  memories: MemoryRef[];
   kind: string;
   claim_token: string;
   attempts: number;
@@ -61,7 +65,7 @@ export async function claimJob(): Promise<Claimed | null> {
        UPDATE ai_jobs j SET status = 'running', claim_token = $1, lease_until = now() + interval '30 seconds',
          attempts = attempts + 1, updated_at = now()
        FROM next_job WHERE j.id = next_job.id
-       RETURNING j.id, j.user_id, j.material_id, j.material_version, j.source_count, j.article_id, j.article_version, j.reference_article_id, j.reference_version, j.profile_version, j.writing_samples, j.kind, j.claim_token, j.attempts`,
+       RETURNING j.id, j.user_id, j.material_id, j.material_version, j.source_count, j.article_id, j.article_version, j.reference_article_id, j.reference_version, j.profile_version, j.writing_samples, j.memories, j.kind, j.claim_token, j.attempts`,
       [randomUUID(), claimableKinds],
     );
     await client.query("COMMIT");
@@ -212,6 +216,7 @@ async function runIdeas(job: Claimed, started: number) {
     await profileFor(job),
     undefined,
     await samplesFor(job),
+    await memoriesFor(job),
   );
   await completeIdeaJob(job, output, performance.now() - started, meta);
 }
@@ -219,6 +224,11 @@ async function runIdeas(job: Claimed, started: number) {
 /** Rechecks recorded sample refs before sending model input. */
 function samplesFor(job: Claimed) {
   return readWritingSamples(getDb(), job.user_id, job.writing_samples ?? []);
+}
+
+/** Rechecks recorded memory refs: only still-confirmed, unchanged memories are sent. */
+function memoriesFor(job: Claimed) {
+  return readMemories(getDb(), job.user_id, job.memories ?? []);
 }
 
 /** The profile revision recorded when the job was queued, not the current one. */
@@ -239,6 +249,7 @@ async function runOutline(job: Claimed, started: number) {
     await profileFor(job),
     undefined,
     await samplesFor(job),
+    await memoriesFor(job),
   );
   await completeOutlineJob(job, output, performance.now() - started, meta);
 }
@@ -254,6 +265,7 @@ async function runDraft(job: Claimed, started: number) {
     await profileFor(job),
     undefined,
     await samplesFor(job),
+    await memoriesFor(job),
   );
   await completeDraftJob(job, output, performance.now() - started, meta);
 }
@@ -269,6 +281,7 @@ async function runEdit(job: Claimed, started: number) {
     undefined,
     await samplesFor(job),
     await profileFor(job),
+    await memoriesFor(job),
   );
   await completeEditJob(job, output, performance.now() - started, meta);
 }
@@ -286,6 +299,16 @@ async function runBreakdown(job: Claimed, started: number) {
   await completeBreakdownJob(job, output, performance.now() - started, meta);
 }
 
+async function runMemories(job: Claimed, started: number) {
+  const samples = await samplesFor(job);
+  if (!samples.length) {
+    await staleJob(job, "SAMPLES_CHANGED");
+    return;
+  }
+  const { output, meta } = await generateMemories(samples);
+  await completeMemoryJob(job, output, performance.now() - started, meta);
+}
+
 // Every claimable kind has exactly one handler; claimJob only selects these kinds.
 const handlers: Record<
   string,
@@ -297,6 +320,7 @@ const handlers: Record<
   draft_generation: runDraft,
   reference_breakdown: runBreakdown,
   edit_suggestion: runEdit,
+  memory_extraction: runMemories,
 };
 export const claimableKinds = Object.keys(handlers);
 

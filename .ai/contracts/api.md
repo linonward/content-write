@@ -124,3 +124,13 @@ T014 新增（作者设置）：
 - `PATCH /api/writing-samples/:id` `{ expectedVersion, enabled }` → `{ sample }`；状态改变版本 +1，同状态不增版；旧版本 409 `SAMPLE_VERSION_CONFLICT`。
 - `DELETE /api/writing-samples/:id` → 204，物理删除正文；不影响已有文章结果。
 - 所有接口要求会话，写操作检查 Origin；其他用户或不存在的 ID 均 404 `SAMPLE_NOT_FOUND`；数量超限 409 `SAMPLE_LIMIT`，字段超限/未知字段 422 `INVALID_SAMPLE`，无效 JSON 400，请求过大 413。
+
+## 确认记忆（T016）
+
+- `GET /api/memories` → `{ memories: [{ id, content, status, origin, evidence, mode, jobId, version, createdAt, updatedAt }], latestJob: { id, status, errorCode, updatedAt } | null, extraction: { available, mode } }`，仅本人，按添加时间倒序。`status` 为 `candidate` / `confirmed` / `disabled`；`origin` 为 `manual` / `extracted`；`evidence` 为 `[{ sampleId, sampleVersion, sampleTitle, quote, start, end }]`（引用片段的副本，样本修改或删除后仍可查看）。
+- `POST /api/memories` `{ content }` → 201，返回同 GET 的列表；手动记忆直接为 `confirmed`；1–200 字，trim 后非空。每位作者最多 50 条（含候选与禁用），并发创建串行校验，超限 409 `MEMORY_LIMIT`。
+- `PATCH /api/memories/:id` `{ expectedVersion, content }` 或 `{ expectedVersion, status: "confirmed" | "disabled" }` → 200 列表；改变即版本 +1，相同值不增版；旧版本 409 `MEMORY_VERSION_CONFLICT`。同时给出 `content` 与 `status`、`status: "candidate"` 或未知字段均 422 `INVALID_MEMORY`。
+- `DELETE /api/memories/:id` → 204，物理删除。
+- `POST /api/memories/extract`（`Idempotency-Key`，需模型同意）→ 202 `{ jobId, status: "queued", mode }`，任务 `memory_extraction`。没有启用的历史文章 422 `SAMPLES_REQUIRED`；已有 50 条 409 `MEMORY_LIMIT`；已有进行中的提取 409 `MEMORY_JOB_ACTIVE`；同键不同输入 409 `IDEMPOTENCY_CONFLICT`；每日/并发 429；未配置模型 503 `AI_NOT_CONFIGURED`；未同意 428。任务状态用 `GET /api/jobs/:id` 轮询，候选通过 `GET /api/memories` 读取（`jobId` 指向产生它的任务）。
+- 所有接口要求会话，写操作检查 Origin；其他用户或不存在的 ID 均 404 `MEMORY_NOT_FOUND`；无效 JSON 400，请求过大（>4 KB）413。
+- 选题、大纲、初稿与 AI 修改入队时按添加时间降序选最多 20 条 `confirmed` 记忆，ID/版本写入 `ai_jobs.memories` 并纳入输入 hash；没有已确认记忆时 hash 形状不变。

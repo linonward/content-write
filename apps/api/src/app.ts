@@ -11,6 +11,7 @@ import { healthRoutes } from "./modules/health/routes";
 import { ideaRoutes } from "./modules/ideas/routes";
 import { identityRoutes } from "./modules/identity/routes";
 import { materialRoutes } from "./modules/materials/routes";
+import { memoryRoutes } from "./modules/memories/routes";
 import { profileRoutes } from "./modules/profile/routes";
 
 import { writingSampleRoutes } from "./modules/writing-samples/routes";
@@ -29,6 +30,7 @@ app.route("/api", identityRoutes);
 app.route("/api", materialRoutes);
 app.route("/api", profileRoutes);
 app.route("/api", writingSampleRoutes);
+app.route("/api", memoryRoutes);
 app.route("/api", jobRoutes);
 app.route("/api", aiRoutes);
 app.route("/api", ideaRoutes);

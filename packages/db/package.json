@@ -15,7 +15,9 @@
     "./edit-suggestions": "./src/edit-suggestions.ts",
     "./framework": "./src/framework.ts",
     "./health": "./src/health.ts",
+    "./memories": "./src/memories.ts",
     "./schema": "./src/schema.ts",
+    "./user-lock": "./src/user-lock.ts",
     "./writing-samples": "./src/writing-samples.ts"
   },
   "scripts": {

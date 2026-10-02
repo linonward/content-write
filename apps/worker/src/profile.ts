@@ -2,8 +2,10 @@ import {
   type AuthorProfile,
   profileIsEmpty,
 } from "@content-write/db/author-profile";
+import type { ConfirmedMemory } from "@content-write/db/memories";
 import type { StyleSample } from "@content-write/db/writing-samples";
 import type { ChatMessage, ParseResult } from "./ai/deepseek";
+import { withMemories } from "./memories";
 import { withWritingSamples } from "./writing-samples";
 
 const PROFILE_RULES = `
@@ -30,8 +32,9 @@ export function withProfile(
   messages: ChatMessage[],
   profile: AuthorProfile | null,
   samples: StyleSample[] = [],
+  memories: ConfirmedMemory[] = [],
 ): ChatMessage[] {
-  messages = withWritingSamples(messages, samples);
+  messages = withMemories(withWritingSamples(messages, samples), memories);
   if (!profile || profileIsEmpty(profile)) return messages;
   return messages.map((message) =>
     message.role === "system"

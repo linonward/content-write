@@ -6,6 +6,7 @@ import {
   replaceSelection,
   selectionCurrent,
 } from "@content-write/db/edit-suggestions";
+import { selectMemories } from "@content-write/db/memories";
 import { selectWritingSamples } from "@content-write/db/writing-samples";
 import { aiAvailable, aiMode } from "../../config";
 import {
@@ -67,6 +68,7 @@ export async function startEdit(
     const article = await lockArticle(tx, userId, articleId);
     if (!article) throw new EditError("article_missing");
     const profileVersion = await currentProfileVersion(tx, userId);
+    const memories = await selectMemories(tx, userId);
     const writingSamples = await selectWritingSamples(tx, userId);
     const inputHash = hashInput({
       kind: "edit_suggestion",
@@ -74,6 +76,7 @@ export async function startEdit(
       ...input,
       profile: profileVersion ?? undefined,
       writingSamples: writingSamples.length ? writingSamples : undefined,
+      memories: memories.length ? memories : undefined,
       mode: aiMode(),
     });
     // Idempotency comes before the version check so a retried request returns its job.
@@ -100,6 +103,7 @@ export async function startEdit(
       articleVersion: article.version,
       profileVersion,
       writingSamples,
+      memories,
     });
     if (queued.status === "created")
       await repo.insertSuggestion(tx, {

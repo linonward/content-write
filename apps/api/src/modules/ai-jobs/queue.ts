@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { Executor } from "@content-write/db/client";
+import type { MemoryRef } from "@content-write/db/memories";
 import { aiDailyUsage, aiJobs } from "@content-write/db/schema";
 import type { SampleRef } from "@content-write/db/writing-samples";
 import { and, count, eq, inArray, lte, sql } from "drizzle-orm";
@@ -11,7 +12,8 @@ export type JobKind =
   | "outline_generation"
   | "draft_generation"
   | "reference_breakdown"
-  | "edit_suggestion";
+  | "edit_suggestion"
+  | "memory_extraction";
 
 export type NewJob = {
   kind: JobKind;
@@ -28,6 +30,7 @@ export type NewJob = {
   /** Author profile version the generation will use; omitted when there is none. */
   profileVersion?: number | null;
   writingSamples?: SampleRef[];
+  memories?: MemoryRef[];
 };
 
 const shanghaiToday = sql<string>`(now() AT TIME ZONE 'Asia/Shanghai')::date`;
@@ -37,11 +40,8 @@ export function hashInput(input: unknown) {
   return createHash("sha256").update(JSON.stringify(input)).digest("hex");
 }
 
-// Serializes a user's enqueue decisions so limits and idempotency see a stable view.
-// Drizzle has no advisory-lock builder, hence the raw statement.
-export async function lockUserQueue(db: Executor, userId: string) {
-  await db.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${userId}))`);
-}
+// Shared with the worker, which takes the same lock before saving extracted memories.
+export { lockUserQueue } from "@content-write/db/user-lock";
 
 export async function findIdempotentJob(
   db: Executor,
@@ -127,6 +127,7 @@ export async function enqueueJob(db: Executor, job: NewJob) {
     referenceVersion: job.referenceVersion ?? null,
     profileVersion: job.profileVersion ?? null,
     writingSamples: job.writingSamples ?? [],
+    memories: job.memories ?? [],
     deadlineAt: sql`now() + interval '5 minutes'`,
   });
   return { status: "created" as const, jobId };
