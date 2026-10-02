@@ -45,6 +45,7 @@ test("pastes an article, breaks it down and checks the original", async ({
   await expect(page).toHaveURL(/\/breakdowns$/);
 
   const title = `参考 ${test.info().project.name} ${Date.now()}`;
+  await page.getByRole("button", { name: "拆解一篇爆款", exact: true }).click();
   await page.getByLabel("标题（可选）").fill(title);
   await page.getByLabel("文章正文").fill(article);
   await page.getByRole("button", { name: "保存参考文章" }).click();
@@ -63,7 +64,7 @@ test("pastes an article, breaks it down and checks the original", async ({
 
   const original = page.getByRole("region", { name: "原文" });
   await expect(original.locator("mark")).toHaveCount(0);
-  await page.getByRole("button", { name: /^1\./ }).click();
+  await page.getByRole("button", { name: /^1/ }).click();
   await expect(original.locator("mark")).toHaveText(
     "30 岁那年，我从大厂辞职，以为终于自由了。",
   );
@@ -71,9 +72,22 @@ test("pastes an article, breaks it down and checks the original", async ({
   await expect(
     page.getByRole("button", { name: "用这个框架写" }),
   ).toBeVisible();
-  await expect(
-    page.getByRole("listitem").filter({ hasText: title }),
-  ).toContainText("已拆解");
+  const back = page.getByRole("button", { name: "返回参考文章列表" });
+  if (await back.isVisible()) {
+    await back.click();
+    await expect(
+      page.getByRole("listitem").filter({ hasText: title }),
+    ).toContainText("已拆解");
+    await page
+      .getByRole("listitem")
+      .filter({ hasText: title })
+      .getByRole("button")
+      .click();
+  } else {
+    await expect(
+      page.getByRole("listitem").filter({ hasText: title }),
+    ).toContainText("已拆解");
+  }
 
   await page.getByRole("button", { name: "删除" }).click();
   await page.getByRole("button", { name: "确认删除" }).click();

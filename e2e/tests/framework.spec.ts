@@ -73,6 +73,7 @@ test("writes from a breakdown's framework through to a draft", async ({
   // Break down a reference article.
   await page.goto("/breakdowns");
   const title = `参考 ${suffix}`;
+  await page.getByRole("button", { name: "拆解一篇爆款", exact: true }).click();
   await page.getByLabel("标题（可选）").fill(title);
   await page.getByLabel("文章正文").fill(reference);
   await page.getByRole("button", { name: "保存参考文章" }).click();

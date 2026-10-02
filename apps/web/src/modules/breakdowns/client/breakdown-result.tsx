@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { LockKeyhole } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export type Span = { id: string; quote: string; start: number; end: number };
@@ -74,7 +75,17 @@ export function BreakdownResult({
   content: string;
   result: Breakdown;
 }) {
+  const original = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState<string | null>(null);
+  useEffect(() => {
+    if (!active) return;
+    original.current?.querySelector("mark")?.scrollIntoView({
+      block: "nearest",
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+    });
+  }, [active]);
   const parts: { key: string; spanIds: string[] }[] = [
     { key: "hook", spanIds: result.hook.spanIds },
     ...result.slots.map((slot) => ({ key: slot.id, spanIds: slot.spanIds })),
@@ -89,17 +100,22 @@ export function BreakdownResult({
     ids.length ? `${ids.length} 处原文` : "无对照片段";
   const choice = (key: string) =>
     cn(
-      "w-full rounded-sm border px-3 py-2.5 text-left transition-colors hover:bg-sunken",
-      active === key && "border-accent bg-sunken",
+      "grid w-full gap-1 rounded-sm border-l-2 border-l-transparent px-3 py-3 text-left transition-colors hover:bg-sunken",
+      active === key &&
+        "border-l-accent bg-evidence-soft hover:bg-evidence-soft",
     );
 
   return (
-    <div className="grid grid-cols-2 gap-6 max-lg:grid-cols-1">
+    <div className="grid grid-cols-2 gap-6 max-xl:grid-cols-1">
       <section aria-label="原文" className="min-w-0">
-        <p className="mb-3 text-xs text-ink-2">
+        <p className="flex items-center gap-2 pb-4 text-label text-ink-2">
+          <LockKeyhole className="size-3.5" aria-hidden="true" />
           原文 · 仅你可见，不会进入你的稿子
         </p>
-        <div className="max-h-180 overflow-y-auto rounded-sm border bg-sunken p-4 font-serif text-reading whitespace-pre-wrap wrap-anywhere">
+        <div
+          ref={original}
+          className="max-h-180 overflow-y-auto p-0 font-serif text-reading whitespace-pre-wrap wrap-anywhere"
+        >
           {segments(content, marked).map((part) =>
             part.marked ? (
               <mark
@@ -116,7 +132,7 @@ export function BreakdownResult({
       </section>
       <section
         aria-label="拆解结果"
-        className="grid min-w-0 content-start gap-5"
+        className="grid min-w-0 content-start gap-5 rounded-sm bg-sunken p-4"
       >
         <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
           <Section label="标题类型">{result.titlePattern}</Section>
@@ -126,18 +142,19 @@ export function BreakdownResult({
         <button
           type="button"
           className={choice("hook")}
+          aria-pressed={active === "hook"}
           onClick={() => select("hook")}
         >
           <span className="text-xs text-ink-2">
             开头钩子 · {evidenceLabel(result.hook.spanIds)}
           </span>
-          <strong className="mt-1 block text-sm">{result.hook.type}</strong>
-          <span className="mt-1 block text-sm text-ink-2">
+          <strong className="pt-1 block text-sm">{result.hook.type}</strong>
+          <span className="pt-1 block text-sm text-ink-2">
             {result.hook.technique}
           </span>
         </button>
         <div>
-          <h4 className="mb-2 text-xs text-ink-2">
+          <h4 className="pb-2 text-xs text-ink-2">
             段落槽位 · {result.slots.length} 段
           </h4>
           <ol className="grid gap-2">
@@ -150,15 +167,18 @@ export function BreakdownResult({
                   onClick={() => select(slot.id)}
                 >
                   <span className="flex items-baseline justify-between gap-3">
-                    <strong className="text-sm">
-                      {index + 1}. {slot.name}
+                    <strong className="flex items-center gap-2 text-title-card">
+                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-evidence-soft text-label text-evidence-ink">
+                        {index + 1}
+                      </span>
+                      {slot.name}
                     </strong>
                     <span className="shrink-0 text-xs text-ink-2">
                       {evidenceLabel(slot.spanIds)}
                     </span>
                   </span>
-                  <span className="mt-1 block text-sm">{slot.purpose}</span>
-                  <span className="mt-1 block text-sm text-ink-2">
+                  <span className="pt-1 block text-sm">{slot.purpose}</span>
+                  <span className="pt-1 block text-sm text-ink-2">
                     手法：{slot.technique}
                   </span>
                 </button>
@@ -169,13 +189,14 @@ export function BreakdownResult({
         <button
           type="button"
           className={choice("ending")}
+          aria-pressed={active === "ending"}
           onClick={() => select("ending")}
         >
           <span className="text-xs text-ink-2">
             结尾方式 · {evidenceLabel(result.ending.spanIds)}
           </span>
-          <strong className="mt-1 block text-sm">{result.ending.type}</strong>
-          <span className="mt-1 block text-sm text-ink-2">
+          <strong className="pt-1 block text-sm">{result.ending.type}</strong>
+          <span className="pt-1 block text-sm text-ink-2">
             {result.ending.technique}
           </span>
         </button>
