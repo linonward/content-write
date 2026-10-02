@@ -11,7 +11,15 @@ function credentials() {
 test("redirects signed-out visitors to sign-in", async ({ page }) => {
   await page.goto("/home");
   await expect(page).toHaveURL(/\/sign-in$/);
-  await expect(page.getByRole("heading", { name: "登录拆写" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "登录", exact: true }),
+  ).toBeVisible();
+  // The brand links back to the landing page for signed-out visitors.
+  await page.getByRole("link", { name: "拆写", exact: true }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(
+    page.getByRole("heading", { name: /看懂一篇爆款/ }),
+  ).toBeVisible();
 });
 
 test("rejects a wrong password without leaving sign-in", async ({ page }) => {
