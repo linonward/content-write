@@ -13,6 +13,7 @@ import { identityRoutes } from "./modules/identity/routes";
 import { materialRoutes } from "./modules/materials/routes";
 import { memoryRoutes } from "./modules/memories/routes";
 import { profileRoutes } from "./modules/profile/routes";
+import { publishRecordRoutes } from "./modules/publish-records/routes";
 
 import { writingSampleRoutes } from "./modules/writing-samples/routes";
 
@@ -37,6 +38,7 @@ app.route("/api", ideaRoutes);
 app.route("/api", articleRoutes);
 app.route("/api", articleExportRoutes);
 app.route("/api", articleEditRoutes);
+app.route("/api", publishRecordRoutes);
 app.route("/api", breakdownRoutes);
 
 app.notFound(() => apiError("NOT_FOUND", "接口不存在。", 404));

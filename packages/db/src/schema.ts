@@ -696,3 +696,35 @@ export const memories = pgTable(
     index("memories_user_created_idx").on(table.userId, table.createdAt),
   ],
 );
+
+// A publication the author made by hand in the WeChat backend and recorded here.
+// "User marked as published": nothing confirms it with the platform (product 3.6).
+export const publishRecords = pgTable(
+  "publish_records",
+  {
+    id: text("id").primaryKey(),
+    articleId: text("article_id")
+      .notNull()
+      .references(() => articles.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    // The article version the author saw when recording.
+    articleVersion: integer("article_version").notNull(),
+    url: text("url").notNull(),
+    publishedAt: timestamp("published_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("publish_records_article_url_idx").on(
+      table.articleId,
+      table.url,
+    ),
+    index("publish_records_user_published_idx").on(
+      table.userId,
+      table.publishedAt,
+    ),
+  ],
+);

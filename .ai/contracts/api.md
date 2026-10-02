@@ -113,6 +113,13 @@ T014 新增（作者设置）：
 - `PUT /api/profile`：需可信 Origin。`{expectedVersion, bio, topics, audience, preferences, bannedWords}`；简介与表达偏好最多 1000 字，目标读者最多 200 字，写作主题最多 10 个（每个 30 字内），禁用词最多 50 个（每个 20 字内）；列表去空格、去空项、去重。`expectedVersion: 0` 表示首次创建。成功返回 `{version}`，同时写入该版本快照；版本不是当前 409 `PROFILE_VERSION_CONFLICT`，输入无效 422 `INVALID_PROFILE`，超过 32 KB 413。
 - 选题、大纲、初稿任务记录排队时的资料版本（`ai_jobs.profile_version`，没有资料为 null）；有资料时资料版本计入幂等输入，资料变化后同一 Idempotency-Key 返回 409。
 
+T018 新增（记录手动发布；需要会话，写操作需可信 Origin，跨用户与不存在均 404）：
+
+- `GET /api/articles/:id/publish-records`：`{articleVersion, hasBody, records}`，`records` 按发布时间倒序，最多 100 条，每条含 `id`、`url`、`publishedAt`、`articleVersion`、`createdAt`。文章不属于本人 404 `ARTICLE_NOT_FOUND`。
+- `POST /api/articles/:id/publish-records`：`{expectedVersion, url, publishedAt}`，201 `{record}`，记录绑定文章当前版本，不改动文章。`url` 为去除首尾空格后的绝对 http(s) 地址，不含账号密码，最长 2,000 字符；服务器不访问该链接。`publishedAt` 为带时区的 ISO 时间，不得晚于服务器当前时间 10 分钟以上。输入不合法 422 `INVALID_PUBLISH_RECORD`；文章没有正文 422 `ARTICLE_BODY_REQUIRED`；`expectedVersion` 不是当前版本 409 `ARTICLE_VERSION_CONFLICT`；同一文章已有同一链接 409 `PUBLISH_RECORD_EXISTS`。
+- `DELETE /api/articles/:id/publish-records/:recordId`：204，只删除记录；不存在或不属于本人 404 `PUBLISH_RECORD_NOT_FOUND`。
+- 记录状态只表示“用户标记已发布”，不代表平台确认。删除文章（包括删除来源素材导致的文章删除）时记录一并删除。
+
 2026-10-02 规划（尚未实现，接口在对应任务完成后才算可用）：
 
 - T031：`POST /api/articles/:id/wechat-draft`（携带 `expectedVersion` 与 Idempotency-Key，只创建草稿）、`GET /api/articles/:id/wechat-draft`（推送记录与确认状态）；未配置公众号返回 503。
