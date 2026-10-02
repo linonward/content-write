@@ -15,7 +15,8 @@
     "./edit-suggestions": "./src/edit-suggestions.ts",
     "./framework": "./src/framework.ts",
     "./health": "./src/health.ts",
-    "./schema": "./src/schema.ts"
+    "./schema": "./src/schema.ts",
+    "./writing-samples": "./src/writing-samples.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",

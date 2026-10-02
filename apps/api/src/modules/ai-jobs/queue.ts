@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { Executor } from "@content-write/db/client";
 import { aiDailyUsage, aiJobs } from "@content-write/db/schema";
+import type { SampleRef } from "@content-write/db/writing-samples";
 import { and, count, eq, inArray, lte, sql } from "drizzle-orm";
 import { positiveIntEnv } from "../../config";
 
@@ -26,6 +27,7 @@ export type NewJob = {
   referenceVersion?: number;
   /** Author profile version the generation will use; omitted when there is none. */
   profileVersion?: number | null;
+  writingSamples?: SampleRef[];
 };
 
 const shanghaiToday = sql<string>`(now() AT TIME ZONE 'Asia/Shanghai')::date`;
@@ -124,6 +126,7 @@ export async function enqueueJob(db: Executor, job: NewJob) {
     referenceArticleId: job.referenceArticleId ?? null,
     referenceVersion: job.referenceVersion ?? null,
     profileVersion: job.profileVersion ?? null,
+    writingSamples: job.writingSamples ?? [],
     deadlineAt: sql`now() + interval '5 minutes'`,
   });
   return { status: "created" as const, jobId };

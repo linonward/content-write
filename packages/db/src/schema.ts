@@ -1,5 +1,6 @@
 import {
   type AnyPgColumn,
+  boolean,
   date,
   index,
   integer,
@@ -136,6 +137,10 @@ export const aiJobs = pgTable(
     referenceVersion: integer("reference_version"),
     // Author profile revision the generation was queued with; null when the author had none.
     profileVersion: integer("profile_version"),
+    writingSamples: jsonb("writing_samples")
+      .$type<{ id: string; version: number }[]>()
+      .notNull()
+      .default([]),
     sourceCount: integer("source_count").notNull().default(1),
     kind: text("kind").notNull(),
     status: text("status").notNull().default("queued"),
@@ -625,5 +630,25 @@ export const authorProfileRevisions = pgTable(
       table.userId,
       table.version,
     ),
+  ],
+);
+
+export const writingSamples = pgTable(
+  "writing_samples",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    content: text("content").notNull(),
+    enabled: boolean("enabled").notNull().default(true),
+    version: integer("version").notNull().default(1),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("writing_samples_user_created_idx").on(table.userId, table.createdAt),
   ],
 );

@@ -4,7 +4,7 @@
 已完成：24 / 34（T021 已取消）
 待合并：0
 阻塞：0
-当前任务：无
+当前任务：T015 作者历史文章
 下一项：T015 作者历史文章；T031 wechat-draft（需要公众号凭证与固定出口 IP）；T017 已完成，可开始 5 位作者付费意愿验证
 真实模型验收：T028 冒烟通过（DeepSeek，整理、选题、大纲、初稿各一次）；T029 拆解 10 篇真实文章评估 10/10 可用（`deepseek-flash`）
 线上验收：未开始
@@ -25,7 +25,7 @@
 | T012 | 查看版本、恢复旧版本并生成新版本 | 已完成 | T011 | feat/T012-restore-revision | 已清理 | 3b46a88 | 9d663d3 | .ai/verifications/T012.md |
 | T013 | AI 修改选区、差异预览、应用、拒绝、过期校验 | 已完成 | T011、T012 | feat/T013-ai-edit-selection | 已清理 | 17e3773、8be6250 | d8f7276 | .ai/verifications/T013.md |
 | T014 | 作者画像与表达偏好保存并影响后续生成 | 已完成 | T002、T010 | feat/T014-author-preferences | 已清理 | 1d34041 | 62101b6 | .ai/verifications/T014.md |
-| T015 | 添加、启停、删除历史文章并用于风格示例 | 待开始 | T014 | feat/T015-writing-samples | 未创建 | 无 | 无 | 无 |
+| T015 | 添加、启停、删除历史文章并用于风格示例 | 待验证 | T014 | feat/T015-writing-samples | ../content-write-writing-samples | 无 | 无 | .ai/verifications/T015.md |
 | T016 | 候选记忆、确认、修改、禁用、删除和上下文版本 | 待开始 | T015 | feat/T016-confirmed-memory | 未创建 | 无 | 无 | 无 |
 | T017 | 手机预览、安全渲染、Markdown 与 HTML 下载 | 已完成 | T011 | feat/T017-preview-export | 已清理 | b0cb9ef | 3d03285 | .ai/verifications/T017.md |
 | T018 | 记录手动发布链接、时间和文章版本 | 待开始 | T017 | feat/T018-record-publication | 未创建 | 无 | 无 | 无 |

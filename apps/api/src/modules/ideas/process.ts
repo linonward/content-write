@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { currentProfileVersion } from "@content-write/db/author-profile";
 import { fromClient, getPool } from "@content-write/db/client";
+import { selectWritingSamples } from "@content-write/db/writing-samples";
 import { aiAvailable, aiMode } from "../../config";
 import {
   enqueueJob,
@@ -39,11 +40,13 @@ export async function startIdeaGeneration(
     const db = fromClient(client);
     await lockUserQueue(db, userId);
     const profileVersion = await currentProfileVersion(db, userId);
+    const writingSamples = await selectWritingSamples(db, userId);
     const inputHash = hashInput({
       kind: "idea_generation",
       sources,
       // Undefined without a profile, keeping hashes of earlier jobs.
       profile: profileVersion ?? undefined,
+      writingSamples: writingSamples.length ? writingSamples : undefined,
       mode: aiMode(),
     });
     const prior = await findIdempotentJob(db, userId, key, inputHash);
@@ -85,6 +88,7 @@ export async function startIdeaGeneration(
       inputHash,
       sourceCount: sources.length,
       profileVersion,
+      writingSamples,
     });
     if (result.status !== "created") {
       await client.query("COMMIT");

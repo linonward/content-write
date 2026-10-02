@@ -1,10 +1,12 @@
 import { recordRevision } from "@content-write/db/article-revisions";
+import { currentProfileVersion } from "@content-write/db/author-profile";
 import { getDb } from "@content-write/db/client";
 import {
   MAX_BODY_CHARS,
   replaceSelection,
   selectionCurrent,
 } from "@content-write/db/edit-suggestions";
+import { selectWritingSamples } from "@content-write/db/writing-samples";
 import { aiAvailable, aiMode } from "../../config";
 import {
   enqueueJob,
@@ -64,10 +66,14 @@ export async function startEdit(
     await lockUserQueue(tx, userId);
     const article = await lockArticle(tx, userId, articleId);
     if (!article) throw new EditError("article_missing");
+    const profileVersion = await currentProfileVersion(tx, userId);
+    const writingSamples = await selectWritingSamples(tx, userId);
     const inputHash = hashInput({
       kind: "edit_suggestion",
       articleId,
       ...input,
+      profile: profileVersion ?? undefined,
+      writingSamples: writingSamples.length ? writingSamples : undefined,
       mode: aiMode(),
     });
     // Idempotency comes before the version check so a retried request returns its job.
@@ -92,6 +98,8 @@ export async function startEdit(
       inputHash,
       articleId,
       articleVersion: article.version,
+      profileVersion,
+      writingSamples,
     });
     if (queued.status === "created")
       await repo.insertSuggestion(tx, {
