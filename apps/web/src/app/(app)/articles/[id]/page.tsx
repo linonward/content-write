@@ -23,6 +23,12 @@ export default async function ArticlePage({
           >
             预览
           </Link>
+          <Link
+            href={`/articles/${id}/publish`}
+            className={buttonVariants({ variant: "secondary", size: "sm" })}
+          >
+            发布
+          </Link>
         </>
       }
     >

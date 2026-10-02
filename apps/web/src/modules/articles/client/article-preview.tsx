@@ -140,6 +140,12 @@ export function ArticlePreview({ id }: { id: string }) {
           >
             返回编辑
           </Link>
+          <Link
+            className={cn(buttonVariants({ variant: "secondary" }))}
+            href={`/articles/${id}/publish`}
+          >
+            去发布
+          </Link>
         </div>
       </div>
 
