@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { aiMode } from "../../config";
 import {
   type AuthedEnv,
   apiError,
@@ -7,10 +8,22 @@ import {
   requireUser,
 } from "../../http";
 import { startAnalysis } from "../materials/process";
+import { aiSettings, recordConsent, requireAiConsent } from "./consent";
 import { getJob } from "./repository";
 
 export const jobRoutes = new Hono<AuthedEnv>();
 jobRoutes.use("/jobs/*", requireUser);
+
+export const aiRoutes = new Hono<AuthedEnv>();
+aiRoutes.use("/ai/*", requireUser);
+aiRoutes.get("/ai/settings", async (context) =>
+  context.json(await aiSettings(context.get("userId"))),
+);
+aiRoutes.post("/ai/consent", async (context) => {
+  if (!(await recordConsent(context.get("userId"))))
+    return apiError("AI_NOT_CONFIGURED", "当前没有需要确认的模型服务。", 409);
+  return context.json(await aiSettings(context.get("userId")));
+});
 
 jobRoutes.get("/jobs/:id", async (context) => {
   const job = await getJob(context.get("userId"), context.req.param("id"));
@@ -33,7 +46,7 @@ jobRoutes.get("/jobs/:id", async (context) => {
 });
 
 // Only material analysis has a retry endpoint; ideas and outlines regenerate from their own pages.
-jobRoutes.post("/jobs/:id/retry", async (context) => {
+jobRoutes.post("/jobs/:id/retry", requireAiConsent, async (context) => {
   const key = idempotencyKey(context.req.raw);
   if (!key) return invalidIdempotencyKey();
   const userId = context.get("userId");
@@ -60,7 +73,7 @@ jobRoutes.post("/jobs/:id/retry", async (context) => {
     case "created":
     case "existing":
       return context.json(
-        { jobId: result.jobId, status: "queued", mode: "mock" },
+        { jobId: result.jobId, status: "queued", mode: aiMode() },
         202,
       );
     case "missing":

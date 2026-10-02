@@ -12,6 +12,8 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { AiConsentNotice } from "@/modules/ai/client/ai-consent-notice";
+import { type AiMode, modeLabel, modeNote } from "@/modules/ai/client/ai-mode";
 
 type Material = {
   id: string;
@@ -63,6 +65,7 @@ export function IdeasWorkspace() {
   const [materials, setMaterials] = useState<Material[]>([]);
   const [materialsHasMore, setMaterialsHasMore] = useState(false);
   const [generationAvailable, setGenerationAvailable] = useState(false);
+  const [aiMode, setAiMode] = useState<AiMode>(null);
   const [selected, setSelected] = useState<string[]>([]);
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [jobId, setJobId] = useState<string | null>(null);
@@ -80,12 +83,14 @@ export function IdeasWorkspace() {
         materials: Material[];
         hasMore: boolean;
         generationAvailable: boolean;
+        aiMode: AiMode;
       }>("/ideas/materials"),
       request<{ ideas: Idea[]; latestJob: Job | null }>("/ideas"),
     ]);
     setMaterials(sources.materials);
     setMaterialsHasMore(sources.hasMore);
     setGenerationAvailable(sources.generationAvailable);
+    setAiMode(sources.aiMode);
     setIdeas(listing.ideas);
     setSelected((previous) =>
       previous.filter((id) =>
@@ -256,10 +261,11 @@ export function IdeasWorkspace() {
         <CardContent className="space-y-5">
           <p className="text-sm text-muted-foreground">
             {generationAvailable
-              ? "当前使用确定性 mock，生成结果不计入真实模型指标。"
+              ? modeNote(aiMode)
               : "当前未配置可用的生成服务。"}{" "}
             所有来源说法都需要作者核对。
           </p>
+          <AiConsentNotice />
           {loading ? (
             <p>加载中…</p>
           ) : materials.length === 0 ? (
@@ -384,9 +390,7 @@ export function IdeasWorkspace() {
                         ? "已忽略"
                         : "待看"}
                   </Badge>
-                  <Badge variant="outline">
-                    {idea.mode === "mock" ? "mock" : idea.mode}
-                  </Badge>
+                  <Badge variant="outline">{modeLabel(idea.mode)}</Badge>
                 </div>
                 <p>
                   <strong>目标读者：</strong>

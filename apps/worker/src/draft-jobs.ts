@@ -13,8 +13,10 @@ import {
   articles,
 } from "@content-write/db/schema";
 import { and, eq, gt, sql } from "drizzle-orm";
+import type { RunMeta } from "./ai/generate";
 import { type Draft, type DraftContext, validateDraft } from "./draft";
 import type { Claimed } from "./jobs";
+import { mockRun, runUsage } from "./runs";
 
 function toDraftSources(sources: ArticleSource[]): DraftContext["sources"] {
   return sources.map((source) => ({
@@ -94,6 +96,7 @@ export async function completeDraftJob(
   job: Claimed,
   output: Draft,
   durationMs: number,
+  meta: RunMeta = mockRun,
 ) {
   const articleId = job.article_id;
   const baseVersion = job.article_version;
@@ -142,7 +145,7 @@ export async function completeDraftJob(
       baseVersion,
       ...checked.data,
       status: applied ? "applied" : "candidate",
-      mode: "mock",
+      mode: meta.mode,
     });
     if (applied) {
       const [updated] = await tx
@@ -179,7 +182,7 @@ export async function completeDraftJob(
       id: randomUUID(),
       jobId: job.id,
       userId: job.user_id,
-      mode: "mock",
+      ...runUsage(meta),
       durationMs: Math.max(0, Math.round(durationMs)),
     });
     return applied ? ("applied" as const) : ("candidate" as const);

@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { z } from "zod";
-import { aiAvailable } from "../../config";
+import { aiAvailable, aiMode } from "../../config";
 import {
   type AuthedEnv,
   apiError,
@@ -9,6 +9,7 @@ import {
   readJson,
   requireUser,
 } from "../../http";
+import { requireAiConsent } from "../ai-jobs/consent";
 import { startIdeaGeneration } from "./process";
 import { eligibleMaterials, listIdeas, setIdeaStatus } from "./repository";
 
@@ -35,12 +36,13 @@ ideaRoutes.get("/ideas/materials", async (context) =>
   context.json({
     ...(await eligibleMaterials(context.get("userId"))),
     generationAvailable: aiAvailable(),
+    aiMode: aiMode(),
   }),
 );
 ideaRoutes.get("/ideas", async (context) =>
   context.json(await listIdeas(context.get("userId"))),
 );
-ideaRoutes.post("/ideas/generate", async (context) => {
+ideaRoutes.post("/ideas/generate", requireAiConsent, async (context) => {
   const key = idempotencyKey(context.req.raw);
   if (!key) return invalidIdempotencyKey();
   const body = await readBody(context.req.raw);
@@ -94,7 +96,7 @@ ideaRoutes.post("/ideas/generate", async (context) => {
   if (result.status !== "created" && result.status !== "existing")
     return apiError("INTERNAL_ERROR", "任务创建失败。", 503);
   return context.json(
-    { jobId: result.jobId, status: "queued", mode: "mock" },
+    { jobId: result.jobId, status: "queued", mode: aiMode() },
     202,
   );
 });

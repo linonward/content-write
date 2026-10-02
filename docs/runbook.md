@@ -12,7 +12,25 @@ pnpm auth:create-admin
 pnpm dev
 ```
 
-`pnpm dev` 通过 Turborepo 启动 Web（3000）和 API（3001）。另一个终端运行 `pnpm worker:dev`。素材整理需要常驻 worker：API 持久化任务并返回 202，worker 从 PostgreSQL 领取任务，页面轮询本人任务。`AI_MODE=mock` 使用确定性来源摘录，仅用于开发验证；真实模型在 T021 接入。其他模式当前返回 503，不会伪称已完成真实分析。
+`pnpm dev` 通过 Turborepo 启动 Web（3000）和 API（3001）。另一个终端运行 `pnpm worker:dev`。素材整理需要常驻 worker：API 持久化任务并返回 202，worker 从 PostgreSQL 领取任务，页面轮询本人任务。`AI_MODE=mock` 使用确定性来源摘录，仅用于开发验证；`AI_MODE=deepseek` 调用 DeepSeek 真实模型（见下文“真实模型”）。其他取值或缺少 Key 时生成接口返回 503，不会伪称已完成真实分析。
+
+## 真实模型（DeepSeek）
+
+在 `.env.local` 设置，API 与 worker 都要读到相同值：
+
+```dotenv
+AI_MODE=deepseek
+AI_API_KEY=你的 DeepSeek Key
+AI_MODEL=deepseek-flash
+AI_REQUEST_TIMEOUT_MS=120000
+```
+
+- 接口为 DeepSeek 官方 OpenAI 格式 `https://api.deepseek.com`（`AI_BASE_URL` 仅用于测试替换）；`AI_MODEL` 可改为 `deepseek-v4-pro`。`AI_PROVIDER` 暂不使用。
+- 思考模式按任务类型设置（`apps/worker/src/ai/config.ts`）：整理、选题、大纲为低强度思考，初稿关闭思考；`max_tokens` 已包含思考预算。
+- 空正文、截断或结构不合法会加大预算修复 1 次；网络错误、超时、429 与 5xx 最多重试 2 次；401、402、其他 4xx 与二次结构失败直接失败。worker 日志只记录任务 ID、类型、尝试次数与错误类别。
+- 每位作者第一次使用真实模型前，页面显示“素材会发送给 DeepSeek”的提示，确认后才允许生成；未确认时生成接口返回 428 `AI_CONSENT_REQUIRED`。
+- `ai_runs` 记录输入、输出、思考 token 与耗时；未配置价格，费用为 null。
+- CI 与集成测试始终使用 mock。真实冒烟测试会实际调用 DeepSeek 并产生少量费用：`AI_API_KEY=… pnpm --filter @content-write/api smoke:deepseek`（需要独立数据库与 `DATABASE_URL`）。
 
 ## 浏览器端到端测试
 
@@ -29,7 +47,7 @@ pnpm test:e2e
 
 作者可从首页或素材箱进入 `/ideas`，选择 1～10 条当前版本已整理素材，主动生成 3 个选题，并查看来源、证据缺口，收藏或忽略。选题任务复用 PostgreSQL 持久队列和 worker；页面刷新后恢复轮询。素材删除会清理依赖该素材的选题和任务。
 
-从选题创建文章后，进入 `/articles/:id` 编辑工作标题、目标读者和核心观点，再主动生成或手写大纲。大纲可编辑小节、要点、来源片段与证据缺口；保存后作者确认。修改 brief 会清除大纲和确认，修改大纲会撤销确认。所有写入携带文章版本，冲突返回 409；生成任务绑定文章版本及素材版本，worker 提交前复核。`/articles` 列出最近 100 篇文章。当前生成只提供确定性 `AI_MODE=mock`，不调用外部模型；初稿生成在 T010 接入。删除素材会一并清理引用它的选题、文章和大纲任务，避免已删除来源的文字留在大纲中；界面在删除前提示此影响。
+从选题创建文章后，进入 `/articles/:id` 编辑工作标题、目标读者和核心观点，再主动生成或手写大纲。大纲可编辑小节、要点、来源片段与证据缺口；保存后作者确认。修改 brief 会清除大纲和确认，修改大纲会撤销确认。所有写入携带文章版本，冲突返回 409；生成任务绑定文章版本及素材版本，worker 提交前复核。`/articles` 列出最近 100 篇文章。生成模式由 `AI_MODE` 决定，见下文“真实模型”。删除素材会一并清理引用它的选题、文章和大纲任务，避免已删除来源的文字留在大纲中；界面在删除前提示此影响。
 
 Web 只负责页面和会话页面渲染，不提供 API 路由。浏览器直接请求 `NEXT_PUBLIC_API_URL` 指向的 Hono API；Web 服务端用 `API_INTERNAL_URL` 查询当前会话。API 使用 `WEB_ORIGIN` 限制浏览器跨域来源，`BETTER_AUTH_URL` 指向 API 地址。部署时分别配置这些地址，并确保认证 cookie 在 Web 与 API 域名之间可用。`GET /api/healthz` 检查 API 进程，`GET /api/readyz` 检查数据库连接；数据库不可用时后者返回 503。
 

@@ -1,7 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { getPool } from "@content-write/db/client";
+import type { RunMeta } from "./ai/generate";
 import { type GeneratedIdea, type IdeaSource, validateIdeas } from "./ideas";
 import type { Claimed } from "./jobs";
+import { mockRun, runUsage } from "./runs";
 
 export async function loadIdeaSources(
   job: Claimed,
@@ -45,7 +47,9 @@ export async function completeIdeaJob(
   job: Claimed,
   output: GeneratedIdea[],
   durationMs: number,
+  meta: RunMeta = mockRun,
 ) {
+  const usage = runUsage(meta);
   const client = await getPool().connect();
   try {
     await client.query("BEGIN");
@@ -112,7 +116,7 @@ export async function completeIdeaJob(
       const ideaId = randomUUID();
       await client.query(
         `INSERT INTO ideas (id, user_id, job_id, title, audience, thesis, rationale, evidence_gaps, suggested_structure, mode)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9::jsonb,'mock')`,
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9::jsonb,$10)`,
         [
           ideaId,
           job.user_id,
@@ -123,6 +127,7 @@ export async function completeIdeaJob(
           idea.rationale,
           JSON.stringify(idea.evidenceGaps),
           JSON.stringify(idea.suggestedStructure),
+          meta.mode,
         ],
       );
       for (const materialId of idea.materialIds) {
@@ -141,8 +146,17 @@ export async function completeIdeaJob(
       [job.id],
     );
     await client.query(
-      "INSERT INTO ai_runs (id, job_id, user_id, mode, duration_ms) VALUES ($1,$2,$3,'mock',$4)",
-      [randomUUID(), job.id, job.user_id, Math.max(0, Math.round(durationMs))],
+      "INSERT INTO ai_runs (id, job_id, user_id, mode, duration_ms, input_tokens, output_tokens, reasoning_tokens) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)",
+      [
+        randomUUID(),
+        job.id,
+        job.user_id,
+        usage.mode,
+        Math.max(0, Math.round(durationMs)),
+        usage.inputTokens,
+        usage.outputTokens,
+        usage.reasoningTokens,
+      ],
     );
     await client.query("COMMIT");
     return "succeeded" as const;

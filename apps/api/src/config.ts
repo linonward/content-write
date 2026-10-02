@@ -11,8 +11,23 @@ export function assertRuntimeConfig() {
   }
 }
 
+export type AiMode = "mock" | "deepseek";
+
+/** Configured generation mode, or null when generation is unavailable. */
+export function aiMode(): AiMode | null {
+  const mode = process.env.AI_MODE;
+  if (mode === "mock") return "mock";
+  if (mode === "deepseek" && process.env.AI_API_KEY) return "deepseek";
+  return null;
+}
+
 export function aiAvailable() {
-  return process.env.AI_MODE === "mock";
+  return aiMode() !== null;
+}
+
+/** Real providers need the author's consent before materials leave the system. */
+export function aiProvider() {
+  return aiMode() === "deepseek" ? "deepseek" : null;
 }
 
 export function positiveIntEnv(name: string, fallback: number) {

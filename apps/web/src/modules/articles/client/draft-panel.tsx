@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { type AiMode, modeLabel, modeNote } from "@/modules/ai/client/ai-mode";
 import { BodyEditor } from "./body-editor";
 import { request } from "./request";
 
@@ -88,6 +89,7 @@ export function DraftPanel({
   draft,
   latestJob,
   generationAvailable,
+  aiMode,
   blockedReason,
   sourceTitles,
   onChanged,
@@ -97,6 +99,7 @@ export function DraftPanel({
   draft: DraftState;
   latestJob: Job | null;
   generationAvailable: boolean;
+  aiMode: AiMode;
   /** Set when the outline or sources make generation impossible right now. */
   blockedReason: string | null;
   sourceTitles: Map<string, string>;
@@ -231,7 +234,7 @@ export function DraftPanel({
         )}
         <p className="text-sm text-muted-foreground">
           {unavailable ??
-            "确定性 mock 按已确认的大纲排列要点和来源原文，不新增事实。来源映射只是辅助溯源，不代表全文已核实。"}
+            `${modeNote(aiMode)}初稿只按已确认的大纲和来源成文，来源映射只是辅助溯源，不代表全文已核实。`}
         </p>
         {draft.body !== null && !unavailable && (
           <p className="text-sm text-muted-foreground">
@@ -259,9 +262,9 @@ export function DraftPanel({
           <div className="space-y-2 rounded-lg border p-4">
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="font-medium">最近应用的初稿</h3>
-              {draft.currentDraft.mode === "mock" && (
-                <Badge variant="outline">mock 生成</Badge>
-              )}
+              <Badge variant="outline">
+                {modeLabel(draft.currentDraft.mode)}
+              </Badge>
             </div>
             <p className="text-xs text-muted-foreground">
               来源映射对应初稿生成时的文字，作者修改后可能不再一一对应。

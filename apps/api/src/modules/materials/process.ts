@@ -1,5 +1,5 @@
 import { fromClient, getPool } from "@content-write/db/client";
-import { aiAvailable } from "../../config";
+import { aiAvailable, aiMode } from "../../config";
 import {
   enqueueJob,
   findIdempotentJob,
@@ -56,7 +56,7 @@ export async function startAnalysis(
       return { status: "no_content" };
     }
     const version = item.rows[0].current_version;
-    const inputHash = hashInput({ materialId, version, mode: "mock" });
+    const inputHash = hashInput({ materialId, version, mode: aiMode() });
     const prior = await findIdempotentJob(db, userId, key, inputHash);
     if (prior) {
       await client.query("COMMIT");

@@ -14,7 +14,8 @@
     "test": "vitest run src",
     "test:integration": "node --env-file-if-exists=../../.env.local ../../node_modules/vitest/vitest.mjs run tests/integration --no-file-parallelism",
     "auth:check": "node --env-file-if-exists=../../.env.local node_modules/auth/dist/index.mjs check schema --config src/modules/identity/auth.ts",
-    "auth:create-admin": "node --env-file-if-exists=../../.env.local node_modules/auth/dist/index.mjs create-admin --config src/modules/identity/auth.ts"
+    "auth:create-admin": "node --env-file-if-exists=../../.env.local node_modules/auth/dist/index.mjs create-admin --config src/modules/identity/auth.ts",
+    "smoke:deepseek": "node --env-file-if-exists=../../.env.local ../../node_modules/vitest/vitest.mjs run tests/smoke --no-file-parallelism"
   },
   "dependencies": {
     "@better-auth/drizzle-adapter": "1.7.7",

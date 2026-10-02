@@ -1,14 +1,19 @@
 import { randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
 import { getPool } from "@content-write/db/client";
-import { createMockAnalysis, validateAnalysis } from "./analysis";
-import { createMockDraft } from "./draft";
+import {
+  generateAnalysis,
+  generateDraft,
+  generateIdeas,
+  generateOutline,
+  type RunMeta,
+} from "./ai/generate";
+import { validateAnalysis } from "./analysis";
 import { completeDraftJob, loadDraftContext } from "./draft-jobs";
 import { describeFailure, TerminalJobError } from "./failures";
 import { completeIdeaJob, loadIdeaSources } from "./idea-jobs";
-import { createMockIdeas } from "./ideas";
-import { createMockOutline } from "./outline";
 import { completeOutlineJob, loadOutlineContext } from "./outline-jobs";
+import { mockRun, runUsage } from "./runs";
 
 export type Claimed = {
   id: string;
@@ -68,7 +73,9 @@ export async function completeJob(
   job: Claimed,
   result: unknown,
   durationMs: number,
+  meta: RunMeta = mockRun,
 ) {
+  const usage = runUsage(meta);
   const client = await getPool().connect();
   try {
     await client.query("BEGIN");
@@ -102,13 +109,14 @@ export async function completeJob(
     if (!parsed.success) throw new Error("Invalid material analysis output");
     await client.query(
       `INSERT INTO material_analyses (id, material_id, user_id, material_version, result, mode)
-       VALUES ($1,$2,$3,$4,$5::jsonb,'mock') ON CONFLICT (material_id, material_version) DO NOTHING`,
+       VALUES ($1,$2,$3,$4,$5::jsonb,$6) ON CONFLICT (material_id, material_version) DO NOTHING`,
       [
         randomUUID(),
         job.material_id,
         job.user_id,
         job.material_version,
         JSON.stringify(parsed.data),
+        meta.mode,
       ],
     );
     await client.query(
@@ -116,8 +124,17 @@ export async function completeJob(
       [job.id],
     );
     await client.query(
-      "INSERT INTO ai_runs (id, job_id, user_id, mode, duration_ms) VALUES ($1,$2,$3,'mock',$4)",
-      [randomUUID(), job.id, job.user_id, Math.max(0, Math.round(durationMs))],
+      "INSERT INTO ai_runs (id, job_id, user_id, mode, duration_ms, input_tokens, output_tokens, reasoning_tokens) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)",
+      [
+        randomUUID(),
+        job.id,
+        job.user_id,
+        usage.mode,
+        Math.max(0, Math.round(durationMs)),
+        usage.inputTokens,
+        usage.outputTokens,
+        usage.reasoningTokens,
+      ],
     );
     await client.query("COMMIT");
     return "succeeded" as const;
@@ -145,11 +162,6 @@ export async function staleJob(job: Claimed) {
   );
 }
 
-function requireModel() {
-  if (process.env.AI_MODE !== "mock")
-    throw new TerminalJobError("AI_NOT_CONFIGURED");
-}
-
 async function runAnalysis(job: Claimed, started: number) {
   if (!job.material_id || job.material_version === null) {
     await staleJob(job);
@@ -169,12 +181,8 @@ async function runAnalysis(job: Claimed, started: number) {
     await staleJob(job);
     return;
   }
-  requireModel();
-  await completeJob(
-    job,
-    createMockAnalysis(material.rows[0].content),
-    performance.now() - started,
-  );
+  const { output, meta } = await generateAnalysis(material.rows[0].content);
+  await completeJob(job, output, performance.now() - started, meta);
 }
 
 async function runIdeas(job: Claimed, started: number) {
@@ -183,12 +191,8 @@ async function runIdeas(job: Claimed, started: number) {
     await staleJob(job);
     return;
   }
-  requireModel();
-  await completeIdeaJob(
-    job,
-    createMockIdeas(sources),
-    performance.now() - started,
-  );
+  const { output, meta } = await generateIdeas(sources);
+  await completeIdeaJob(job, output, performance.now() - started, meta);
 }
 
 async function runOutline(job: Claimed, started: number) {
@@ -197,12 +201,11 @@ async function runOutline(job: Claimed, started: number) {
     await staleJob(job);
     return;
   }
-  requireModel();
-  await completeOutlineJob(
-    job,
-    createMockOutline(context.brief, context.sources),
-    performance.now() - started,
+  const { output, meta } = await generateOutline(
+    context.brief,
+    context.sources,
   );
+  await completeOutlineJob(job, output, performance.now() - started, meta);
 }
 
 async function runDraft(job: Claimed, started: number) {
@@ -211,12 +214,8 @@ async function runDraft(job: Claimed, started: number) {
     await staleJob(job);
     return;
   }
-  requireModel();
-  await completeDraftJob(
-    job,
-    createMockDraft(context),
-    performance.now() - started,
-  );
+  const { output, meta } = await generateDraft(context);
+  await completeDraftJob(job, output, performance.now() - started, meta);
 }
 
 // Every claimable kind has exactly one handler; claimJob only selects these kinds.

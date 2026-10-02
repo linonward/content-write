@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { AiConsentNotice } from "@/modules/ai/client/ai-consent-notice";
+import { type AiMode, modeLabel, modeNote } from "@/modules/ai/client/ai-mode";
 import { DraftPanel, type DraftState } from "./draft-panel";
 import { request } from "./request";
 import { RevisionHistory } from "./revision-history";
@@ -78,6 +80,7 @@ export function OutlineWorkspace({ id }: { id: string }) {
   const [jobId, setJobId] = useState<string | null>(null);
   const [draftJob, setDraftJob] = useState<Job | null>(null);
   const [generationAvailable, setGenerationAvailable] = useState(false);
+  const [aiMode, setAiMode] = useState<AiMode>(null);
   const [loading, setLoading] = useState(true);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -89,10 +92,12 @@ export function OutlineWorkspace({ id }: { id: string }) {
       latestJob: Job | null;
       latestDraftJob: Job | null;
       generationAvailable: boolean;
+      aiMode: AiMode;
     }>(`/articles/${id}`);
     setArticle(result.article);
     setDraftJob(result.latestDraftJob);
     setGenerationAvailable(result.generationAvailable);
+    setAiMode(result.aiMode);
     setBrief({
       workingTitle: result.article.workingTitle,
       audience: result.article.audience,
@@ -320,7 +325,7 @@ export function OutlineWorkspace({ id }: { id: string }) {
               : "尚无大纲"}
         </Badge>
         <Badge variant="outline">
-          {generationAvailable ? "mock" : "未配置生成服务"}
+          {modeLabel(generationAvailable ? aiMode : null)}
         </Badge>
       </div>
       <Card>
@@ -420,9 +425,10 @@ export function OutlineWorkspace({ id }: { id: string }) {
         <CardContent className="space-y-5">
           <p className="text-sm text-muted-foreground">
             {generationAvailable
-              ? "确定性 mock 仅整理已有来源。片段关联是写作线索，事实仍需作者核对。"
+              ? `${modeNote(aiMode)}片段关联是写作线索，事实仍需作者核对。`
               : "当前未配置可用的生成服务；仍可手动编辑大纲。"}
           </p>
+          <AiConsentNotice />
           <Button
             type="button"
             disabled={
@@ -611,6 +617,7 @@ export function OutlineWorkspace({ id }: { id: string }) {
         draft={article}
         latestJob={draftJob}
         generationAvailable={generationAvailable}
+        aiMode={aiMode}
         blockedReason={
           article.sources.length !== article.sourceCount
             ? "部分来源已删除，无法生成初稿。"

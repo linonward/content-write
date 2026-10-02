@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { z } from "zod";
-import { aiAvailable } from "../../config";
+import { aiAvailable, aiMode } from "../../config";
 import {
   type AuthedEnv,
   apiError,
@@ -9,6 +9,7 @@ import {
   readJson,
   requireUser,
 } from "../../http";
+import { requireAiConsent } from "../ai-jobs/consent";
 import { parseImport } from "./import-file";
 import { fetchLink, validatePublicUrl } from "./link-fetch";
 import { getAnalysis, startAnalysis } from "./process";
@@ -150,6 +151,7 @@ materialRoutes.get("/materials/:id/analysis", async (context) => {
   return context.json({
     currentVersion: item.current_version,
     processingAvailable: aiAvailable(),
+    aiMode: aiMode(),
     hasContent: item.has_content,
     job: item.job_id ? { id: item.job_id, status: item.job_status } : null,
     analysis: item.result
@@ -161,44 +163,52 @@ materialRoutes.get("/materials/:id/analysis", async (context) => {
       : null,
   });
 });
-materialRoutes.post("/materials/:id/process", async (context) => {
-  const key = idempotencyKey(context.req.raw);
-  if (!key) return invalidIdempotencyKey();
-  const result = await startAnalysis(
-    context.get("userId"),
-    context.req.param("id"),
-    key,
-  );
-  if (result.status === "missing")
-    return apiError("MATERIAL_NOT_FOUND", "素材不存在。", 404);
-  if (result.status === "no_content")
-    return apiError(
-      "MATERIAL_CONTENT_REQUIRED",
-      "请先为链接素材粘贴正文，再整理素材。",
-      422,
+materialRoutes.post(
+  "/materials/:id/process",
+  requireAiConsent,
+  async (context) => {
+    const key = idempotencyKey(context.req.raw);
+    if (!key) return invalidIdempotencyKey();
+    const result = await startAnalysis(
+      context.get("userId"),
+      context.req.param("id"),
+      key,
     );
-  if (result.status === "conflict")
-    return apiError("IDEMPOTENCY_CONFLICT", "请求键已用于不同素材版本。", 409);
-  if (result.status === "already_done")
-    return apiError("ALREADY_ANALYZED", "当前版本已有整理结果。", 409);
-  if (result.status === "quota")
-    return apiError("AI_DAILY_LIMIT", "今日处理次数已用完。", 429);
-  if (result.status === "concurrency")
-    return apiError(
-      "AI_CONCURRENCY_LIMIT",
-      "同时处理的任务已达上限。",
-      429,
-      true,
+    if (result.status === "missing")
+      return apiError("MATERIAL_NOT_FOUND", "素材不存在。", 404);
+    if (result.status === "no_content")
+      return apiError(
+        "MATERIAL_CONTENT_REQUIRED",
+        "请先为链接素材粘贴正文，再整理素材。",
+        422,
+      );
+    if (result.status === "conflict")
+      return apiError(
+        "IDEMPOTENCY_CONFLICT",
+        "请求键已用于不同素材版本。",
+        409,
+      );
+    if (result.status === "already_done")
+      return apiError("ALREADY_ANALYZED", "当前版本已有整理结果。", 409);
+    if (result.status === "quota")
+      return apiError("AI_DAILY_LIMIT", "今日处理次数已用完。", 429);
+    if (result.status === "concurrency")
+      return apiError(
+        "AI_CONCURRENCY_LIMIT",
+        "同时处理的任务已达上限。",
+        429,
+        true,
+      );
+    if (result.status === "unavailable")
+      return apiError("AI_NOT_CONFIGURED", "当前尚未配置可用模型服务。", 503);
+    if (result.status !== "created" && result.status !== "existing")
+      return apiError("INTERNAL_ERROR", "任务创建失败。", 503);
+    return context.json(
+      { jobId: result.jobId, status: "queued", mode: aiMode() },
+      202,
     );
-  if (result.status === "unavailable")
-    return apiError("AI_NOT_CONFIGURED", "当前尚未配置可用模型服务。", 503);
-  if (result.status !== "created" && result.status !== "existing")
-    return apiError("INTERNAL_ERROR", "任务创建失败。", 503);
-  return context.json(
-    { jobId: result.jobId, status: "queued", mode: "mock" },
-    202,
-  );
-});
+  },
+);
 materialRoutes.patch("/materials/:id", async (context) => {
   const body = await readBody(context.req.raw);
   if (body.status === "large")

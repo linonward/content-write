@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { z } from "zod";
+import { aiMode } from "../../config";
 import {
   type AuthedEnv,
   apiError,
@@ -8,6 +9,7 @@ import {
   readJson,
   requireUser,
 } from "../../http";
+import { requireAiConsent } from "../ai-jobs/consent";
 import { listArticles } from "./repository";
 import {
   ArticleError,
@@ -186,29 +188,33 @@ articleRoutes.patch("/articles/:id/brief", async (context) => {
     return articleFailure(error, "修改");
   }
 });
-articleRoutes.post("/articles/:id/outline/generate", async (context) => {
-  const key = idempotencyKey(context.req.raw);
-  if (!key) return invalidIdempotencyKey();
-  const body = await readBody(context.req.raw);
-  if (body.status === "large")
-    return apiError("ARTICLE_INPUT_TOO_LARGE", "请求内容过长。", 413);
-  if (body.status === "invalid")
-    return apiError("INVALID_JSON", "请求内容不是有效 JSON。", 400);
-  const parsed = versionInput.safeParse(body.value);
-  if (!parsed.success)
-    return apiError("INVALID_ARTICLE_VERSION", "请提供当前文章版本。", 422);
-  try {
-    const jobId = await startOutlineGeneration(
-      context.get("userId"),
-      context.req.param("id"),
-      parsed.data.expectedVersion,
-      key,
-    );
-    return context.json({ jobId, status: "queued", mode: "mock" }, 202);
-  } catch (error) {
-    return articleFailure(error, "生成");
-  }
-});
+articleRoutes.post(
+  "/articles/:id/outline/generate",
+  requireAiConsent,
+  async (context) => {
+    const key = idempotencyKey(context.req.raw);
+    if (!key) return invalidIdempotencyKey();
+    const body = await readBody(context.req.raw);
+    if (body.status === "large")
+      return apiError("ARTICLE_INPUT_TOO_LARGE", "请求内容过长。", 413);
+    if (body.status === "invalid")
+      return apiError("INVALID_JSON", "请求内容不是有效 JSON。", 400);
+    const parsed = versionInput.safeParse(body.value);
+    if (!parsed.success)
+      return apiError("INVALID_ARTICLE_VERSION", "请提供当前文章版本。", 422);
+    try {
+      const jobId = await startOutlineGeneration(
+        context.get("userId"),
+        context.req.param("id"),
+        parsed.data.expectedVersion,
+        key,
+      );
+      return context.json({ jobId, status: "queued", mode: aiMode() }, 202);
+    } catch (error) {
+      return articleFailure(error, "生成");
+    }
+  },
+);
 articleRoutes.put("/articles/:id/outline", async (context) => {
   const body = await readBody(context.req.raw);
   if (body.status === "large")
@@ -254,29 +260,33 @@ articleRoutes.post("/articles/:id/outline/confirm", async (context) => {
     return articleFailure(error, "确认");
   }
 });
-articleRoutes.post("/articles/:id/draft/generate", async (context) => {
-  const key = idempotencyKey(context.req.raw);
-  if (!key) return invalidIdempotencyKey();
-  const body = await readBody(context.req.raw);
-  if (body.status === "large")
-    return apiError("ARTICLE_INPUT_TOO_LARGE", "请求内容过长。", 413);
-  if (body.status === "invalid")
-    return apiError("INVALID_JSON", "请求内容不是有效 JSON。", 400);
-  const parsed = versionInput.safeParse(body.value);
-  if (!parsed.success)
-    return apiError("INVALID_ARTICLE_VERSION", "请提供当前文章版本。", 422);
-  try {
-    const jobId = await startDraftGeneration(
-      context.get("userId"),
-      context.req.param("id"),
-      parsed.data.expectedVersion,
-      key,
-    );
-    return context.json({ jobId, status: "queued", mode: "mock" }, 202);
-  } catch (error) {
-    return articleFailure(error, "生成");
-  }
-});
+articleRoutes.post(
+  "/articles/:id/draft/generate",
+  requireAiConsent,
+  async (context) => {
+    const key = idempotencyKey(context.req.raw);
+    if (!key) return invalidIdempotencyKey();
+    const body = await readBody(context.req.raw);
+    if (body.status === "large")
+      return apiError("ARTICLE_INPUT_TOO_LARGE", "请求内容过长。", 413);
+    if (body.status === "invalid")
+      return apiError("INVALID_JSON", "请求内容不是有效 JSON。", 400);
+    const parsed = versionInput.safeParse(body.value);
+    if (!parsed.success)
+      return apiError("INVALID_ARTICLE_VERSION", "请提供当前文章版本。", 422);
+    try {
+      const jobId = await startDraftGeneration(
+        context.get("userId"),
+        context.req.param("id"),
+        parsed.data.expectedVersion,
+        key,
+      );
+      return context.json({ jobId, status: "queued", mode: aiMode() }, 202);
+    } catch (error) {
+      return articleFailure(error, "生成");
+    }
+  },
+);
 articleRoutes.post("/articles/:id/drafts/:draftId/apply", async (context) => {
   const body = await readBody(context.req.raw);
   if (body.status === "large")

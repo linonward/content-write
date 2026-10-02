@@ -6,7 +6,7 @@ import {
 } from "@content-write/db/article-sources";
 import { type Executor, getDb } from "@content-write/db/client";
 import { sql } from "drizzle-orm";
-import { aiAvailable } from "../../config";
+import { aiAvailable, aiMode } from "../../config";
 import {
   enqueueJob,
   findIdempotentJob,
@@ -108,6 +108,7 @@ export async function getArticle(userId: string, id: string) {
     latestJob: latestJob ?? null,
     latestDraftJob: latestDraftJob ?? null,
     generationAvailable: aiAvailable(),
+    aiMode: aiMode(),
   };
 }
 
@@ -188,7 +189,7 @@ export async function confirmOutline(
   });
 }
 
-/** Queues one mock outline job per article version; repeats with the same key return the same job. */
+/** Queues one outline job per article version; repeats with the same key return the same job. */
 export async function startOutlineGeneration(
   userId: string,
   id: string,
@@ -212,7 +213,7 @@ export async function startOutlineGeneration(
         material_id: source.materialId,
         material_version: source.materialVersion,
       })),
-      mode: "mock",
+      mode: aiMode(),
     });
     // Idempotency comes before the version check so a retried request returns its job.
     const prior = await findIdempotentJob(tx, userId, key, inputHash);
@@ -263,7 +264,7 @@ export async function startDraftGeneration(
         material_version: source.materialVersion,
       })),
       options: { targetChars: [1200, 2000] },
-      mode: "mock",
+      mode: aiMode(),
     });
     const prior = await findIdempotentJob(tx, userId, key, inputHash);
     if (prior) return prior;
