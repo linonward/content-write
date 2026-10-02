@@ -28,14 +28,19 @@ test("pastes an article, breaks it down and checks the original", async ({
   await page.getByRole("button", { name: "登录" }).click();
   await expect(page).toHaveURL(/\/home$/);
 
-  const nav = page.getByRole("navigation", { name: "主导航" });
-  await expect(nav.getByRole("link")).toHaveText([
+  const nav = page
+    .getByRole("navigation", { name: /主导航|底部导航/ })
+    .filter({ visible: true });
+  const links = nav.getByRole("link");
+  for (const [index, name] of [
     "首页",
     "拆解",
     "素材箱",
     "选题",
     "文章",
-  ]);
+  ].entries()) {
+    await expect(links.nth(index)).toHaveAccessibleName(name);
+  }
   await nav.getByRole("link", { name: "拆解" }).click();
   await expect(page).toHaveURL(/\/breakdowns$/);
 

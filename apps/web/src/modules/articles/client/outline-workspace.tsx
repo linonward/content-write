@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { AiConsentNotice } from "@/modules/ai/client/ai-consent-notice";
 import { type AiMode, modeLabel, modeNote } from "@/modules/ai/client/ai-mode";
+import { useUnsavedChanges } from "@/modules/shell/client/unsaved-changes";
 import { DraftPanel, type DraftState } from "./draft-panel";
 import {
   type Framework,
@@ -95,6 +96,15 @@ export function OutlineWorkspace({ id }: { id: string }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+
+  useUnsavedChanges(
+    !!article &&
+      (brief.workingTitle !== article.workingTitle ||
+        brief.audience !== article.audience ||
+        brief.thesis !== article.thesis ||
+        JSON.stringify(outline) !==
+          JSON.stringify(article.outline ?? blankOutline(article))),
+  );
 
   const refresh = useCallback(async () => {
     const result = await request<{

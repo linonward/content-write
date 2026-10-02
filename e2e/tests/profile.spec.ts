@@ -15,7 +15,11 @@ test("saves the author profile and keeps it after reload", async ({ page }) => {
   await page.getByRole("button", { name: "登录" }).click();
   await expect(page).toHaveURL(/\/home$/);
 
-  await page.getByRole("link", { name: "作者设置" }).click();
+  await page
+    .getByRole("button", { name: "账号菜单" })
+    .filter({ visible: true })
+    .click();
+  await page.getByRole("menuitem", { name: "作者设置" }).click();
   await expect(page).toHaveURL(/\/settings\/profile$/);
   const save = page.getByRole("button", { name: "保存" });
   // The suite runs once per viewport against one user, so read what is there first.
