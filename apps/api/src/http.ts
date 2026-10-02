@@ -64,6 +64,9 @@ export const requireUser: MiddlewareHandler<AuthedEnv> = async (
   context,
   next,
 ) => {
+  // Several route groups can match one path (`/x` and `/x/*`, or two modules
+  // under `/articles/*`); a request that already passed both checks goes on.
+  if (context.get("userId")) return next();
   const session = await auth.api.getSession({
     headers: context.req.raw.headers,
   });
