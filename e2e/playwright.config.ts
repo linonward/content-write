@@ -31,6 +31,8 @@ export default defineConfig({
     {
       command: "pnpm --filter @content-write/api start",
       url: `${apiURL}/api/healthz`,
+      // Browser tests use the deterministic mock adapter, never a real model.
+      env: { AI_MODE: "mock" },
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,
     },
