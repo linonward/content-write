@@ -1,8 +1,8 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-02（T015 集成验收）
-已完成：25 / 35（T021 已取消）
-待合并：1（T036）
+更新时间：2026-10-02（T036 集成验收）
+已完成：26 / 35（T021 已取消）
+待合并：0
 阻塞：0
 当前任务：无
 下一项：T016 确认记忆；T031 wechat-draft（需要公众号凭证与固定出口 IP）；T017 已完成，可开始 5 位作者付费意愿验证
@@ -46,13 +46,15 @@
 | T033 | 落地页 `/`：未登录介绍与邮件申请试用，已登录跳转 `/home` | 已完成 | T032；申请邮箱 | feat/T033-landing | 已清理 | 00a1d7e | e694a0d | .ai/verifications/T033.md |
 | T034 | 应用外壳：可折叠侧栏、账号菜单、顶栏、底部标签栏 | 已完成 | T032；T014 设置入口迁移 | feat/T034-app-shell | ../content-write-app-shell（已清理） | 259ebef | 54e22f4 | .ai/verifications/T034.md |
 | T035 | 一级页面重排：首页、拆解、素材箱、选题、文章列表 | 已完成 | T034 | feat/T035-primary-pages | ../content-write-primary-pages（已清理） | e790a9f | a6e45e8 | .ai/verifications/T035.md |
-| T036 | 深色 / 浅色主题：账号菜单切换、按设备记住、首屏不闪烁 | 实现完成，待合并 | T032、T034 | feat/T036-color-theme | ../content-write-color-theme | 见 PR | 无 | .ai/verifications/T036.md |
+| T036 | 深色 / 浅色主题：账号菜单切换、按设备记住、首屏不闪烁 | 已完成 | T032、T034 | feat/T036-color-theme | ../content-write-color-theme（收尾后清理） | 4ec9da9 | e971848 | .ai/verifications/T036.md |
 
 ## 当前阻塞
 
 暂无已确认阻塞。
 
 ## 最近更新
+
+- 2026-10-02 CST：PR #63（T036）合并为 `e971848`；主分支独立空库迁移 0000–0016、完整检查（API 集成 71/71）与 Playwright 44/44 通过，全部 mock。验收库已删除，T036 worktree 在本文档 PR 合并后清理。
 
 - 2026-10-02 17:20 CST：T036 从 `a486af4` 实现深色 / 浅色主题：token 改为 `light-dark()`，账号菜单“外观”单选，`<head>` 脚本首屏应用，编辑器高亮改用 token。独立空库完整检查（API 集成 71/71）与 Playwright 44/44 通过，全部 mock；深色截图逐页检查。等待 PR。
 
