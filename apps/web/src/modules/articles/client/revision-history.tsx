@@ -19,7 +19,7 @@ import { request } from "./request";
 
 type Revision = {
   version: number;
-  source: "edit" | "draft" | "restore";
+  source: "edit" | "draft" | "restore" | "ai_edit";
   title: string;
   restoredFrom: number | null;
   chars: number;
@@ -28,6 +28,7 @@ type Revision = {
 
 function describe(revision: Revision) {
   if (revision.source === "draft") return "初稿";
+  if (revision.source === "ai_edit") return "AI 修改";
   if (revision.source === "restore")
     return `恢复自版本 ${revision.restoredFrom}`;
   return "编辑";

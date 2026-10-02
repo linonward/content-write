@@ -255,6 +255,8 @@ export function DraftPanel({
         <BodyEditor
           articleId={articleId}
           server={server}
+          generationAvailable={generationAvailable}
+          aiMode={aiMode}
           onSaved={onBodySaved}
           onReload={onChanged}
         />

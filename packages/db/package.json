@@ -11,6 +11,7 @@
     "./article-sources": "./src/article-sources.ts",
     "./auth-schema": "./src/auth-schema.ts",
     "./client": "./src/client.ts",
+    "./edit-suggestions": "./src/edit-suggestions.ts",
     "./framework": "./src/framework.ts",
     "./health": "./src/health.ts",
     "./schema": "./src/schema.ts"

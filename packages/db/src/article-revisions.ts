@@ -14,7 +14,7 @@ export async function recordRevision(
     version: number;
     title: string;
     body: string;
-    source: "edit" | "draft" | "restore";
+    source: "edit" | "draft" | "restore" | "ai_edit";
     restoredFrom?: number;
   },
 ) {

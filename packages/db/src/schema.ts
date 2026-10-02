@@ -537,3 +537,49 @@ export const breakdowns = pgTable(
     ),
   ],
 );
+
+// One AI edit request on the body. The selection is recorded when the author asks;
+// the worker only fills in the model's replacement (product 8.6).
+export const editSuggestions = pgTable(
+  "edit_suggestions",
+  {
+    id: text("id").primaryKey(),
+    articleId: text("article_id")
+      .notNull()
+      .references(() => articles.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    jobId: text("job_id").references(() => aiJobs.id, {
+      onDelete: "set null",
+    }),
+    baseVersion: integer("base_version").notNull(),
+    scope: text("scope").notNull(),
+    // UTF-16 offsets into the body at base_version.
+    selectionStart: integer("selection_start").notNull(),
+    selectionEnd: integer("selection_end").notNull(),
+    selectionText: text("selection_text").notNull(),
+    instruction: text("instruction").notNull(),
+    // Null until the worker stores the result; status moves pending → ready → applied | rejected.
+    replacement: text("replacement"),
+    explanation: text("explanation"),
+    evidenceGaps: jsonb("evidence_gaps").$type<string[]>(),
+    status: text("status").notNull().default("pending"),
+    // The article version the apply produced, returned again for repeated applies.
+    appliedVersion: integer("applied_version"),
+    mode: text("mode"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("edit_suggestions_job_idx").on(table.jobId),
+    index("edit_suggestions_article_created_idx").on(
+      table.articleId,
+      table.createdAt,
+    ),
+  ],
+);

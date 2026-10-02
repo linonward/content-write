@@ -5,6 +5,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import type { AiMode } from "@/modules/ai/client/ai-mode";
+import { AiEditPanel } from "./ai-edit-panel";
 import {
   type LocalCopy,
   readLocalCopy,
@@ -12,7 +14,7 @@ import {
   removeLocalCopy,
   writeLocalCopy,
 } from "./local-copy";
-import { MarkdownEditor } from "./markdown-editor";
+import { MarkdownEditor, type TextRange } from "./markdown-editor";
 import { RequestError, request } from "./request";
 
 type Text = { title: string; body: string };
@@ -38,11 +40,15 @@ function changed(text: Text, saved: Text) {
 export function BodyEditor({
   articleId,
   server,
+  generationAvailable,
+  aiMode,
   onSaved,
   onReload,
 }: {
   articleId: string;
   server: Snapshot;
+  generationAvailable: boolean;
+  aiMode: AiMode;
   /** Updates the page's copy of the article without reloading other unsaved forms. */
   onSaved: (saved: Snapshot) => void;
   onReload: () => Promise<void>;
@@ -51,6 +57,7 @@ export function BodyEditor({
   const [body, setBody] = useState(server.body);
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [recovery, setRecovery] = useState<Recovery | null>(null);
+  const [selection, setSelection] = useState<TextRange>({ start: 0, end: 0 });
   const saved = useRef<Snapshot>(server);
   const latest = useRef<Text>({ title, body });
   latest.current = { title, body };
@@ -257,32 +264,55 @@ export function BodyEditor({
           onChange={(event) => setTitle(event.target.value)}
         />
       </div>
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="article-body">正文（Markdown）</Label>
-          <span className="text-xs text-ink-2" role="status" aria-live="polite">
-            {label}
-            {status.kind === "failed" && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => void save()}
-              >
-                重试
-              </Button>
-            )}
-          </span>
+      <div className="flex flex-col items-start gap-4 lg:flex-row">
+        <div className="w-full min-w-0 flex-1 space-y-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="article-body">正文（Markdown）</Label>
+            <span
+              className="text-xs text-ink-2"
+              role="status"
+              aria-live="polite"
+            >
+              {label}
+              {status.kind === "failed" && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => void save()}
+                >
+                  重试
+                </Button>
+              )}
+            </span>
+          </div>
+          <MarkdownEditor
+            id="article-body"
+            label="正文（Markdown）"
+            value={body}
+            onChange={setBody}
+            onSelectionChange={setSelection}
+          />
+          <p className="text-xs text-ink-2">
+            {body.length.toLocaleString("zh-CN")} / 50,000 字符
+          </p>
         </div>
-        <MarkdownEditor
-          id="article-body"
-          label="正文（Markdown）"
-          value={body}
-          onChange={setBody}
+        <AiEditPanel
+          articleId={articleId}
+          body={body}
+          version={saved.current.version}
+          selection={selection}
+          blocked={
+            status.kind === "conflict"
+              ? "文章已有更新的版本，载入最新版本后再请求修改。"
+              : dirty || status.kind === "saving" || status.kind === "failed"
+                ? "正文有未保存的修改，保存完成后才能请求或应用修改。"
+                : null
+          }
+          available={generationAvailable}
+          aiMode={aiMode}
+          onApplied={onReload}
         />
-        <p className="text-xs text-ink-2">
-          {body.length.toLocaleString("zh-CN")} / 50,000 字符
-        </p>
       </div>
     </div>
   );

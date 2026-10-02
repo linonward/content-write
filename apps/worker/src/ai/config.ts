@@ -4,7 +4,8 @@ export type GenerationKind =
   | "idea_generation"
   | "outline_generation"
   | "draft_generation"
-  | "reference_breakdown";
+  | "reference_breakdown"
+  | "edit_suggestion";
 
 /** Configured generation mode; anything else means generation is unavailable. */
 export function aiMode(): AiMode | null {
@@ -56,6 +57,12 @@ export const kindSettings: Record<GenerationKind, KindSettings> = {
     thinking: { thinking: { type: "disabled" } },
     maxTokens: 6_000,
     repairMaxTokens: 10_000,
+  },
+  // A selection is at most 8,000 characters; the replacement may be somewhat longer.
+  edit_suggestion: {
+    thinking: { thinking: { type: "disabled" } },
+    maxTokens: 12_000,
+    repairMaxTokens: 16_000,
   },
 };
 

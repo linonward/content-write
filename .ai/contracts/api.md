@@ -99,6 +99,14 @@ T030 新增（按框架写）：
 - `GET /api/breakdowns` 列表每项增加 `breakdownId`（当前版本已拆解时）。
 - 参考文章删除后，文章的 `breakdownId` 置空、框架快照保留，仍可按快照生成大纲。
 
+T013 新增（AI 修改选区；全部需要会话，写操作需可信 Origin，跨用户与不存在均 404）：
+
+- `POST /api/articles/:id/edit`：`Idempotency-Key` 与 `{expectedVersion, scope: "selection"|"full", start, end, selectionText, instruction}`，DeepSeek 模式需确认（428）。202 `{jobId, status, mode}`，用 `/api/jobs/:id` 轮询（`kind: "edit_suggestion"`），计入每日额度与并发。偏移按 UTF-16；服务端以当前正文 `body.slice(start,end)` 记录选区原文，与 `selectionText` 不一致或越界 409 `SELECTION_MISMATCH`；全文范围必须是 `0..正文长度`，否则 422 `INVALID_EDIT_SCOPE`；选区超过 8,000 字符 413 `SELECTION_TOO_LARGE`；只有空白、`end <= start`、修改要求不是 1～500 字 422 `INVALID_EDIT_REQUEST`；没有正文 422 `ARTICLE_BODY_REQUIRED`；版本冲突 409；同文章已有进行中的修改任务 409 `EDIT_JOB_ACTIVE`；同键同输入返回同任务，不同输入 409 `IDEMPOTENCY_CONFLICT`（幂等先于版本检查）；额度 429，未配置 503。
+- `GET /api/articles/:id/suggestions`：`{suggestions, latestJob, generationAvailable, aiMode}`。`suggestions` 为最近 10 条待处理建议（`id`、`scope`、`baseVersion`、`start`、`end`、`selectionText`、`instruction`、`replacement`、`explanation`、`evidenceGaps`、`mode`、`createdAt`、`stale`）；`stale` 表示文章已不在基础版本或选区原文已变，不能应用。
+- `POST /api/articles/:id/suggestions/:sid/apply`：`{expectedVersion}`。用建议替换记录的选区，版本加一，同事务写入 `source: "ai_edit"` 的历史；返回 `{version}`。重复应用返回首次生成的版本、不再改动；已拒绝 409 `SUGGESTION_CLOSED`；生成中 409 `SUGGESTION_NOT_READY`；过期 409 `SUGGESTION_STALE`；`expectedVersion` 不是当前版本 409 `ARTICLE_VERSION_CONFLICT`；替换后正文超过 50,000 字符 413 `ARTICLE_BODY_TOO_LARGE`；跨用户或不存在 404 `SUGGESTION_NOT_FOUND`。
+- `POST /api/articles/:id/suggestions/:sid/reject`：204，不改动文章；重复拒绝 204，已应用 409 `SUGGESTION_CLOSED`。
+- `GET /api/articles/:id/revisions` 的 `source` 增加 `ai_edit`。删除素材时，引用它的文章连同修改建议一起删除。
+
 2026-10-02 规划（尚未实现，接口在对应任务完成后才算可用）：
 
 - T031：`POST /api/articles/:id/wechat-draft`（携带 `expectedVersion` 与 Idempotency-Key，只创建草稿）、`GET /api/articles/:id/wechat-draft`（推送记录与确认状态）；未配置公众号返回 503。

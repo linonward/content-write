@@ -12,6 +12,7 @@ const failureCodes: Record<string, string> = {
   outline_generation: "OUTLINE_GENERATION_FAILED",
   draft_generation: "DRAFT_GENERATION_FAILED",
   reference_breakdown: "BREAKDOWN_FAILED",
+  edit_suggestion: "EDIT_SUGGESTION_FAILED",
 };
 
 // `reason` is only a category for logs; messages may quote model output and are never logged.
