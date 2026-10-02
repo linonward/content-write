@@ -42,7 +42,7 @@
 | T029 | 参考文章与拆解：保存与抓取、拆解任务、`/breakdowns`、删除清除、10 篇质量评估 | 已完成 | T028；新方向设计更新 | feat/T029-reference-breakdown | 已清理 | 3275453 | b1da2f1 | .ai/verifications/T029.md |
 | T030 | 按框架写：用框架创建文章、槽位大纲、框架标签、参考文章不作证据 | 已完成 | T029 | feat/T030-framework-outline | 已清理 | 2770895 | eebee96 | .ai/verifications/T030.md |
 | T031 | 本人公众号草稿箱：只创建草稿、结果待确认、版本落后提示 | 待开始 | T017；公众号凭证与固定出口 IP | feat/T031-wechat-draft | 未创建 | 无 | 无 | 无 |
-| T032 | 设计系统 token、字体与基础组件落地，任意值检查 | 待合并 | 无；与 T013、T014 协调 | feat/T032-design-system | content-write-design-system | 待提交 | 无 | .ai/verifications/T032.md |
+| T032 | 设计系统 token、字体与基础组件落地，任意值检查 | 待合并 | 无；与 T013、T014 协调 | feat/T032-design-system | content-write-design-system | 8593364 | 无 | .ai/verifications/T032.md |
 | T033 | 落地页 `/`：未登录介绍与邮件申请试用，已登录跳转 `/home` | 待开始 | T032；申请邮箱 | feat/T033-landing | 未创建 | 无 | 无 | 无 |
 | T034 | 应用外壳：可折叠侧栏、账号菜单、顶栏、底部标签栏 | 待开始 | T032；T014 设置入口迁移 | feat/T034-app-shell | 未创建 | 无 | 无 | 无 |
 | T035 | 一级页面重排：首页、拆解、素材箱、选题、文章列表 | 待开始 | T034 | feat/T035-primary-pages | 未创建 | 无 | 无 | 无 |
