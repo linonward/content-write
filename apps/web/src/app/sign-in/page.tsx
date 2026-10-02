@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ui } from "@/lib/styles";
 import { cn } from "@/lib/utils";
@@ -21,8 +22,15 @@ export default async function SignInPage() {
         <header
           className={cn(ui.header, "max-md:order-1 max-md:px-4 max-md:pt-6")}
         >
-          <span className={ui.mark}>拆</span>
-          <span>拆写</span>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-3 rounded-sm text-ink outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          >
+            <span aria-hidden className={ui.mark}>
+              拆
+            </span>
+            <span>拆写</span>
+          </Link>
         </header>
         <div className="relative min-h-0 flex-1 overflow-hidden rounded-md border border-line max-md:hidden">
           <Image
