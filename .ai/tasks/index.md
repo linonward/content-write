@@ -2,9 +2,9 @@
 
 更新时间：2026-10-02 13:05 CST
 已完成：19 / 34（T021 已取消）
-待合并：0
+待合并：1
 阻塞：0
-当前任务：无
+当前任务：T013 ai-edit-selection（待合并，PR #49）
 下一项：界面重构 T033 落地页（需要申请试用邮箱）→ T034 → T035；T031 wechat-draft（需要公众号凭证与固定出口 IP）；T017 已完成，可开始 5 位作者付费意愿验证
 真实模型验收：T028 冒烟通过（DeepSeek，整理、选题、大纲、初稿各一次）；T029 拆解 10 篇真实文章评估 10/10 可用（`deepseek-flash`）
 线上验收：未开始
@@ -23,7 +23,7 @@
 | T010 | 根据确认大纲生成初稿，来源、缺口、预算和冲突处理 | 已完成 | T009、T027a | feat/T010-generate-draft | 已清理 | 0e4f738 | 16d087a | .ai/verifications/T010.md |
 | T011 | Markdown 编辑、自动保存、版本冲突和本地恢复 | 已完成 | T010 | feat/T011-edit-and-save | 已清理 | 1069b64 | ccdfafa | .ai/verifications/T011.md |
 | T012 | 查看版本、恢复旧版本并生成新版本 | 已完成 | T011 | feat/T012-restore-revision | 已清理 | 3b46a88 | 9d663d3 | .ai/verifications/T012.md |
-| T013 | AI 修改选区、差异预览、应用、拒绝、过期校验 | 待开始 | T011、T012 | feat/T013-ai-edit-selection | 未创建 | 无 | 无 | 无 |
+| T013 | AI 修改选区、差异预览、应用、拒绝、过期校验 | 待合并 | T011、T012 | feat/T013-ai-edit-selection | content-write-ai-edit-selection | 17e3773、8be6250 | 无 | .ai/verifications/T013.md |
 | T014 | 作者画像与表达偏好保存并影响后续生成 | 待开始 | T002、T010 | feat/T014-author-preferences | 未创建 | 无 | 无 | 无 |
 | T015 | 添加、启停、删除历史文章并用于风格示例 | 待开始 | T014 | feat/T015-writing-samples | 未创建 | 无 | 无 | 无 |
 | T016 | 候选记忆、确认、修改、禁用、删除和上下文版本 | 待开始 | T015 | feat/T016-confirmed-memory | 未创建 | 无 | 无 | 无 |
@@ -52,6 +52,8 @@
 暂无已确认阻塞。
 
 ## 最近更新
+
+- 2026-10-02 12:58 CST（本机时间，早于上一条记录的时间戳）：T013（按创始人决定，T031 等凭证期间先做）12:09 从 `ac27801` 开始，实现 AI 修改选区：迁移 0015 `edit_suggestions`、`article-edits` API 模块、`edit_suggestion` 任务、编辑器旁 AI 修改面板。PR #49 期间主分支先后合并 #47、T032 #50、#51，分支 rebase 到 `ccf1eab`，看板与 `body-editor.tsx` 冲突手工合并，面板改用 T032 设计 token 与组件。rebase 到 T032 后重建空库迁移 0000–0015、完整检查（含设计 token 检查，API 集成 64/64）与 Playwright 16/16 通过；全部 mock。实现提交 `17e3773`，token 适配 `8be6250`。
 
 - 2026-10-02 13:05 CST：PR #50（T032）合并为 `94e6ecf`；主分支独立空库迁移 0000–0014、完整检查（API 集成 57/57）与 Playwright 14/14 通过。验收数据库与 T032 worktree 已清理。T033、T034 可以开始。
 
