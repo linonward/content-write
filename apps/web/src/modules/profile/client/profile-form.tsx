@@ -68,7 +68,7 @@ export function ProfileForm() {
         <AlertDescription>{error}</AlertDescription>
       </Alert>
     ) : (
-      <p className="text-sm text-muted-foreground">加载中…</p>
+      <p className="text-label text-ink-2">加载中…</p>
     );
 
   const topics = split(form.topics);
@@ -111,20 +111,20 @@ export function ProfileForm() {
   }
 
   return (
-    <Card className="max-w-[720px]">
+    <Card>
       <CardHeader>
         <CardTitle>
-          <h2>作者画像</h2>
+          <h2>个人资料与表达偏好</h2>
         </CardTitle>
       </CardHeader>
-      <CardContent className="grid gap-5">
+      <CardContent className="grid gap-6">
         {error && (
           <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
         {notice && (
-          <Alert role="status">
+          <Alert variant="success" role="status">
             <AlertDescription>{notice}</AlertDescription>
           </Alert>
         )}
@@ -194,7 +194,7 @@ export function ProfileForm() {
           >
             {pending ? "保存中…" : "保存"}
           </Button>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-meta text-ink-2">
             {saved.version ? `版本 ${saved.version}` : "尚未保存"}
           </span>
         </div>

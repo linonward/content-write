@@ -58,8 +58,8 @@ export function AppHeader() {
           href="/settings/profile"
           aria-current={pathname.startsWith("/settings") ? "page" : undefined}
           className={cn(
-            "rounded-md px-3 py-1.5 text-sm text-muted-foreground no-underline hover:bg-muted",
-            pathname.startsWith("/settings") && "text-primary",
+            "rounded-sm px-3 py-1.5 text-label text-ink-2 no-underline hover:bg-sunken",
+            pathname.startsWith("/settings") && "bg-accent-soft text-accent",
           )}
         >
           作者设置

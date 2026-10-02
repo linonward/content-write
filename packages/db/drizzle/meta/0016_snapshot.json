@@ -34,12 +34,8 @@
           "name": "ai_consents_user_id_user_id_fk",
           "tableFrom": "ai_consents",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -80,12 +76,8 @@
           "name": "ai_daily_usage_user_id_user_id_fk",
           "tableFrom": "ai_daily_usage",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -93,10 +85,7 @@
       "compositePrimaryKeys": {
         "ai_daily_usage_user_id_day_pk": {
           "name": "ai_daily_usage_user_id_day_pk",
-          "columns": [
-            "user_id",
-            "day"
-          ]
+          "columns": ["user_id", "day"]
         }
       },
       "uniqueConstraints": {},
@@ -310,12 +299,8 @@
           "name": "ai_jobs_user_id_user_id_fk",
           "tableFrom": "ai_jobs",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -323,12 +308,8 @@
           "name": "ai_jobs_material_id_materials_id_fk",
           "tableFrom": "ai_jobs",
           "tableTo": "materials",
-          "columnsFrom": [
-            "material_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["material_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -336,12 +317,8 @@
           "name": "ai_jobs_article_id_articles_id_fk",
           "tableFrom": "ai_jobs",
           "tableTo": "articles",
-          "columnsFrom": [
-            "article_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["article_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -349,12 +326,8 @@
           "name": "ai_jobs_reference_article_id_reference_articles_id_fk",
           "tableFrom": "ai_jobs",
           "tableTo": "reference_articles",
-          "columnsFrom": [
-            "reference_article_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reference_article_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -437,12 +410,8 @@
           "name": "ai_runs_job_id_ai_jobs_id_fk",
           "tableFrom": "ai_runs",
           "tableTo": "ai_jobs",
-          "columnsFrom": [
-            "job_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["job_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -450,12 +419,8 @@
           "name": "ai_runs_user_id_user_id_fk",
           "tableFrom": "ai_runs",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -594,12 +559,8 @@
           "name": "article_drafts_article_id_articles_id_fk",
           "tableFrom": "article_drafts",
           "tableTo": "articles",
-          "columnsFrom": [
-            "article_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["article_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -607,12 +568,8 @@
           "name": "article_drafts_user_id_user_id_fk",
           "tableFrom": "article_drafts",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -620,12 +577,8 @@
           "name": "article_drafts_job_id_ai_jobs_id_fk",
           "tableFrom": "article_drafts",
           "tableTo": "ai_jobs",
-          "columnsFrom": [
-            "job_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["job_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -724,12 +677,8 @@
           "name": "article_revisions_article_id_articles_id_fk",
           "tableFrom": "article_revisions",
           "tableTo": "articles",
-          "columnsFrom": [
-            "article_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["article_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -737,12 +686,8 @@
           "name": "article_revisions_user_id_user_id_fk",
           "tableFrom": "article_revisions",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -810,12 +755,8 @@
           "name": "article_sources_article_id_articles_id_fk",
           "tableFrom": "article_sources",
           "tableTo": "articles",
-          "columnsFrom": [
-            "article_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["article_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -823,12 +764,8 @@
           "name": "article_sources_material_id_materials_id_fk",
           "tableFrom": "article_sources",
           "tableTo": "materials",
-          "columnsFrom": [
-            "material_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["material_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -998,12 +935,8 @@
           "name": "articles_user_id_user_id_fk",
           "tableFrom": "articles",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1011,12 +944,8 @@
           "name": "articles_idea_id_ideas_id_fk",
           "tableFrom": "articles",
           "tableTo": "ideas",
-          "columnsFrom": [
-            "idea_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["idea_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -1024,12 +953,8 @@
           "name": "articles_breakdown_id_breakdowns_id_fk",
           "tableFrom": "articles",
           "tableTo": "breakdowns",
-          "columnsFrom": [
-            "breakdown_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["breakdown_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         },
@@ -1037,12 +962,8 @@
           "name": "articles_current_draft_id_article_drafts_id_fk",
           "tableFrom": "articles",
           "tableTo": "article_drafts",
-          "columnsFrom": [
-            "current_draft_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["current_draft_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1141,12 +1062,8 @@
           "name": "author_profile_revisions_user_id_user_id_fk",
           "tableFrom": "author_profile_revisions",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1223,12 +1140,8 @@
           "name": "author_profiles_user_id_user_id_fk",
           "tableFrom": "author_profiles",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1315,12 +1228,8 @@
           "name": "breakdowns_reference_article_id_reference_articles_id_fk",
           "tableFrom": "breakdowns",
           "tableTo": "reference_articles",
-          "columnsFrom": [
-            "reference_article_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reference_article_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1328,12 +1237,8 @@
           "name": "breakdowns_user_id_user_id_fk",
           "tableFrom": "breakdowns",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1503,12 +1408,8 @@
           "name": "edit_suggestions_article_id_articles_id_fk",
           "tableFrom": "edit_suggestions",
           "tableTo": "articles",
-          "columnsFrom": [
-            "article_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["article_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1516,12 +1417,8 @@
           "name": "edit_suggestions_user_id_user_id_fk",
           "tableFrom": "edit_suggestions",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1529,12 +1426,8 @@
           "name": "edit_suggestions_job_id_ai_jobs_id_fk",
           "tableFrom": "edit_suggestions",
           "tableTo": "ai_jobs",
-          "columnsFrom": [
-            "job_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["job_id"],
+          "columnsTo": ["id"],
           "onDelete": "set null",
           "onUpdate": "no action"
         }
@@ -1617,12 +1510,8 @@
           "name": "idea_job_sources_job_id_ai_jobs_id_fk",
           "tableFrom": "idea_job_sources",
           "tableTo": "ai_jobs",
-          "columnsFrom": [
-            "job_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["job_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1630,12 +1519,8 @@
           "name": "idea_job_sources_material_id_materials_id_fk",
           "tableFrom": "idea_job_sources",
           "tableTo": "materials",
-          "columnsFrom": [
-            "material_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["material_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1718,12 +1603,8 @@
           "name": "idea_sources_idea_id_ideas_id_fk",
           "tableFrom": "idea_sources",
           "tableTo": "ideas",
-          "columnsFrom": [
-            "idea_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["idea_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1731,12 +1612,8 @@
           "name": "idea_sources_material_id_materials_id_fk",
           "tableFrom": "idea_sources",
           "tableTo": "materials",
-          "columnsFrom": [
-            "material_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["material_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1861,12 +1738,8 @@
           "name": "ideas_user_id_user_id_fk",
           "tableFrom": "ideas",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -1874,12 +1747,8 @@
           "name": "ideas_job_id_ai_jobs_id_fk",
           "tableFrom": "ideas",
           "tableTo": "ai_jobs",
-          "columnsFrom": [
-            "job_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["job_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1921,12 +1790,8 @@
           "name": "link_fetch_limits_user_id_user_id_fk",
           "tableFrom": "link_fetch_limits",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2013,12 +1878,8 @@
           "name": "material_analyses_material_id_materials_id_fk",
           "tableFrom": "material_analyses",
           "tableTo": "materials",
-          "columnsFrom": [
-            "material_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["material_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2026,12 +1887,8 @@
           "name": "material_analyses_user_id_user_id_fk",
           "tableFrom": "material_analyses",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2143,12 +2000,8 @@
           "name": "material_revisions_material_id_materials_id_fk",
           "tableFrom": "material_revisions",
           "tableTo": "materials",
-          "columnsFrom": [
-            "material_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["material_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2156,12 +2009,8 @@
           "name": "material_revisions_user_id_user_id_fk",
           "tableFrom": "material_revisions",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2275,12 +2124,8 @@
           "name": "materials_user_id_user_id_fk",
           "tableFrom": "materials",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2379,12 +2224,8 @@
           "name": "reference_article_revisions_reference_article_id_reference_articles_id_fk",
           "tableFrom": "reference_article_revisions",
           "tableTo": "reference_articles",
-          "columnsFrom": [
-            "reference_article_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["reference_article_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -2392,12 +2233,8 @@
           "name": "reference_article_revisions_user_id_user_id_fk",
           "tableFrom": "reference_article_revisions",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2498,12 +2335,8 @@
           "name": "reference_articles_user_id_user_id_fk",
           "tableFrom": "reference_articles",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2652,12 +2485,8 @@
           "name": "account_user_id_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2704,9 +2533,7 @@
         "rate_limit_key_unique": {
           "name": "rate_limit_key_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "key"
-          ]
+          "columns": ["key"]
         }
       },
       "policies": {},
@@ -2795,12 +2622,8 @@
           "name": "session_user_id_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -2810,9 +2633,7 @@
         "session_token_unique": {
           "name": "session_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -2901,9 +2722,7 @@
         "user_email_unique": {
           "name": "user_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
