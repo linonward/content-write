@@ -73,3 +73,5 @@ Web 只负责页面和会话页面渲染，不提供 API 路由。浏览器直�
 ## 安全与凭证
 
 `.env.local` 不入库。公开注册在认证配置中关闭；远程抓取默认关闭。真实模型调用尚未接入。
+
+远程抓取由 `REMOTE_FETCH_ENABLED=true` 开启。开启前在目标服务器上运行 `pnpm --filter @content-write/api smoke:link-fetch`，确认公众号与常见网站能抓到正文、错误页判为失败；服务器 IP 被公众号要求验证时，抓取会失败并提示粘贴。本机 DNS 返回代理假地址（198.18.0.0/15）时加 `LINK_FETCH_DOH=1`。

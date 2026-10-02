@@ -344,7 +344,8 @@ export function MaterialWorkspace() {
       setSelected(result.material);
       setTitle(result.material.title);
       setContent(result.material.content);
-      setMode("view");
+      // Without fetched text the next step is pasting it, so open the editor.
+      setMode(result.material.fetchStatus === "fetched" ? "view" : "edit");
       formElement.reset();
       setCreateOpen(false);
       setFileDirty(false);
@@ -354,8 +355,8 @@ export function MaterialWorkspace() {
         result.material.fetchStatus === "fetched"
           ? "网页文字已保存为素材，请核对原文和来源。"
           : result.material.fetchStatus === "failed"
-            ? "链接已保存，抓取失败。可粘贴正文继续使用。"
-            : "链接已保存。可粘贴正文继续使用。",
+            ? "链接已保存，但没有抓到正文（网页可能需要登录或由脚本加载）。请打开原文复制正文，粘贴到下方保存。"
+            : "链接已保存。请打开原文复制正文，粘贴到下方保存。",
       );
     } catch (cause) {
       setError(
@@ -410,6 +411,7 @@ export function MaterialWorkspace() {
             maxLength={50_000}
             rows={14}
             required
+            autoFocus={selected?.kind === "link" && !selected.content}
           />
           <FieldDescription>
             {content.length} / 50000 字。当前仅保存文字，不会自动调用模型。

@@ -94,3 +94,39 @@ test("pastes an article, breaks it down and checks the original", async ({
   await expect(page.getByRole("status")).toContainText("已删除参考文章");
   await expect(page.getByText(title)).toHaveCount(0);
 });
+
+test("saves a link without fetched text and opens the paste editor", async ({
+  page,
+}) => {
+  const email = process.env.E2E_EMAIL;
+  const password = process.env.E2E_PASSWORD;
+  if (!email || !password)
+    throw new Error("global setup did not create a user");
+  await getDb().delete(rateLimit);
+  await page.goto("/sign-in");
+  await page.getByLabel("邮箱").fill(email);
+  await page.getByLabel("密码").fill(password);
+  await page.getByRole("button", { name: "登录" }).click();
+  await expect(page).toHaveURL(/\/home$/);
+  await page.goto("/breakdowns");
+
+  const host = `t037-${test.info().project.name}-${Date.now()}.example.com`;
+  await page.getByRole("button", { name: "拆解一篇爆款", exact: true }).click();
+  await page.getByRole("button", { name: "保存链接", exact: true }).click();
+  await page.getByLabel("公开链接").fill(`https://${host}/post`);
+  await page.getByRole("button", { name: "保存参考文章" }).click();
+
+  // Remote fetch is off in tests, so the editor opens for pasting right away.
+  const paste = page.getByLabel("文章正文");
+  await expect(paste).toBeFocused();
+  await expect(page.getByRole("status")).toContainText("粘贴到下方再拆解");
+  await paste.fill(article);
+  await page.getByRole("button", { name: "保存", exact: true }).click();
+  await expect(
+    page.getByRole("button", { name: "拆解这篇文章" }),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "删除" }).click();
+  await page.getByRole("button", { name: "确认删除" }).click();
+  await expect(page.getByRole("status")).toContainText("已删除参考文章");
+});
