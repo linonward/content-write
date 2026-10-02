@@ -5,6 +5,7 @@ import {
   sourcesIntact,
 } from "@content-write/db/article-sources";
 import { type Executor, getDb } from "@content-write/db/client";
+import type { FrameworkSnapshot } from "@content-write/db/framework";
 import { aiJobs, aiRuns, articles } from "@content-write/db/schema";
 import { and, eq, gt, sql } from "drizzle-orm";
 import type { RunMeta } from "./ai/generate";
@@ -54,6 +55,7 @@ async function readArticle(
       thesis: articles.thesis,
       version: articles.version,
       sourceCount: articles.sourceCount,
+      framework: articles.framework,
     })
     .from(articles)
     .where(and(eq(articles.id, articleId), eq(articles.userId, job.user_id)));
@@ -61,9 +63,11 @@ async function readArticle(
   return article;
 }
 
-export async function loadOutlineContext(
-  job: Claimed,
-): Promise<{ brief: Brief; sources: OutlineSource[] } | null> {
+export async function loadOutlineContext(job: Claimed): Promise<{
+  brief: Brief;
+  sources: OutlineSource[];
+  framework: FrameworkSnapshot | null;
+} | null> {
   if (!job.article_id || !job.article_version) return null;
   const db = getDb();
   const article = await readArticle(db, job, job.article_id, false);
@@ -76,6 +80,7 @@ export async function loadOutlineContext(
       thesis: article.thesis,
     },
     sources: toOutlineSources(sources),
+    framework: article.framework,
   };
 }
 
@@ -119,7 +124,11 @@ export async function completeOutlineJob(
         .where(eq(aiJobs.id, job.id));
       return "stale" as const;
     }
-    const checked = validateOutline(output, toOutlineSources(sources));
+    const checked = validateOutline(
+      output,
+      toOutlineSources(sources),
+      article?.framework ?? null,
+    );
     if (!checked.success) throw new Error("Invalid outline output");
     await tx
       .update(articles)

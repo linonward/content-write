@@ -62,9 +62,10 @@ test("pastes an article, breaks it down and checks the original", async ({
   await expect(original.locator("mark")).toHaveText(
     "30 岁那年，我从大厂辞职，以为终于自由了。",
   );
-  await expect(page.getByRole("button", { name: /用这个框架写/ })).toHaveCount(
-    0,
-  );
+  // T030: a finished breakdown offers to write with its framework.
+  await expect(
+    page.getByRole("button", { name: "用这个框架写" }),
+  ).toBeVisible();
   await expect(
     page.getByRole("listitem").filter({ hasText: title }),
   ).toContainText("已拆解");

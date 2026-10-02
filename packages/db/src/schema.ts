@@ -11,6 +11,7 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth-schema";
+import type { FrameworkSnapshot } from "./framework";
 
 // Minimal operational table. Business tables arrive with their user-facing slices.
 export const serviceState = pgTable("service_state", {
@@ -299,8 +300,17 @@ export const articles = pgTable(
         keyPoints: string[];
         evidenceIds: string[];
         missingEvidence: string[];
+        // Set when the article follows a framework: the slot this section fills.
+        slotId?: string;
       }[];
     }>(),
+    // The breakdown the framework came from; cleared when its reference article is deleted.
+    breakdownId: text("breakdown_id").references(
+      (): AnyPgColumn => breakdowns.id,
+      { onDelete: "set null" },
+    ),
+    // Structure copied from the breakdown, without original text or spans, so it outlives the reference.
+    framework: jsonb("framework").$type<FrameworkSnapshot>(),
     outlineConfirmedAt: timestamp("outline_confirmed_at", {
       withTimezone: true,
     }),

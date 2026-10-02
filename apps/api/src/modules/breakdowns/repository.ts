@@ -42,6 +42,7 @@ export function listBrokenDownVersions(db: Executor, ids: string[]) {
   if (!ids.length) return Promise.resolve([]);
   return db
     .select({
+      id: breakdowns.id,
       referenceArticleId: breakdowns.referenceArticleId,
       referenceVersion: breakdowns.referenceVersion,
     })

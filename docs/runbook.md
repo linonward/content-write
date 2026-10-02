@@ -32,6 +32,7 @@ AI_REQUEST_TIMEOUT_MS=120000
 - `ai_runs` 记录输入、输出、思考 token 与耗时；未配置价格，费用为 null。
 - CI 与集成测试始终使用 mock。真实冒烟测试会实际调用 DeepSeek 并产生少量费用：`AI_API_KEY=… pnpm --filter @content-write/api smoke:deepseek`（需要独立数据库与 `DATABASE_URL`）。
 - 拆解质量评估：把参考文章正文放在仓库外的目录（他人作品，不提交），写 `index.json`（`[{file, title}]`），停止常驻 worker 后运行 `BREAKDOWN_EVAL_DIR=/tmp/t029-refs BREAKDOWN_EVAL_OUT=/tmp/t029-eval pnpm --filter @content-write/api eval:breakdown`。每篇的结果、用量与失败写入 `BREAKDOWN_EVAL_OUT/<模型>.json` 供人工评审；`AI_MODEL=deepseek-v4-pro` 可切换模型复评。
+- 按框架写冒烟：参考文章正文与标题放在仓库外的目录（`reference.txt`、`title.txt`），停止常驻 worker 后运行 `FRAMEWORK_SMOKE_DIR=/tmp/t030-smoke pnpm --filter @content-write/api smoke:framework`：真实调用素材整理 2 次、拆解、按框架大纲与初稿各 1 次，输出用量、槽位大纲与初稿和参考文章的最长相同字串。
 
 ## 浏览器端到端测试
 

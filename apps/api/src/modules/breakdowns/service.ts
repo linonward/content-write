@@ -60,9 +60,12 @@ export async function listReferences(userId: string) {
       }) =>
         row.referenceArticleId === item.id &&
         row.referenceVersion === item.currentVersion;
+      const breakdown = done.find(current);
       return {
         ...item,
-        status: statusOf(done.some(current), jobs.find(current)),
+        // Lets articles bind the current version's framework without opening it.
+        breakdownId: breakdown?.id ?? null,
+        status: statusOf(Boolean(breakdown), jobs.find(current)),
       };
     }),
     hasMore: rows.length > 100,
