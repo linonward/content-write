@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "公众号内容工作台",
-  description: "把自己的素材整理成有个人表达的文章。",
+  title: "拆写",
+  description: "看懂一篇爆款，写出你自己的那篇。",
 };
 
 export default function RootLayout({

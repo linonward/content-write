@@ -13,8 +13,8 @@ export default async function HomePage() {
     <main className={ui.shell}>
       <header className={`${ui.header} justify-between`}>
         <Link className={ui.brand} href="/home">
-          <span className={ui.mark}>文</span>
-          <span>公众号内容工作台</span>
+          <span className={ui.mark}>拆</span>
+          <span>拆写</span>
         </Link>
         <LogoutButton />
       </header>

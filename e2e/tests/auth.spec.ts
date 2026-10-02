@@ -11,7 +11,7 @@ function credentials() {
 test("redirects signed-out visitors to sign-in", async ({ page }) => {
   await page.goto("/home");
   await expect(page).toHaveURL(/\/sign-in$/);
-  await expect(page.getByRole("heading", { name: "登录工作台" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "登录拆写" })).toBeVisible();
 });
 
 test("rejects a wrong password without leaving sign-in", async ({ page }) => {

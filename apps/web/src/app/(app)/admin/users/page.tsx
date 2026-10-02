@@ -12,8 +12,8 @@ export default async function InviteUsersPage() {
     <main className={ui.narrowShell}>
       <header className={ui.header}>
         <Link className={ui.brand} href="/home">
-          <span className={ui.mark}>文</span>
-          <span>返回工作台</span>
+          <span className={ui.mark}>拆</span>
+          <span>返回首页</span>
         </Link>
       </header>
       <section className={ui.formIntro}>
