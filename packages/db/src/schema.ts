@@ -141,6 +141,11 @@ export const aiJobs = pgTable(
       .$type<{ id: string; version: number }[]>()
       .notNull()
       .default([]),
+    // Confirmed memory versions the generation was queued with.
+    memories: jsonb("memories")
+      .$type<{ id: string; version: number }[]>()
+      .notNull()
+      .default([]),
     sourceCount: integer("source_count").notNull().default(1),
     kind: text("kind").notNull(),
     status: text("status").notNull().default("queued"),
@@ -650,5 +655,44 @@ export const writingSamples = pgTable(
   },
   (table) => [
     index("writing_samples_user_created_idx").on(table.userId, table.createdAt),
+  ],
+);
+
+export type MemoryEvidence = {
+  sampleId: string;
+  sampleVersion: number;
+  sampleTitle: string;
+  quote: string;
+  start: number;
+  end: number;
+};
+
+// Author-confirmed writing preferences; candidates and disabled rows never reach a prompt.
+export const memories = pgTable(
+  "memories",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    content: text("content").notNull(),
+    status: text("status")
+      .$type<"candidate" | "confirmed" | "disabled">()
+      .notNull(),
+    origin: text("origin").$type<"manual" | "extracted">().notNull(),
+    // Quotes are copied so evidence stays readable after the sample changes.
+    evidence: jsonb("evidence").$type<MemoryEvidence[]>().notNull().default([]),
+    mode: text("mode"),
+    jobId: text("job_id"),
+    version: integer("version").notNull().default(1),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("memories_user_created_idx").on(table.userId, table.createdAt),
   ],
 );

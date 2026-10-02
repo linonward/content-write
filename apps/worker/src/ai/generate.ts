@@ -1,5 +1,6 @@
 import type { AuthorProfile } from "@content-write/db/author-profile";
 import type { FrameworkSnapshot } from "@content-write/db/framework";
+import type { ConfirmedMemory } from "@content-write/db/memories";
 import type { BreakdownResult } from "@content-write/db/schema";
 import type { StyleSample } from "@content-write/db/writing-samples";
 import {
@@ -32,6 +33,13 @@ import {
   validateIdeas,
 } from "../ideas";
 import {
+  createMockMemories,
+  locateMemories,
+  type MemoryExtraction,
+  sampleLabel,
+  validateMemories,
+} from "../memories";
+import {
   type Brief,
   createMockFrameworkOutline,
   createMockOutline,
@@ -53,6 +61,7 @@ import {
   draftMessages,
   editMessages,
   ideasMessages,
+  memoryMessages,
   outlineMessages,
 } from "./prompts";
 
@@ -137,13 +146,14 @@ export async function generateIdeas(
   profile: AuthorProfile | null = null,
   deps?: DeepSeekDeps,
   samples: StyleSample[] = [],
+  memories: ConfirmedMemory[] = [],
 ): Promise<Generated<GeneratedIdea[]>> {
   const mode = requireMode();
   if (mode === "mock")
     return { output: createMockIdeas(sources), meta: { mode, usage: null } };
   const { data, usage } = await generateJson(
     "idea_generation",
-    withProfile(ideasMessages(sources), profile, samples),
+    withProfile(ideasMessages(sources), profile, samples, memories),
     avoidingBannedWords(
       (value) =>
         asParse(
@@ -164,6 +174,7 @@ export async function generateOutline(
   profile: AuthorProfile | null = null,
   deps?: DeepSeekDeps,
   samples: StyleSample[] = [],
+  memories: ConfirmedMemory[] = [],
 ): Promise<Generated<Outline>> {
   const mode = requireMode();
   if (mode === "mock")
@@ -188,6 +199,7 @@ export async function generateOutline(
       ),
       profile,
       samples,
+      memories,
     ),
     avoidingBannedWords(
       (value) => asParse(validateOutline(value, sources, framework)),
@@ -211,13 +223,14 @@ export async function generateDraft(
   profile: AuthorProfile | null = null,
   deps?: DeepSeekDeps,
   samples: StyleSample[] = [],
+  memories: ConfirmedMemory[] = [],
 ): Promise<Generated<Draft>> {
   const mode = requireMode();
   if (mode === "mock")
     return { output: createMockDraft(context), meta: { mode, usage: null } };
   const { data, usage } = await generateJson(
     "draft_generation",
-    withProfile(draftMessages(context), profile, samples),
+    withProfile(draftMessages(context), profile, samples, memories),
     avoidingBannedWords(
       (value) => asParse(validateDraft(value, context.sources)),
       profile,
@@ -254,18 +267,42 @@ export async function generateEdit(
   deps?: DeepSeekDeps,
   samples: StyleSample[] = [],
   profile: AuthorProfile | null = null,
+  memories: ConfirmedMemory[] = [],
 ): Promise<Generated<Edit>> {
   const mode = requireMode();
   if (mode === "mock")
     return { output: createMockEdit(context), meta: { mode, usage: null } };
   const { data, usage } = await generateJson(
     "edit_suggestion",
-    withProfile(editMessages(context), profile, samples),
+    withProfile(editMessages(context), profile, samples, memories),
     avoidingBannedWords(
       (value) => asParse(validateEdit(value, context.selectionText)),
       profile,
       (edit) => [edit.replacement],
     ),
+    deps,
+  );
+  return { output: data, meta: { mode, usage } };
+}
+
+export async function generateMemories(
+  samples: StyleSample[],
+  deps?: DeepSeekDeps,
+): Promise<Generated<MemoryExtraction>> {
+  const mode = requireMode();
+  if (mode === "mock")
+    return { output: createMockMemories(samples), meta: { mode, usage: null } };
+  const { data, usage } = await generateJson(
+    "memory_extraction",
+    memoryMessages(
+      samples.map((sample, index) => ({
+        label: sampleLabel(index),
+        title: sample.title,
+        content: sample.content,
+      })),
+    ),
+    (value) =>
+      asParse(validateMemories(samples, locateMemories(samples, value))),
     deps,
   );
   return { output: data, meta: { mode, usage } };

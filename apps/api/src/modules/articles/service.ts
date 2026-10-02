@@ -7,6 +7,7 @@ import {
 import { currentProfileVersion } from "@content-write/db/author-profile";
 import { type Executor, getDb } from "@content-write/db/client";
 import { frameworkSnapshot, slotsMatch } from "@content-write/db/framework";
+import { selectMemories } from "@content-write/db/memories";
 import { selectWritingSamples } from "@content-write/db/writing-samples";
 import { sql } from "drizzle-orm";
 import { aiAvailable, aiMode } from "../../config";
@@ -277,6 +278,7 @@ export async function startOutlineGeneration(
     if (!sourcesIntact(sources, article.sourceCount))
       throw new ArticleError("sources_missing");
     const profileVersion = await currentProfileVersion(tx, userId);
+    const memories = await selectMemories(tx, userId);
     const writingSamples = await selectWritingSamples(tx, userId);
     const inputHash = hashInput({
       kind: "outline_generation",
@@ -291,6 +293,7 @@ export async function startOutlineGeneration(
       framework: article.framework ?? undefined,
       profile: profileVersion ?? undefined,
       writingSamples: writingSamples.length ? writingSamples : undefined,
+      memories: memories.length ? memories : undefined,
       mode: aiMode(),
     });
     // Idempotency comes before the version check so a retried request returns its job.
@@ -311,6 +314,7 @@ export async function startOutlineGeneration(
       articleVersion: expectedVersion,
       profileVersion,
       writingSamples,
+      memories,
     });
   });
   if (result.status === "conflict")
@@ -336,6 +340,7 @@ export async function startDraftGeneration(
     if (!sourcesIntact(sources, article.sourceCount))
       throw new ArticleError("sources_missing");
     const profileVersion = await currentProfileVersion(tx, userId);
+    const memories = await selectMemories(tx, userId);
     const writingSamples = await selectWritingSamples(tx, userId);
     const inputHash = hashInput({
       kind: "draft_generation",
@@ -348,6 +353,7 @@ export async function startDraftGeneration(
       options: { targetChars: [1200, 2000] },
       profile: profileVersion ?? undefined,
       writingSamples: writingSamples.length ? writingSamples : undefined,
+      memories: memories.length ? memories : undefined,
       mode: aiMode(),
     });
     const prior = await findIdempotentJob(tx, userId, key, inputHash);
@@ -368,6 +374,7 @@ export async function startDraftGeneration(
       articleVersion: expectedVersion,
       profileVersion,
       writingSamples,
+      memories,
     });
   });
   if (result.status === "conflict")
