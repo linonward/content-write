@@ -12,7 +12,7 @@
 
 ## 2. 调色板与角色
 
-只用浅色主题；暗色主题不在 Phase 0 范围内。纸面中性色偏暖（色相约 90），文字中性色偏墨绿（色相约 175），两组都只带很低的彩度。hex 是唯一真值，OKLCH 由其换算，用于在 CSS 中声明。对比度按 WCAG 2.x 计算。
+浅色为默认主题，另有深色主题（见本节末“深色主题”）。纸面中性色偏暖（色相约 90），文字中性色偏墨绿（色相约 175），两组都只带很低的彩度。hex 是唯一真值，OKLCH 由其换算，用于在 CSS 中声明。对比度按 WCAG 2.x 计算。
 
 | Token | hex | OKLCH | 角色 | 对比度 |
 |---|---|---|---|---|
@@ -43,6 +43,38 @@
 - 墨绿只用于主操作、选中、焦点和成功；赭黄只用于证据、证据缺口和非阻断警示；砖红只用于失败和破坏性操作。三者不互相替代。
 - 文字在彩色底上用同色相深一档，不用灰色；必要信息只用 `ink` 或 `ink-2`。
 - 组件中不出现 hex、`text-[#...]` 或任意色值，只引用 token。
+
+### 深色主题
+
+作者在账号菜单“外观”中选择跟随系统（默认）、浅色或深色，按设备存本地。token 名称与角色不变，每个颜色在 `globals.css` 用 `light-dark(浅色, 深色)` 声明；跟随系统时由 `color-scheme: light dark` 交给浏览器，选定后写入 `html[data-theme]`，由 `<head>` 内联脚本在首次绘制前应用，不闪烁。
+
+深色取值保持同一色相：纸面与面板为偏墨绿的深灰，文字为暖白，墨绿、赭黄、砖红提亮到在深底上可读；`ink-inverse` 系列变为深色，因此彩色底（主按钮、赭黄编号、实心红）上的文字仍满足对比度。“深色区块”（`ink` 底）在深色主题中反转为浅色区块，提示框同理。
+
+| Token | 深色 hex | 对比度 |
+|---|---|---|
+| `canvas` | #141917 | |
+| `sidebar` | #101413 | |
+| `surface` | #1c2220 | |
+| `sunken` | #181d1c | 低于 surface，悬停行与引用底 |
+| `ink` | #e3e7e1 | surface 12.9 |
+| `ink-2` | #a3ada8 | surface 7.0 / canvas 7.7 / sidebar 8.0 |
+| `ink-3` | #78837f | surface 4.1 |
+| `line` | #2c3331 | |
+| `line-strong` | #66726d | surface 3.2 |
+| `accent` | #7cc2ad | `ink-inverse` 字 8.6；surface 7.8 |
+| `accent-hover` | #97d2c0 | |
+| `accent-soft` | #1e3530 | accent 字 6.3 |
+| `evidence` | #c9a24a | `ink-inverse` 字 7.4 |
+| `evidence-soft` | #3a3020 | |
+| `evidence-ink` | #e2c06e | evidence-soft 7.4 |
+| `danger` | #ec8a78 | danger-soft 5.9；`ink-inverse` 字 7.2 |
+| `danger-soft` | #3b221e | |
+| `ink-inverse` | #141917 | ink 14.2 |
+| `ink-inverse-2` | #46524e | ink 6.5 |
+| `evidence-on-ink` | #7a5a12 | ink 5.1 |
+| `line-on-ink` | #0000001f | 黑色 12% |
+
+遮罩与浮层阴影在深色下加深（遮罩 60%，阴影黑色 40% / 30%）。Markdown 编辑器的语法高亮、光标与选区也只引用 token。导出的 HTML 与公众号草稿不受主题影响。设计稿 `content-write.pen` 尚未加入深色变量。
 
 ## 3. 排版规则
 

@@ -1,7 +1,7 @@
 # Phase 0 开发看板
 
 更新时间：2026-10-02（T016 交付）
-已完成：25 / 34（T021 已取消）
+已完成：26 / 35（T021 已取消）
 待合并：1
 阻塞：0
 当前任务：无
@@ -46,12 +46,17 @@
 | T033 | 落地页 `/`：未登录介绍与邮件申请试用，已登录跳转 `/home` | 已完成 | T032；申请邮箱 | feat/T033-landing | 已清理 | 00a1d7e | e694a0d | .ai/verifications/T033.md |
 | T034 | 应用外壳：可折叠侧栏、账号菜单、顶栏、底部标签栏 | 已完成 | T032；T014 设置入口迁移 | feat/T034-app-shell | ../content-write-app-shell（已清理） | 259ebef | 54e22f4 | .ai/verifications/T034.md |
 | T035 | 一级页面重排：首页、拆解、素材箱、选题、文章列表 | 已完成 | T034 | feat/T035-primary-pages | ../content-write-primary-pages（已清理） | e790a9f | a6e45e8 | .ai/verifications/T035.md |
+| T036 | 深色 / 浅色主题：账号菜单切换、按设备记住、首屏不闪烁 | 已完成 | T032、T034 | feat/T036-color-theme | ../content-write-color-theme（收尾后清理） | 4ec9da9 | e971848 | .ai/verifications/T036.md |
 
 ## 当前阻塞
 
 暂无已确认阻塞。
 
 ## 最近更新
+
+- 2026-10-02 CST：PR #63（T036）合并为 `e971848`；主分支独立空库迁移 0000–0016、完整检查（API 集成 71/71）与 Playwright 44/44 通过，全部 mock。验收库已删除，T036 worktree 在本文档 PR 合并后清理。
+
+- 2026-10-02 17:20 CST：T036 从 `a486af4` 实现深色 / 浅色主题：token 改为 `light-dark()`，账号菜单“外观”单选，`<head>` 脚本首屏应用，编辑器高亮改用 token。独立空库完整检查（API 集成 71/71）与 Playwright 44/44 通过，全部 mock；深色截图逐页检查。等待 PR。
 
 - 2026-10-02 14:36 CST：T034 在 `3ce6bc5` 上完成共享外壳、侧栏折叠与账号菜单、统一顶栏和手机底栏；独立空库迁移 0000–0016，完整检查（API 集成 67/67）与 Playwright 36/36 通过，全部 mock。实现 `259ebef`，PR #56 待评审与合并；验证服务已停止、验证库已删除，保留 worktree。
 
