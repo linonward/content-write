@@ -53,7 +53,7 @@ function Provenance({
       <div>
         <h4 className="font-medium">来源映射</h4>
         {sourceMap.length ? (
-          <ul className="mt-1 space-y-1 text-muted-foreground">
+          <ul className="mt-1 space-y-1 text-ink-2">
             {sourceMap.map((link) => (
               <li
                 key={`${link.materialId}:${link.evidenceIds.join(",")}:${link.claim}`}
@@ -65,19 +65,19 @@ function Provenance({
             ))}
           </ul>
         ) : (
-          <p className="mt-1 text-muted-foreground">本稿没有关联来源片段。</p>
+          <p className="mt-1 text-ink-2">本稿没有关联来源片段。</p>
         )}
       </div>
       <div>
         <h4 className="font-medium">待补证据</h4>
         {evidenceGaps.length ? (
-          <ul className="mt-1 list-disc space-y-1 pl-5 text-muted-foreground">
+          <ul className="mt-1 list-disc space-y-1 pl-5 text-ink-2">
             {evidenceGaps.map((gap) => (
               <li key={gap}>{gap}</li>
             ))}
           </ul>
         ) : (
-          <p className="mt-1 text-muted-foreground">没有标出待补证据。</p>
+          <p className="mt-1 text-ink-2">没有标出待补证据。</p>
         )}
       </div>
     </div>
@@ -232,12 +232,12 @@ export function DraftPanel({
             <AlertDescription>{notice}</AlertDescription>
           </Alert>
         )}
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-ink-2">
           {unavailable ??
             `${modeNote(aiMode)}初稿只按已确认的大纲和来源成文，来源映射只是辅助溯源，不代表全文已核实。`}
         </p>
         {draft.body !== null && !unavailable && (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-ink-2">
             已有正文：再次生成的结果会保存为候选，不会覆盖正文。
           </p>
         )}
@@ -259,14 +259,14 @@ export function DraftPanel({
           onReload={onChanged}
         />
         {draft.currentDraft && (
-          <div className="space-y-2 rounded-lg border p-4">
+          <div className="space-y-2 rounded-sm border p-4">
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="font-medium">最近应用的初稿</h3>
-              <Badge variant="outline">
+              <Badge variant="neutral">
                 {modeLabel(draft.currentDraft.mode)}
               </Badge>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-ink-2">
               来源映射对应初稿生成时的文字，作者修改后可能不再一一对应。
             </p>
             <Provenance
@@ -280,10 +280,10 @@ export function DraftPanel({
           <div className="space-y-3">
             <h3 className="font-medium">候选初稿</h3>
             {draft.candidates.map((candidate) => (
-              <details key={candidate.id} className="rounded-lg border p-4">
+              <details key={candidate.id} className="rounded-sm border p-4">
                 <summary className="cursor-pointer">
                   {candidate.title}
-                  <span className="ml-2 text-xs text-muted-foreground">
+                  <span className="ml-2 text-xs text-ink-2">
                     {new Date(candidate.createdAt).toLocaleString("zh-CN")}
                   </span>
                 </summary>
@@ -306,7 +306,7 @@ export function DraftPanel({
                     </Button>
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="secondary"
                       disabled={pending}
                       onClick={() => void discard(candidate)}
                     >

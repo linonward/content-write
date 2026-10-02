@@ -120,13 +120,13 @@ export function RevisionHistory({
             <AlertDescription>{notice}</AlertDescription>
           </Alert>
         )}
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-ink-2">
           恢复会把所选版本的标题和正文作为新版本保存，原有历史都会保留。
         </p>
         {revisions === null ? (
-          <p className="text-sm text-muted-foreground">加载中…</p>
+          <p className="text-sm text-ink-2">加载中…</p>
         ) : revisions.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-ink-2">
             正文保存或生成初稿后，这里会出现历史版本。
           </p>
         ) : (
@@ -134,19 +134,17 @@ export function RevisionHistory({
             {revisions.map((revision) => {
               const current = revision.version === currentVersion;
               return (
-                <li key={revision.version} className="rounded-md border p-3">
+                <li key={revision.version} className="rounded-sm border p-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="min-w-0 text-sm">
                       <strong>版本 {revision.version}</strong>
-                      <span className="ml-2 text-muted-foreground">
+                      <span className="ml-2 text-ink-2">
                         {describe(revision)} ·{" "}
                         {new Date(revision.createdAt).toLocaleString("zh-CN")} ·{" "}
                         {revision.chars.toLocaleString("zh-CN")} 字
                         {current && " · 当前"}
                       </span>
-                      <p className="truncate text-muted-foreground">
-                        {revision.title}
-                      </p>
+                      <p className="truncate text-ink-2">{revision.title}</p>
                     </div>
                     <div className="flex gap-2">
                       <Button
@@ -166,7 +164,7 @@ export function RevisionHistory({
                         <AlertDialogTrigger
                           render={
                             <Button
-                              variant="outline"
+                              variant="secondary"
                               size="sm"
                               disabled={pending || current}
                             />
@@ -201,7 +199,7 @@ export function RevisionHistory({
                     </div>
                   </div>
                   {open?.version === revision.version && (
-                    <pre className="mt-3 max-h-96 overflow-auto whitespace-pre-wrap break-words rounded-md bg-muted p-3 font-sans text-sm leading-7">
+                    <pre className="mt-3 max-h-96 overflow-auto whitespace-pre-wrap break-words rounded-sm bg-sunken p-3 font-sans text-sm leading-7">
                       {open.body}
                     </pre>
                   )}

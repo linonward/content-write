@@ -7,18 +7,13 @@ export default function IdeasPage() {
   return (
     <main className={ui.shell}>
       <AppHeader />
-      <section className="pt-20 pb-12 max-[680px]:pt-[70px]">
+      <section className={ui.pageIntro}>
         <p className={ui.stage}>选题</p>
-        <h1 className="text-[clamp(36px,5vw,54px)] leading-[1.18] tracking-[-0.04em]">
-          从素材找到下一篇。
-        </h1>
-        <p className="mt-[18px] max-w-[680px] text-base leading-[1.8] text-muted-foreground">
+        <h1 className={ui.pageTitle}>从素材找到下一篇。</h1>
+        <p className={ui.lead}>
           选择 1～10 条已整理素材，主动生成有来源和证据缺口的选题。
         </p>
-        <Link
-          href="/inbox"
-          className="mt-4 inline-block text-sm text-primary underline"
-        >
+        <Link href="/inbox" className={ui.textLink}>
           返回素材箱
         </Link>
       </section>

@@ -12,7 +12,7 @@ export default async function HomePage() {
   return (
     <main className={ui.shell}>
       <AppHeader />
-      <section className="max-w-[760px] pt-[110px] pb-[100px] max-[680px]:pt-20 max-[680px]:pb-[70px]">
+      <section className="flex max-w-paper flex-col gap-2 pt-16 pb-12 max-md:pt-12 max-md:pb-8">
         <p className={ui.stage}>写作空间</p>
         <h1 className={ui.heroTitle}>你好，{session.user.name}。</h1>
         <p className={ui.lead}>
@@ -20,44 +20,47 @@ export default async function HomePage() {
         </p>
       </section>
       <section
-        className="flex items-center justify-between gap-6 border-y py-7 max-[680px]:flex-col max-[680px]:items-start"
+        className="flex items-center justify-between gap-6 border-y py-6 max-md:flex-col max-md:items-start"
         aria-labelledby="account-heading"
       >
         <div>
-          <h2 id="account-heading" className="mb-2 text-xl">
+          <h2 id="account-heading" className="pb-1 text-title-section">
             当前账号
           </h2>
-          <p className="text-sm text-muted-foreground">{session.user.email}</p>
+          <p className="text-body text-ink-2">{session.user.email}</p>
         </div>
         {isAdmin ? (
           <Link
-            className={buttonVariants({ variant: "outline" })}
+            className={buttonVariants({ variant: "secondary" })}
             href="/admin/users"
           >
             创建受邀账号
           </Link>
         ) : (
-          <Badge variant="secondary">受邀作者</Badge>
+          <Badge variant="muted">受邀作者</Badge>
         )}
       </section>
-      <p className="mt-[22px]">
-        <Link className={buttonVariants({ variant: "outline" })} href="/inbox">
+      <p className="flex flex-wrap gap-3 pt-6">
+        <Link
+          className={buttonVariants({ variant: "secondary" })}
+          href="/inbox"
+        >
           打开素材箱
         </Link>
         <Link
-          className={`${buttonVariants({ variant: "outline" })} ml-3`}
+          className={buttonVariants({ variant: "secondary" })}
           href="/ideas"
         >
           从素材找选题
         </Link>
         <Link
-          className={`${buttonVariants({ variant: "outline" })} ml-3`}
+          className={buttonVariants({ variant: "secondary" })}
           href="/articles"
         >
           查看文章大纲
         </Link>
       </p>
-      <p className="mt-[22px] text-sm text-muted-foreground">
+      <p className="pt-6 text-body text-ink-2">
         选题和大纲需要作者主动生成；初稿生成将在后续开放。打开首页不会自动调用模型。
       </p>
     </main>

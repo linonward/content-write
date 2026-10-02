@@ -1,16 +1,21 @@
+// 页面级共享类名，只引用设计 token（docs/design-system.md）。
+// 应用外壳（T034）落地后，页面标题移入顶栏，pageIntro 一组随之替换。
 export const ui = {
   shell:
-    "mx-auto min-h-screen max-w-[1020px] px-10 pt-[42px] pb-[70px] max-[680px]:px-[22px] max-[680px]:pt-6 max-[680px]:pb-[50px]",
+    "mx-auto min-h-screen w-full max-w-workspace px-8 pt-8 pb-16 max-md:px-4 max-md:pt-6",
   wideShell:
-    "mx-auto min-h-screen max-w-[1320px] px-10 pt-[42px] pb-[70px] max-[680px]:px-[22px] max-[680px]:pt-6 max-[680px]:pb-[50px]",
+    "mx-auto min-h-screen w-full max-w-workspace px-8 pt-8 pb-16 max-md:px-4 max-md:pt-6",
   narrowShell:
-    "mx-auto min-h-screen max-w-[660px] px-10 pt-[42px] pb-[70px] max-[680px]:px-[22px] max-[680px]:pt-6 max-[680px]:pb-[50px]",
-  header: "flex items-center gap-3.5 text-[15px] font-bold tracking-[0.03em]",
-  brand: "inline-flex items-center gap-3.5 no-underline",
-  mark: "inline-flex size-9 items-center justify-center rounded-[10px] bg-primary text-[19px] text-white",
-  stage: "mb-6 text-sm font-bold text-primary",
-  heroTitle: "text-[clamp(38px,6vw,66px)] leading-[1.18] tracking-[-0.04em]",
-  formTitle: "text-[clamp(34px,5vw,50px)] leading-[1.18] tracking-[-0.04em]",
-  lead: "mt-7 max-w-[570px] text-lg leading-[1.8] text-muted-foreground max-[680px]:text-base",
-  formIntro: "pt-[90px] pb-[42px] max-[680px]:pt-[70px]",
+    "mx-auto min-h-screen w-full max-w-form px-8 pt-8 pb-16 max-md:px-4 max-md:pt-6",
+  header: "flex items-center gap-3 text-title-card",
+  brand: "inline-flex items-center gap-3 no-underline",
+  mark: "inline-flex size-8 items-center justify-center rounded-sm bg-accent font-serif text-title-section text-ink-inverse",
+  stage: "text-label text-accent",
+  pageIntro: "flex flex-col gap-2 pt-12 pb-8 max-md:pt-8",
+  pageTitle: "font-serif text-title-article text-ink",
+  heroTitle: "font-serif text-title-article text-ink",
+  formTitle: "font-serif text-title-article text-ink",
+  lead: "max-w-reading text-body text-ink-2",
+  formIntro: "flex flex-col gap-2 pt-16 pb-8 max-md:pt-12",
+  textLink: "text-label text-accent underline underline-offset-3",
 } as const;

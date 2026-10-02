@@ -60,7 +60,7 @@ export function MarkdownEditor({
   return (
     <div
       ref={host}
-      className="rounded-md border bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-ring/50"
+      className="rounded-sm border bg-canvas px-3 py-2 focus-within:ring-2 focus-within:ring-accent/20"
     />
   );
 }

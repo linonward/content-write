@@ -304,7 +304,7 @@ export function OutlineWorkspace({ id }: { id: string }) {
             {error}{" "}
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={() =>
                 void refresh()
                   .then(() => setError(""))
@@ -326,15 +326,15 @@ export function OutlineWorkspace({ id }: { id: string }) {
         </Alert>
       )}
       <div className="flex flex-wrap gap-2">
-        <Badge variant="secondary">版本 {article.version}</Badge>
-        <Badge variant="outline">
+        <Badge variant="muted">版本 {article.version}</Badge>
+        <Badge variant="neutral">
           {article.outlineConfirmedAt
             ? "大纲已确认"
             : article.outline
               ? "大纲待确认"
               : "尚无大纲"}
         </Badge>
-        <Badge variant="outline">
+        <Badge variant="neutral">
           {modeLabel(generationAvailable ? aiMode : null)}
         </Badge>
         {article.framework && (
@@ -382,12 +382,12 @@ export function OutlineWorkspace({ id }: { id: string }) {
               }
             />
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-ink-2">
             修改 brief 并保存会清除原大纲与确认状态。
           </p>
           <Button
             type="button"
-            variant="outline"
+            variant="secondary"
             disabled={!briefDirty || pending || Boolean(jobId)}
             onClick={() => void saveBrief()}
           >
@@ -409,28 +409,23 @@ export function OutlineWorkspace({ id }: { id: string }) {
           )}
           {article.sources.length ? (
             article.sources.map((source) => (
-              <div key={source.materialId} className="rounded-md border p-3">
+              <div key={source.materialId} className="rounded-sm border p-3">
                 <strong>{source.title ?? "已删除素材"}</strong>{" "}
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-ink-2">
                   版本 {source.materialVersion}
                 </span>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-sm text-ink-2">
                   {source.summary ?? "来源分析已失效"}
                 </p>
                 {source.evidenceSpans.map((span) => (
-                  <p
-                    key={span.id}
-                    className="mt-1 text-xs text-muted-foreground"
-                  >
+                  <p key={span.id} className="mt-1 text-xs text-ink-2">
                     片段 {span.id}：{span.quote}
                   </p>
                 ))}
               </div>
             ))
           ) : (
-            <p className="text-sm text-muted-foreground">
-              来源已删除，无法生成大纲。
-            </p>
+            <p className="text-sm text-ink-2">来源已删除，无法生成大纲。</p>
           )}
         </CardContent>
       </Card>
@@ -454,7 +449,7 @@ export function OutlineWorkspace({ id }: { id: string }) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-ink-2">
             {generationAvailable
               ? `${modeNote(aiMode)}片段关联是写作线索，事实仍需作者核对。`
               : "当前未配置可用的生成服务；仍可手动编辑大纲。"}
@@ -522,22 +517,19 @@ export function OutlineWorkspace({ id }: { id: string }) {
               <div
                 key={sectionKeys[index]}
                 className={cn(
-                  "space-y-3 rounded-lg border p-4",
-                  gap && "border-amber-300 bg-amber-50/60",
+                  "space-y-3 rounded-sm border p-4",
+                  gap && "border-evidence bg-evidence-soft",
                 )}
               >
                 <div className="flex items-center justify-between gap-3">
                   <h3 className="flex flex-wrap items-center gap-2 font-medium">
                     第 {index + 1} 节
                     {slot && (
-                      <Badge
-                        variant="outline"
-                        title={`手法：${slot.technique}`}
-                      >
+                      <Badge variant="accent" title={`手法：${slot.technique}`}>
                         槽位 {slotIndex + 1} · {slot.name}
                       </Badge>
                     )}
-                    {gap && <Badge variant="destructive">缺少素材</Badge>}
+                    {gap && <Badge variant="evidence">缺少素材</Badge>}
                   </h3>
                   <Button
                     type="button"
@@ -630,7 +622,7 @@ export function OutlineWorkspace({ id }: { id: string }) {
             );
           })}
           {article.framework && (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-ink-2">
               证据只来自本文绑定的 {article.sourceCount}{" "}
               条素材；参考文章不会作为证据出现。
             </p>
@@ -638,7 +630,7 @@ export function OutlineWorkspace({ id }: { id: string }) {
           <div className="flex flex-wrap gap-3">
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               disabled={outline.sections.length >= 10 || pending}
               onClick={addSection}
             >
@@ -658,7 +650,7 @@ export function OutlineWorkspace({ id }: { id: string }) {
             </Button>
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               disabled={
                 pending ||
                 !article.outline ||
@@ -672,7 +664,7 @@ export function OutlineWorkspace({ id }: { id: string }) {
             </Button>
           </div>
           {outlineDirty && article.outline && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-ink-2">
               当前修改尚未保存；保存后可重新确认。
             </p>
           )}

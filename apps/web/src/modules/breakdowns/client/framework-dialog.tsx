@@ -160,7 +160,7 @@ export function FrameworkDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>用这个框架写</DialogTitle>
           <DialogDescription>
@@ -176,24 +176,24 @@ export function FrameworkDialog({
         <section aria-label="选择你的素材" className="grid gap-2">
           <div className="flex items-baseline justify-between text-sm">
             <h3 className="font-medium">选择你的素材</h3>
-            <span className="text-muted-foreground">
+            <span className="text-ink-2">
               已选 {chosen.length} / {MAX_MATERIALS}
             </span>
           </div>
           {materials === null ? (
-            <p className="text-sm text-muted-foreground">加载中…</p>
+            <p className="text-sm text-ink-2">加载中…</p>
           ) : materials.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-ink-2">
               还没有已整理的素材。先在素材箱保存并整理你自己的素材。
             </p>
           ) : (
-            <ul className="max-h-56 overflow-y-auto rounded-md border">
+            <ul className="max-h-56 overflow-y-auto rounded-sm border">
               {materials.map((material) => (
                 <li key={material.id} className="border-b last:border-b-0">
                   <label
                     className={cn(
                       "flex cursor-pointer items-start gap-3 px-3 py-2.5 text-sm",
-                      chosen.includes(material.id) && "bg-secondary",
+                      chosen.includes(material.id) && "bg-sunken",
                     )}
                   >
                     <input
@@ -210,7 +210,7 @@ export function FrameworkDialog({
                       <span className="truncate font-medium">
                         {material.title}
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-ink-2">
                         {kindLabels[material.kind] ?? material.kind} · 版本{" "}
                         {material.currentVersion} · 已整理
                       </span>
@@ -220,7 +220,7 @@ export function FrameworkDialog({
               ))}
             </ul>
           )}
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-ink-2">
             只列出当前版本已整理的素材；参考文章不能作为素材。
           </p>
         </section>
@@ -262,7 +262,7 @@ export function FrameworkDialog({
         <DialogFooter>
           <Button
             type="button"
-            variant="outline"
+            variant="secondary"
             onClick={() => onOpenChange(false)}
           >
             取消

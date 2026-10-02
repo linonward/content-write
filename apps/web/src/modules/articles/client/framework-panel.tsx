@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SelectField } from "@/components/ui/select";
 import { request } from "./request";
 
 export type Framework = {
@@ -30,17 +31,14 @@ export function FrameworkTag({
     .join("\n");
   return referenceArticleId ? (
     <Badge
-      variant="secondary"
+      variant="muted"
       title={slots}
       render={<Link href={`/breakdowns?id=${referenceArticleId}`} />}
     >
       {label}
     </Badge>
   ) : (
-    <Badge
-      variant="secondary"
-      title={`${slots}\n参考文章已删除，框架结构仍保留。`}
-    >
+    <Badge variant="muted" title={`${slots}\n参考文章已删除，框架结构仍保留。`}>
       {label}
     </Badge>
   );
@@ -93,6 +91,21 @@ export function FrameworkPicker({
   }, []);
   useEffect(() => setChoice(current), [current]);
 
+  const options = [
+    { value: "", label: "不使用框架" },
+    ...(current === KEPT
+      ? [{ value: KEPT, label: "当前框架（参考文章已删除）" }]
+      : []),
+    ...(breakdownId &&
+    !choices?.some((item) => item.breakdownId === breakdownId)
+      ? [{ value: breakdownId, label: "当前框架（旧版本拆解）" }]
+      : []),
+    ...(choices ?? []).map((item) => ({
+      value: item.breakdownId ?? "",
+      label: item.title,
+    })),
+  ];
+
   async function apply() {
     setPending(true);
     try {
@@ -121,41 +134,28 @@ export function FrameworkPicker({
         <CardTitle>写作框架</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-ink-2">
           可以借用一篇已拆解文章的结构，大纲会按它的段落槽位生成；论据仍只来自本文的素材。
         </p>
         {choices !== null && choices.length === 0 && !hasFramework ? (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-ink-2">
             还没有拆解结果。
-            <Link href="/breakdowns" className="text-primary underline">
+            <Link href="/breakdowns" className="text-accent underline">
               先去拆解一篇
             </Link>
           </p>
         ) : (
           <div className="flex flex-wrap items-center gap-3">
-            <select
+            <SelectField
               aria-label="选择框架"
-              className="h-9 min-w-0 max-w-full rounded-md border bg-background px-2 text-sm"
+              className="w-auto max-w-full min-w-48"
+              options={options}
               value={choice}
-              onChange={(event) => setChoice(event.target.value)}
-            >
-              <option value="">不使用框架</option>
-              {current === KEPT && (
-                <option value={KEPT}>当前框架（参考文章已删除）</option>
-              )}
-              {breakdownId &&
-                !choices?.some((item) => item.breakdownId === breakdownId) && (
-                  <option value={breakdownId}>当前框架（旧版本拆解）</option>
-                )}
-              {choices?.map((item) => (
-                <option key={item.id} value={item.breakdownId ?? ""}>
-                  {item.title}
-                </option>
-              ))}
-            </select>
+              onValueChange={setChoice}
+            />
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               disabled={disabled || pending || choice === current}
               onClick={() => void apply()}
             >
@@ -164,7 +164,7 @@ export function FrameworkPicker({
           </div>
         )}
         {hasOutline && (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-ink-2">
             更换或取消框架会清除当前大纲及确认状态。
           </p>
         )}

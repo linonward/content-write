@@ -4,11 +4,20 @@
  * apps/api/src/modules/article-export/render.ts carries the same look for the
  * HTML export.
  */
+.title {
+  padding-bottom: 24px;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-ink);
+}
+
 .content {
-  font-family: "Noto Serif SC", "Songti SC", serif;
+  font-family: var(--font-serif);
   font-size: 16px;
   line-height: 1.85;
-  color: #1b2a27;
+  color: var(--color-ink);
   overflow-wrap: anywhere;
 }
 
@@ -23,7 +32,7 @@
 .content h5,
 .content h6 {
   margin-top: 28px;
-  font-family: "Noto Sans SC", "PingFang SC", sans-serif;
+  font-family: var(--font-sans);
   font-size: 17px;
   font-weight: 600;
   line-height: 1.5;
@@ -55,9 +64,9 @@
 }
 
 .content blockquote {
-  border-left: 3px solid #89938d;
+  border-left: 3px solid var(--color-line-strong);
   padding: 4px 0 4px 12px;
-  color: #56645f;
+  color: var(--color-ink-2);
   font-size: 15px;
   line-height: 1.8;
 }
@@ -66,31 +75,31 @@
   overflow-x: auto;
   padding: 12px;
   border-radius: 6px;
-  background: #f4f2ec;
+  background: var(--color-sunken);
   font-size: 13px;
   line-height: 1.6;
 }
 
 .content code {
-  font-family: ui-monospace, Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: 0.9em;
 }
 
 .content hr {
   margin: 28px 0;
   border: 0;
-  border-top: 1px solid #dad8cf;
+  border-top: 1px solid var(--color-line);
 }
 
 .content a {
-  color: #174a42;
+  color: var(--color-accent);
   text-decoration: underline;
 }
 
 /* Class names come from the API HTML, so match them by attribute, not as module classes. */
 .content [class~="image-link"],
 .content [class~="image-placeholder"] {
-  color: #56645f;
+  color: var(--color-ink-2);
 }
 
 .content strong {
