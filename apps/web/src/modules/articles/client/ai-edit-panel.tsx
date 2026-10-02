@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { StatusPill } from "@/components/ui/status-pill";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { type AiMode, modeLabel, modeNote } from "@/modules/ai/client/ai-mode";
@@ -34,36 +35,29 @@ const PRESETS = ["更精简", "更口语", "更有条理", "补上过渡"];
 
 function Diff({ before, after }: { before: string; after: string }) {
   const parts = editDiff(before, after);
+  const block =
+    "whitespace-pre-wrap break-words rounded-sm bg-sunken p-3 font-sans text-body";
   if (!parts)
     return (
-      <div className="space-y-2 text-sm">
-        <p className="text-xs text-muted-foreground">
-          改动较大，分别显示原文与建议。
-        </p>
-        <pre className="whitespace-pre-wrap break-words rounded-md bg-muted p-3 font-sans leading-7 line-through decoration-destructive/60">
-          {before}
-        </pre>
-        <pre className="whitespace-pre-wrap break-words rounded-md bg-muted p-3 font-sans leading-7">
-          {after}
-        </pre>
+      <div className="space-y-2">
+        <p className="text-meta text-ink-2">改动较大，分别显示原文与建议。</p>
+        <pre className={cn(block, "text-ink-2 line-through")}>{before}</pre>
+        <pre className={block}>{after}</pre>
       </div>
     );
   return (
-    <pre className="whitespace-pre-wrap break-words rounded-md bg-muted p-3 font-sans text-sm leading-7">
+    <pre className={block}>
       {parts.map((part) =>
         part.kind === "same" ? (
           <span key={part.key}>{part.text}</span>
         ) : part.kind === "removed" ? (
-          <del
-            key={part.key}
-            className="bg-destructive/15 text-destructive decoration-destructive/70"
-          >
+          <del key={part.key} className="bg-danger-soft text-danger">
             {part.text}
           </del>
         ) : (
           <ins
             key={part.key}
-            className="bg-primary/15 text-primary no-underline"
+            className="bg-accent-soft text-accent no-underline"
           >
             {part.text}
           </ins>
@@ -72,6 +66,9 @@ function Diff({ before, after }: { before: string; after: string }) {
     </pre>
   );
 }
+
+const modeBadge = (mode: string | null) =>
+  mode === "mock" ? "mock" : "neutral";
 
 /**
  * Asks for an AI rewrite of the selection (or, when chosen, the whole body).
@@ -235,10 +232,13 @@ export function AiEditPanel({
     });
 
   return (
-    <aside className="space-y-4 rounded-lg border p-4" aria-label="AI 修改">
+    <aside
+      className="w-full shrink-0 space-y-4 rounded-md border border-line bg-surface p-4 lg:w-80"
+      aria-label="AI 修改"
+    >
       <div className="flex items-center justify-between gap-2">
-        <h3 className="font-medium">AI 修改</h3>
-        <Badge variant="outline">{modeLabel(aiMode)}</Badge>
+        <h3 className="text-title-card">AI 修改</h3>
+        <Badge variant={modeBadge(aiMode)}>{modeLabel(aiMode)}</Badge>
       </div>
       {error && (
         <Alert variant="destructive">
@@ -250,20 +250,18 @@ export function AiEditPanel({
           <AlertDescription>{notice}</AlertDescription>
         </Alert>
       )}
-      <p className="text-xs text-muted-foreground">
+      <p className="text-meta text-ink-2">
         {unavailable ??
           `${modeNote(aiMode)}建议先作为候选显示，应用前不会改动正文。`}
       </p>
-      <fieldset className="grid grid-cols-2 gap-1 rounded-md bg-muted p-1">
+      <fieldset className="grid grid-cols-2 gap-1 rounded-sm bg-sunken p-1">
         <legend className="sr-only">修改范围</legend>
         {(["selection", "full"] as const).map((value) => (
           <label
             key={value}
             className={cn(
-              "cursor-pointer rounded px-2 py-1 text-center text-sm has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring/50",
-              scope === value
-                ? "bg-background shadow-sm"
-                : "text-muted-foreground",
+              "cursor-pointer rounded-xs px-2 py-1 text-center text-label has-focus-visible:outline-2 has-focus-visible:outline-accent",
+              scope === value ? "bg-surface text-ink" : "text-ink-2",
             )}
           >
             <input
@@ -278,7 +276,7 @@ export function AiEditPanel({
           </label>
         ))}
       </fieldset>
-      <p className="text-sm text-muted-foreground" aria-live="polite">
+      <p className="text-body text-ink-2" aria-live="polite">
         {selectionProblem ??
           `${scope === "full" ? "全文" : "已选"} ${selected.length.toLocaleString("zh-CN")} 字：「${selected.trim().slice(0, 40)}${selected.trim().length > 40 ? "…" : ""}」`}
       </p>
@@ -290,7 +288,7 @@ export function AiEditPanel({
               key={preset}
               type="button"
               size="sm"
-              variant="outline"
+              variant="secondary"
               onClick={() => setInstruction(preset)}
             >
               {preset}
@@ -321,32 +319,37 @@ export function AiEditPanel({
         {jobId ? "生成中…" : "生成修改建议"}
       </Button>
       {suggestions.map((suggestion) => (
-        <div key={suggestion.id} className="space-y-3 rounded-lg border p-3">
-          <div className="flex flex-wrap items-center gap-2 text-sm">
-            <span className="font-medium">
+        <section
+          key={suggestion.id}
+          className="space-y-3 border-t border-line pt-4"
+          aria-label={suggestion.scope === "full" ? "全文修改" : "选区修改"}
+        >
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-label text-ink">
               {suggestion.scope === "full" ? "全文修改" : "选区修改"}
             </span>
-            <span className="text-muted-foreground">
+            <span className="text-meta text-ink-2">
               {suggestion.instruction}
             </span>
-            <Badge variant="outline">{modeLabel(suggestion.mode)}</Badge>
+            <Badge variant={modeBadge(suggestion.mode)}>
+              {modeLabel(suggestion.mode)}
+            </Badge>
+            {suggestion.stale && <StatusPill tone="expired">已过期</StatusPill>}
           </div>
           {suggestion.stale && (
-            <Alert variant="destructive">
-              <AlertDescription>
-                正文已变化，这条建议已过期，不能应用。拒绝后可以重新选择生成。
-              </AlertDescription>
-            </Alert>
+            <p className="text-meta text-evidence-ink">
+              正文已变化，这条建议已过期，不能应用。拒绝后可以重新选择生成。
+            </p>
           )}
           <Diff
             before={suggestion.selectionText}
             after={suggestion.replacement}
           />
-          <p className="text-sm">{suggestion.explanation}</p>
+          <p className="text-body text-ink">{suggestion.explanation}</p>
           {suggestion.evidenceGaps.length > 0 && (
-            <div className="text-sm">
-              <h4 className="font-medium">待补证据</h4>
-              <ul className="mt-1 list-disc space-y-1 pl-5 text-muted-foreground">
+            <div className="space-y-1 rounded-sm bg-evidence-soft p-3">
+              <h4 className="text-label text-evidence-ink">待补证据</h4>
+              <ul className="list-disc space-y-1 pl-5 text-body text-ink">
                 {suggestion.evidenceGaps.map((gap) => (
                   <li key={gap}>{gap}</li>
                 ))}
@@ -357,6 +360,7 @@ export function AiEditPanel({
             <Button
               type="button"
               size="sm"
+              variant="secondary"
               disabled={pending || suggestion.stale || Boolean(blocked)}
               onClick={() => void apply(suggestion)}
             >
@@ -365,14 +369,14 @@ export function AiEditPanel({
             <Button
               type="button"
               size="sm"
-              variant="outline"
+              variant="ghost"
               disabled={pending}
               onClick={() => void reject(suggestion)}
             >
               拒绝
             </Button>
           </div>
-        </div>
+        </section>
       ))}
     </aside>
   );
