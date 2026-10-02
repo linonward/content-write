@@ -3,12 +3,14 @@ import { performance } from "node:perf_hooks";
 import { getPool } from "@content-write/db/client";
 import {
   generateAnalysis,
+  generateBreakdown,
   generateDraft,
   generateIdeas,
   generateOutline,
   type RunMeta,
 } from "./ai/generate";
 import { validateAnalysis } from "./analysis";
+import { completeBreakdownJob, loadBreakdownReference } from "./breakdown-jobs";
 import { completeDraftJob, loadDraftContext } from "./draft-jobs";
 import { describeFailure, TerminalJobError } from "./failures";
 import { completeIdeaJob, loadIdeaSources } from "./idea-jobs";
@@ -23,6 +25,8 @@ export type Claimed = {
   source_count: number;
   article_id: string | null;
   article_version: number | null;
+  reference_article_id: string | null;
+  reference_version: number | null;
   kind: string;
   claim_token: string;
   attempts: number;
@@ -48,7 +52,7 @@ export async function claimJob(): Promise<Claimed | null> {
        UPDATE ai_jobs j SET status = 'running', claim_token = $1, lease_until = now() + interval '30 seconds',
          attempts = attempts + 1, updated_at = now()
        FROM next_job WHERE j.id = next_job.id
-       RETURNING j.id, j.user_id, j.material_id, j.material_version, j.source_count, j.article_id, j.article_version, j.kind, j.claim_token, j.attempts`,
+       RETURNING j.id, j.user_id, j.material_id, j.material_version, j.source_count, j.article_id, j.article_version, j.reference_article_id, j.reference_version, j.kind, j.claim_token, j.attempts`,
       [randomUUID(), claimableKinds],
     );
     await client.query("COMMIT");
@@ -218,6 +222,19 @@ async function runDraft(job: Claimed, started: number) {
   await completeDraftJob(job, output, performance.now() - started, meta);
 }
 
+async function runBreakdown(job: Claimed, started: number) {
+  const reference = await loadBreakdownReference(job);
+  if (!reference) {
+    await staleJob(job);
+    return;
+  }
+  const { output, meta } = await generateBreakdown(
+    reference.title,
+    reference.content,
+  );
+  await completeBreakdownJob(job, output, performance.now() - started, meta);
+}
+
 // Every claimable kind has exactly one handler; claimJob only selects these kinds.
 const handlers: Record<
   string,
@@ -227,6 +244,7 @@ const handlers: Record<
   idea_generation: runIdeas,
   outline_generation: runOutline,
   draft_generation: runDraft,
+  reference_breakdown: runBreakdown,
 };
 export const claimableKinds = Object.keys(handlers);
 

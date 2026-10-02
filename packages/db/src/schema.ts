@@ -127,6 +127,12 @@ export const aiJobs = pgTable(
       onDelete: "cascade",
     }),
     articleVersion: integer("article_version"),
+    // Breakdown jobs go away with their reference article, so its text never reaches the worker again.
+    referenceArticleId: text("reference_article_id").references(
+      (): AnyPgColumn => referenceArticles.id,
+      { onDelete: "cascade" },
+    ),
+    referenceVersion: integer("reference_version"),
     sourceCount: integer("source_count").notNull().default(1),
     kind: text("kind").notNull(),
     status: text("status").notNull().default("queued"),
@@ -408,6 +414,116 @@ export const articleRevisions = pgTable(
     uniqueIndex("article_revisions_article_version_idx").on(
       table.articleId,
       table.version,
+    ),
+  ],
+);
+
+// Someone else's article, kept only for its owner's analysis (product 3.8).
+export const referenceArticles = pgTable(
+  "reference_articles",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    sourceUrl: text("source_url"),
+    fetchStatus: text("fetch_status"),
+    title: text("title").notNull(),
+    content: text("content").notNull(),
+    currentVersion: integer("current_version").notNull().default(1),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("reference_articles_user_updated_idx").on(
+      table.userId,
+      table.updatedAt,
+    ),
+  ],
+);
+
+export const referenceArticleRevisions = pgTable(
+  "reference_article_revisions",
+  {
+    id: text("id").primaryKey(),
+    referenceArticleId: text("reference_article_id")
+      .notNull()
+      .references(() => referenceArticles.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    version: integer("version").notNull(),
+    sourceUrl: text("source_url"),
+    fetchStatus: text("fetch_status"),
+    title: text("title").notNull(),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("reference_article_revisions_version_idx").on(
+      table.referenceArticleId,
+      table.version,
+    ),
+  ],
+);
+
+export type BreakdownSpan = {
+  id: string;
+  quote: string;
+  start: number;
+  end: number;
+};
+export type BreakdownMove = {
+  type: string;
+  technique: string;
+  spanIds: string[];
+};
+export type BreakdownResult = {
+  titlePattern: string;
+  audience: string;
+  hook: BreakdownMove;
+  slots: {
+    id: string;
+    name: string;
+    purpose: string;
+    technique: string;
+    spanIds: string[];
+  }[];
+  rhythm: string;
+  ending: BreakdownMove;
+  whyItWorks: string[];
+  limitations: string[];
+  spans: BreakdownSpan[];
+};
+
+// Structure extracted from one reference version; spans quote the original and stay on the breakdown page.
+export const breakdowns = pgTable(
+  "breakdowns",
+  {
+    id: text("id").primaryKey(),
+    referenceArticleId: text("reference_article_id")
+      .notNull()
+      .references(() => referenceArticles.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    referenceVersion: integer("reference_version").notNull(),
+    result: jsonb("result").$type<BreakdownResult>().notNull(),
+    mode: text("mode").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("breakdowns_reference_version_idx").on(
+      table.referenceArticleId,
+      table.referenceVersion,
     ),
   ],
 );
