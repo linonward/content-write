@@ -1,10 +1,10 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-02（T016 集成验收）
-已完成：27 / 35（T021 已取消）
-待合并：1
+更新时间：2026-10-02（T018 集成验收）
+已完成：28 / 35（T021 已取消）
+待合并：0
 阻塞：0
-当前任务：T018 record-publication（待合并，PR #62）
+当前任务：无
 下一项：T031 wechat-draft（需要公众号凭证与固定出口 IP）；T017 已完成，可开始 5 位作者付费意愿验证
 真实模型验收：T028 冒烟通过（DeepSeek，整理、选题、大纲、初稿各一次）；T029 拆解 10 篇真实文章评估 10/10 可用（`deepseek-flash`）
 线上验收：未开始
@@ -28,7 +28,7 @@
 | T015 | 添加、启停、删除历史文章并用于风格示例 | 已完成 | T014 | feat/T015-writing-samples | ../content-write-writing-samples（已清理） | daf051d | 1a9f354 | .ai/verifications/T015.md |
 | T016 | 候选记忆、确认、修改、禁用、删除和上下文版本 | 已完成 | T015 | feat/T016-confirmed-memory | ../content-write-confirmed-memory（已清理） | 21349be | 72b9f9a | .ai/verifications/T016.md |
 | T017 | 手机预览、安全渲染、Markdown 与 HTML 下载 | 已完成 | T011 | feat/T017-preview-export | 已清理 | b0cb9ef | 3d03285 | .ai/verifications/T017.md |
-| T018 | 记录手动发布链接、时间和文章版本 | 待合并 | T017 | feat/T018-record-publication | content-write-record-publication | 34bb49a、5877f87 | 无 | .ai/verifications/T018.md |
+| T018 | 记录手动发布链接、时间和文章版本 | 已完成 | T017 | feat/T018-record-publication | content-write-record-publication（已清理） | 34bb49a、5877f87 | fac8558 | .ai/verifications/T018.md |
 | T019 | 首页、初次引导、目标、聚合信息和页面响应式（外壳响应式见 T034） | 待开始 | T007、T009、T011、T014、T018 | feat/T019-home-onboarding | 未创建 | 无 | 无 | 无 |
 | T020 | 用户反馈、事件、去重、漏斗和隐私配置 | 待开始 | T013、T016、T018、T019 | feat/T020-feedback-and-funnel | 未创建 | 无 | 无 | 无 |
 | T021 | 真实模型接入、用量和完整真实生成链路 | 已取消（由 T028 取代） | 无 | 无 | 未创建 | 无 | 无 | .ai/plans/product-direction-2026-10.md |
@@ -180,3 +180,5 @@
 - 2026-10-02：T016 从 `a486af4` 完成记忆提取（`memory_extraction`）、候选证据、确认/修改/启停/删除与四类生成的记忆版本上下文；空库迁移 0000–0018、完整检查（worker 51/51、API 集成 77/77）与 Playwright 44/44 通过，均为 mock。实现 `21349be`，PR #64 待合并；任务服务/验证库已清理，保留 worktree。
 
 - 2026-10-02：PR #64（合入 T036 后的 `71734ee`，CI 两组通过）合并为 `72b9f9a`；独立空库主分支迁移 0000–0018、完整检查（API 集成 77/77）与 Playwright 46/46 通过，全部 mock。T016 已完成；服务、验证库已清理，任务 worktree 由合并时 gh 删除分支一并移除，不自动开始后续任务。
+
+- 2026-10-02 20:36 CST：PR #62（head `3bbd583`，CI 两组通过）合并为 `fac8558`；独立空库主分支迁移 0000–0019、完整检查（API 集成 82/82）与 Playwright 48/48 通过，全部 mock。T018 已完成；服务、验证库已清理，任务 worktree 由合并时 gh 删除分支一并移除，不自动开始后续任务。
