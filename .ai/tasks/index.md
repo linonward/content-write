@@ -1,10 +1,10 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-02（T037 链接抓取）
-已完成：28 / 36（T021 已取消）
-待合并：1（T037）
+更新时间：2026-10-02（T037 集成验收）
+已完成：29 / 36（T021 已取消）
+待合并：0
 阻塞：0
-当前任务：T037 link-fetch-quality（待合并）
+当前任务：无
 下一项：T031 wechat-draft（需要公众号凭证与固定出口 IP）；T017 已完成，可开始 5 位作者付费意愿验证
 真实模型验收：T028 冒烟通过（DeepSeek，整理、选题、大纲、初稿各一次）；T029 拆解 10 篇真实文章评估 10/10 可用（`deepseek-flash`）
 线上验收：未开始
@@ -47,13 +47,15 @@
 | T034 | 应用外壳：可折叠侧栏、账号菜单、顶栏、底部标签栏 | 已完成 | T032；T014 设置入口迁移 | feat/T034-app-shell | ../content-write-app-shell（已清理） | 259ebef | 54e22f4 | .ai/verifications/T034.md |
 | T035 | 一级页面重排：首页、拆解、素材箱、选题、文章列表 | 已完成 | T034 | feat/T035-primary-pages | ../content-write-primary-pages（已清理） | e790a9f | a6e45e8 | .ai/verifications/T035.md |
 | T036 | 深色 / 浅色主题：账号菜单切换、按设备记住、首屏不闪烁 | 已完成 | T032、T034 | feat/T036-color-theme | ../content-write-color-theme（收尾后清理） | 4ec9da9 | e971848 | .ai/verifications/T036.md |
-| T037 | 链接抓取可用：公众号与常见网站抓到干净正文，错误页判失败，失败直接打开粘贴框 | 待合并 | T005、T029 | feat/T037-link-fetch-quality | ../content-write-link-fetch | 21fe85b | 无 | .ai/verifications/T037.md |
+| T037 | 链接抓取可用：公众号与常见网站抓到干净正文，错误页判失败，失败直接打开粘贴框 | 已完成 | T005、T029 | feat/T037-link-fetch-quality | 已清理 | 21fe85b | 601ebd5 | .ai/verifications/T037.md |
 
 ## 当前阻塞
 
 暂无已确认阻塞。
 
 ## 最近更新
+
+- 2026-10-02 22:31 CST：PR #70（T037）CI 两组 verify 通过后按 head `8a2a505` squash 合并为 `601ebd5`，gh 合并时删除了任务 worktree。主分支独立空库迁移 0000–0019、完整检查（API 集成 82/82）与 Playwright 50/50 通过，全部 mock；真实网络冒烟 9/9（经本机代理）。验收库已删除。`REMOTE_FETCH_ENABLED` 仍默认关闭，待部署服务器复验后开启。
 
 - 2026-10-02 22:25 CST：T037（22:07 从 `1cf2117` 开始）评估发现打开抓取开关后不可用：公众号拒绝非浏览器 UA、页面超过 2 MiB，错误页与 JS 空壳会被存为“已抓取”。改为浏览器 UA、8 MiB 上限、公众号 `#js_content` 与 Readability 提取、正文质量检查；未抓到正文时直接打开粘贴框。真实网络冒烟 9/9（经本机代理，非机房 IP），独立空库完整检查（API 集成 82/82）与 Playwright 50/50 通过，mock。实现 `21fe85b`，PR #70 待合并；部署服务器复验后再开启 `REMOTE_FETCH_ENABLED`。
 
