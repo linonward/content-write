@@ -3,7 +3,8 @@ export type GenerationKind =
   | "material_analysis"
   | "idea_generation"
   | "outline_generation"
-  | "draft_generation";
+  | "draft_generation"
+  | "reference_breakdown";
 
 /** Configured generation mode; anything else means generation is unavailable. */
 export function aiMode(): AiMode | null {
@@ -44,6 +45,12 @@ export const kindSettings: Record<GenerationKind, KindSettings> = {
     thinking: { reasoning_effort: "low" },
     maxTokens: 8_000,
     repairMaxTokens: 16_000,
+  },
+  // Long reference articles and up to ten slots with quotes need more room than material analysis.
+  reference_breakdown: {
+    thinking: { reasoning_effort: "low" },
+    maxTokens: 12_000,
+    repairMaxTokens: 20_000,
   },
   draft_generation: {
     thinking: { thinking: { type: "disabled" } },

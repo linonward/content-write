@@ -75,8 +75,16 @@ T028 新增：
 - 生成类接口（`/api/materials/:id/process`、`/api/jobs/:id/retry`、`/api/ideas/generate`、`/api/articles/:id/outline/generate`、`/api/articles/:id/draft/generate`）在 DeepSeek 模式且本人未确认时返回 428 `AI_CONSENT_REQUIRED`。
 - 202 响应的 `mode`、可用性字段旁的 `aiMode`，以及选题、初稿结果的 `mode` 反映实际生成模式（`mock` 或 `deepseek`）。
 
+T029 新增（参考文章与拆解；全部需要会话，写操作需可信 Origin，跨用户与不存在均 404 `REFERENCE_NOT_FOUND`）：
+
+- `GET /api/breakdowns`：本人最近 100 篇参考文章（`hasMore` 表示更多），含 `id`、`title`、`sourceUrl`、`fetchStatus`、`currentVersion`、`contentLength`、`status`（当前版本的 `unprocessed` / `processing` / `failed` / `done`）、时间，不含正文。
+- `POST /api/breakdowns`：二选一。粘贴正文 `{content, title?}`（标题留空取正文第一行，正文最多 50,000 字，超出 413 `REFERENCE_TOO_LARGE`）；或链接 `{url, fetch?}`，地址规则与抓取开关、每小时 10 次限流同 T005（`INVALID_LINK` 422、`LINK_FETCH_LIMIT` 429），抓取关闭或失败仍保存链接，正文为空，返回的 `fetchStatus` 为 `disabled` 或 `failed`。成功 201 `{id}`。
+- `GET /api/breakdowns/:id`：`reference`（含正文与 `status`）、当前版本的 `breakdown`（`referenceVersion`、`result`、`mode`、`createdAt`）、当前版本最近的 `latestJob`、`processingAvailable`、`aiMode`。
+- `PATCH /api/breakdowns/:id`：`{expectedVersion, title, content}` 保存新版本并写 `reference_article_revisions`，链接来源的 `fetchStatus` 变为 `manual`；返回 `{version}`。版本冲突 409 `REFERENCE_VERSION_CONFLICT`。旧拆解仍绑定旧版本，当前版本需重新拆解。
+- `DELETE /api/breakdowns/:id`：204。原文、修订、拆解结果与该文章的拆解任务一并删除（外键级联）；`ai_runs` 保留用量，`job_id` 置空。
+- `POST /api/breakdowns/:id/process`：Idempotency-Key 与 `{expectedVersion}`，DeepSeek 模式需确认（428）。202 `{jobId, status, mode}`，用 `/api/jobs/:id` 轮询，计入每日额度与并发。同键同输入返回同任务，同键不同版本 409 `IDEMPOTENCY_CONFLICT`；版本不是当前 409 `REFERENCE_VERSION_CONFLICT`；正文为空 422 `REFERENCE_CONTENT_REQUIRED`；当前版本已有结果 409 `ALREADY_BROKEN_DOWN`；已有进行中任务 409 `BREAKDOWN_JOB_ACTIVE`；额度 429，未配置 503。失败任务通过再次调用本接口重新拆解（`/api/jobs/:id/retry` 仍只用于素材整理）。
+
 2026-10-02 规划（尚未实现，接口在对应任务完成后才算可用）：
 
-- T029：`GET/POST /api/breakdowns`、`GET/PATCH/DELETE /api/breakdowns/:id`、`POST /api/breakdowns/:id/process`（202 与 jobId，复用 `/api/jobs/:id` 轮询与额度）。
 - T030：`POST /api/articles` 增加可选 `breakdownId` 与 `materials`（1～10 条本人已整理素材版本）；大纲生成在文章绑定框架时按槽位进行。
 - T031：`POST /api/articles/:id/wechat-draft`（携带 `expectedVersion` 与 Idempotency-Key，只创建草稿）、`GET /api/articles/:id/wechat-draft`（推送记录与确认状态）；未配置公众号返回 503。

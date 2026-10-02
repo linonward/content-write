@@ -2,8 +2,8 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { ui } from "@/lib/styles";
-import { LogoutButton } from "@/modules/identity/client/logout-button";
 import { requireSession } from "@/modules/identity/server/session";
+import { AppHeader } from "@/modules/shell/client/app-header";
 
 export default async function HomePage() {
   const session = await requireSession();
@@ -11,13 +11,7 @@ export default async function HomePage() {
 
   return (
     <main className={ui.shell}>
-      <header className={`${ui.header} justify-between`}>
-        <Link className={ui.brand} href="/home">
-          <span className={ui.mark}>拆</span>
-          <span>拆写</span>
-        </Link>
-        <LogoutButton />
-      </header>
+      <AppHeader />
       <section className="max-w-[760px] pt-[110px] pb-[100px] max-[680px]:pt-20 max-[680px]:pb-[70px]">
         <p className={ui.stage}>写作空间</p>
         <h1 className={ui.heroTitle}>你好，{session.user.name}。</h1>

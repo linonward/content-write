@@ -1,8 +1,14 @@
+import type { BreakdownResult } from "@content-write/db/schema";
 import {
   createMockAnalysis,
   type MaterialAnalysis,
   validateAnalysis,
 } from "../analysis";
+import {
+  createMockBreakdown,
+  locateBreakdown,
+  validateBreakdown,
+} from "../breakdown";
 import {
   createMockDraft,
   type Draft,
@@ -32,6 +38,7 @@ import {
 } from "./deepseek";
 import {
   analysisMessages,
+  breakdownMessages,
   draftMessages,
   ideasMessages,
   outlineMessages,
@@ -171,6 +178,27 @@ export async function generateDraft(
     "draft_generation",
     draftMessages(context),
     (value) => asParse(validateDraft(value, context.sources)),
+    deps,
+  );
+  return { output: data, meta: { mode, usage } };
+}
+
+export async function generateBreakdown(
+  title: string,
+  content: string,
+  deps?: DeepSeekDeps,
+): Promise<Generated<BreakdownResult>> {
+  const mode = requireMode();
+  if (mode === "mock")
+    return {
+      output: createMockBreakdown(content),
+      meta: { mode, usage: null },
+    };
+  const { data, usage } = await generateJson(
+    "reference_breakdown",
+    breakdownMessages(title, content),
+    (value) =>
+      asParse(validateBreakdown(content, locateBreakdown(content, value))),
     deps,
   );
   return { output: data, meta: { mode, usage } };

@@ -1,12 +1,12 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-02 09:46 CST
+更新时间：2026-10-02 10:33 CST
 已完成：15 / 30（T021 已取消）
-待合并：0
+待合并：1
 阻塞：0
-当前任务：无
-下一项：T029 reference-breakdown
-真实模型验收：T028 冒烟通过（DeepSeek，整理、选题、大纲、初稿各一次）；质量评估待 T029
+当前任务：T029 reference-breakdown（待合并）
+下一项：T030 framework-outline（T029 合并并完成集成验收后）
+真实模型验收：T028 冒烟通过（DeepSeek，整理、选题、大纲、初稿各一次）；T029 拆解 10 篇真实文章评估 10/10 可用（`deepseek-flash`）
 线上验收：未开始
 
 | ID | 用户结果 | 状态 | 依赖 | 分支 | worktree | 实现 SHA | 合并 SHA | 证据 |
@@ -39,7 +39,7 @@
 | T026 | 任务额度账本、用量保留、任务类型隔离、API 共享辅助与 worker 失败分类 | 已完成 | T009 | chore/T026-ai-jobs-hardening | 已清理 | 260960e | bf5100c | .ai/verifications/T026.md |
 | T027 | API 按 route/service/repository 分层，数据访问收敛到 Drizzle；用户行为不变 | T027a 已完成；b/c 待开始 | T026；T027a 先于 T010 | refactor/T027a-articles-layering | 已清理 | 11180c1 | d6acd92 | .ai/verifications/T027.md |
 | T028 | DeepSeek 真实模型接入，现有整理、选题、大纲、初稿真实调用与用量记录 | 已完成 | T026；凭证 | feat/T028-deepseek-provider | 已清理 | a9edb1d | 956bcf9 | .ai/verifications/T028.md |
-| T029 | 参考文章与拆解：保存与抓取、拆解任务、`/breakdowns`、删除清除、10 篇质量评估 | 待开始 | T028；新方向设计更新 | feat/T029-reference-breakdown | 未创建 | 无 | 无 | 无 |
+| T029 | 参考文章与拆解：保存与抓取、拆解任务、`/breakdowns`、删除清除、10 篇质量评估 | 待合并 | T028；新方向设计更新 | feat/T029-reference-breakdown | content-write-reference-breakdown | 6448e19 | 无 | .ai/verifications/T029.md |
 | T030 | 按框架写：用框架创建文章、槽位大纲、框架标签、参考文章不作证据 | 待开始 | T029 | feat/T030-framework-outline | 未创建 | 无 | 无 | 无 |
 | T031 | 本人公众号草稿箱：只创建草稿、结果待确认、版本落后提示 | 待开始 | T017；公众号凭证与固定出口 IP | feat/T031-wechat-draft | 未创建 | 无 | 无 | 无 |
 
@@ -48,6 +48,8 @@
 暂无已确认阻塞。
 
 ## 最近更新
+
+- 2026-10-02 10:33 CST：T029 从 `015d4fa` 实现参考文章与拆解（迁移 0013、`/api/breakdowns`、`reference_breakdown` 任务、`/breakdowns` 页面与共享主导航）。独立空库迁移与完整检查通过（API 集成 46/46），Playwright 8/8；DeepSeek `deepseek-flash` 对 10 篇公开平台热门文章评估 4 轮，修复标题未发送、缺片段、列表超限与描述引用原文后最终 10/10 可用，未切换 v4-pro。等待 PR。
 
 - 2026-10-02 09:46 CST：PR #37 合并为 `956bcf9`（同时 #38 新方向设计更新合并为 `9d90e56`）；主分支独立 PostgreSQL 空库迁移 0000–0012、完整检查（API 集成 40/40）、Playwright 6/6 与 DeepSeek 真实冒烟通过。验证数据库与 T028 worktree 已清理。T029 可以开始。
 

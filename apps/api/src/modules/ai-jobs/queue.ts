@@ -8,7 +8,8 @@ export type JobKind =
   | "material_analysis"
   | "idea_generation"
   | "outline_generation"
-  | "draft_generation";
+  | "draft_generation"
+  | "reference_breakdown";
 
 export type NewJob = {
   kind: JobKind;
@@ -20,6 +21,8 @@ export type NewJob = {
   materialVersion?: number;
   articleId?: string;
   articleVersion?: number;
+  referenceArticleId?: string;
+  referenceVersion?: number;
 };
 
 const shanghaiToday = sql<string>`(now() AT TIME ZONE 'Asia/Shanghai')::date`;
@@ -115,6 +118,8 @@ export async function enqueueJob(db: Executor, job: NewJob) {
     materialVersion: job.materialVersion ?? null,
     articleId: job.articleId ?? null,
     articleVersion: job.articleVersion ?? null,
+    referenceArticleId: job.referenceArticleId ?? null,
+    referenceVersion: job.referenceVersion ?? null,
     deadlineAt: sql`now() + interval '5 minutes'`,
   });
   return { status: "created" as const, jobId };

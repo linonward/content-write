@@ -1,6 +1,8 @@
 export const ui = {
   shell:
     "mx-auto min-h-screen max-w-[1020px] px-10 pt-[42px] pb-[70px] max-[680px]:px-[22px] max-[680px]:pt-6 max-[680px]:pb-[50px]",
+  wideShell:
+    "mx-auto min-h-screen max-w-[1320px] px-10 pt-[42px] pb-[70px] max-[680px]:px-[22px] max-[680px]:pt-6 max-[680px]:pb-[50px]",
   narrowShell:
     "mx-auto min-h-screen max-w-[660px] px-10 pt-[42px] pb-[70px] max-[680px]:px-[22px] max-[680px]:pt-6 max-[680px]:pb-[50px]",
   header: "flex items-center gap-3.5 text-[15px] font-bold tracking-[0.03em]",
