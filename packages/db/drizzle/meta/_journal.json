@@ -134,6 +134,13 @@
       "when": 1790931385112,
       "tag": "0018_safe_captain_flint",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1790935538290,
+      "tag": "0019_medical_salo",
+      "breakpoints": true
     }
   ]
 }
