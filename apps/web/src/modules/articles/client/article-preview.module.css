@@ -1,0 +1,102 @@
+/*
+ * Phone preview of the sanitized article HTML (product 3.5). The API renders
+ * the fragment; these rules only style the elements its allow-list permits.
+ * apps/api/src/modules/article-export/render.ts carries the same look for the
+ * HTML export.
+ */
+.content {
+  font-family: "Noto Serif SC", "Songti SC", serif;
+  font-size: 16px;
+  line-height: 1.85;
+  color: #1b2a27;
+  overflow-wrap: anywhere;
+}
+
+.content > * + * {
+  margin-top: 16px;
+}
+
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6 {
+  margin-top: 28px;
+  font-family: "Noto Sans SC", "PingFang SC", sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.content h1 {
+  font-size: 19px;
+}
+
+.content > :first-child {
+  margin-top: 0;
+}
+
+.content ul,
+.content ol {
+  padding-left: 1.4em;
+}
+
+.content ul {
+  list-style: disc;
+}
+
+.content ol {
+  list-style: decimal;
+}
+
+.content li + li {
+  margin-top: 4px;
+}
+
+.content blockquote {
+  border-left: 3px solid #89938d;
+  padding: 4px 0 4px 12px;
+  color: #56645f;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.content pre {
+  overflow-x: auto;
+  padding: 12px;
+  border-radius: 6px;
+  background: #f4f2ec;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.content code {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 0.9em;
+}
+
+.content hr {
+  margin: 28px 0;
+  border: 0;
+  border-top: 1px solid #dad8cf;
+}
+
+.content a {
+  color: #174a42;
+  text-decoration: underline;
+}
+
+/* Class names come from the API HTML, so match them by attribute, not as module classes. */
+.content [class~="image-link"],
+.content [class~="image-placeholder"] {
+  color: #56645f;
+}
+
+.content strong {
+  font-weight: 600;
+}
+
+.content em {
+  font-style: italic;
+}

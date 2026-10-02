@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
 import { ui } from "@/lib/styles";
+import { cn } from "@/lib/utils";
 import { OutlineWorkspace } from "@/modules/articles/client/outline-workspace";
 import { AppHeader } from "@/modules/shell/client/app-header";
 
@@ -20,6 +22,12 @@ export default async function ArticlePage({
           className="mt-4 inline-block text-sm text-primary underline"
         >
           返回文章列表
+        </Link>
+        <Link
+          href={`/articles/${id}/preview`}
+          className={cn(buttonVariants({ variant: "outline" }), "mt-4 ml-4")}
+        >
+          预览
         </Link>
       </section>
       <OutlineWorkspace id={id} />
