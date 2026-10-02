@@ -2,9 +2,9 @@
 
 更新时间：2026-10-02（T016 集成验收）
 已完成：27 / 35（T021 已取消）
-待合并：0
+待合并：1
 阻塞：0
-当前任务：无
+当前任务：T018 record-publication（待合并，PR #62）
 下一项：T031 wechat-draft（需要公众号凭证与固定出口 IP）；T017 已完成，可开始 5 位作者付费意愿验证
 真实模型验收：T028 冒烟通过（DeepSeek，整理、选题、大纲、初稿各一次）；T029 拆解 10 篇真实文章评估 10/10 可用（`deepseek-flash`）
 线上验收：未开始
@@ -28,7 +28,7 @@
 | T015 | 添加、启停、删除历史文章并用于风格示例 | 已完成 | T014 | feat/T015-writing-samples | ../content-write-writing-samples（已清理） | daf051d | 1a9f354 | .ai/verifications/T015.md |
 | T016 | 候选记忆、确认、修改、禁用、删除和上下文版本 | 已完成 | T015 | feat/T016-confirmed-memory | ../content-write-confirmed-memory（已清理） | 21349be | 72b9f9a | .ai/verifications/T016.md |
 | T017 | 手机预览、安全渲染、Markdown 与 HTML 下载 | 已完成 | T011 | feat/T017-preview-export | 已清理 | b0cb9ef | 3d03285 | .ai/verifications/T017.md |
-| T018 | 记录手动发布链接、时间和文章版本 | 待开始 | T017 | feat/T018-record-publication | 未创建 | 无 | 无 | 无 |
+| T018 | 记录手动发布链接、时间和文章版本 | 待合并 | T017 | feat/T018-record-publication | content-write-record-publication | 34bb49a、5877f87 | 无 | .ai/verifications/T018.md |
 | T019 | 首页、初次引导、目标、聚合信息和页面响应式（外壳响应式见 T034） | 待开始 | T007、T009、T011、T014、T018 | feat/T019-home-onboarding | 未创建 | 无 | 无 | 无 |
 | T020 | 用户反馈、事件、去重、漏斗和隐私配置 | 待开始 | T013、T016、T018、T019 | feat/T020-feedback-and-funnel | 未创建 | 无 | 无 | 无 |
 | T021 | 真实模型接入、用量和完整真实生成链路 | 已取消（由 T028 取代） | 无 | 无 | 未创建 | 无 | 无 | .ai/plans/product-direction-2026-10.md |
@@ -53,6 +53,8 @@
 暂无已确认阻塞。
 
 ## 最近更新
+
+- 2026-10-02 18:10 CST：T018（16:55 从 `a486af4` 开始）实现记录手动发布：`publish_records`、`publish-records` API 模块、`/articles/:id/publish` 页面与入口；PR #62。期间主分支合并 T036、T016 及其收尾（T016 占用迁移 0018），分支 rebase 到 `06b79b7`，迁移重新生成为 0019（`5877f87`，内容不变）。在 `72b9f9a` 上重建空库迁移 0000–0019、完整检查（API 集成 82/82）与 Playwright 48/48 通过，深色主题截图检查；`06b79b7` 只改 T016 文档，未重跑。全部 mock。实现提交 `34bb49a`（最初 `fa6673f`）。
 
 - 2026-10-02 CST：PR #63（T036）合并为 `e971848`；主分支独立空库迁移 0000–0016、完整检查（API 集成 71/71）与 Playwright 44/44 通过，全部 mock。验收库已删除，T036 worktree 在本文档 PR 合并后清理。
 
