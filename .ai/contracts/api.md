@@ -84,6 +84,12 @@ T029 新增（参考文章与拆解；全部需要会话，写操作需可信 Or
 - `DELETE /api/breakdowns/:id`：204。原文、修订、拆解结果与该文章的拆解任务一并删除（外键级联）；`ai_runs` 保留用量，`job_id` 置空。
 - `POST /api/breakdowns/:id/process`：Idempotency-Key 与 `{expectedVersion}`，DeepSeek 模式需确认（428）。202 `{jobId, status, mode}`，用 `/api/jobs/:id` 轮询，计入每日额度与并发。同键同输入返回同任务，同键不同版本 409 `IDEMPOTENCY_CONFLICT`；版本不是当前 409 `REFERENCE_VERSION_CONFLICT`；正文为空 422 `REFERENCE_CONTENT_REQUIRED`；当前版本已有结果 409 `ALREADY_BROKEN_DOWN`；已有进行中任务 409 `BREAKDOWN_JOB_ACTIVE`；额度 429，未配置 503。失败任务通过再次调用本接口重新拆解（`/api/jobs/:id/retry` 仍只用于素材整理）。
 
+T017 新增（预览与导出；只读，需要会话，跨用户与不存在均 404 `ARTICLE_NOT_FOUND`，没有标题或正文 422 `ARTICLE_BODY_REQUIRED`）：
+
+- `GET /api/articles/:id/preview`：`{articleId, version, title, html, fileName, updatedAt, renderedAt}`。`html` 是正文经 remark/rehype 渲染并清理后的片段（CommonMark；原始 HTML 丢弃；无脚本、事件属性、iframe、`<img>`；链接只保留绝对 http(s)/mailto 并带 `rel="noopener noreferrer nofollow"`；图片变为 `[图片：alt]` 文字或链接，不自动加载）。`fileName` 为清理后的文件名主体。`Cache-Control: no-store`。
+- `GET /api/articles/:id/export?format=markdown|html`：附件下载。`markdown` 为 `text/markdown; charset=utf-8`，内容是 `# 标题` 加作者原文；`html` 为 `text/html; charset=utf-8` 的独立文档，正文片段与预览相同，带 `default-src 'none'` 的 CSP。`Content-Disposition: attachment; filename="article-v<版本>.<md|html>"; filename*=UTF-8''<标题>.<md|html>`，另有 `nosniff`、`sandbox` CSP 与 `no-store`。缺少或其他格式 422 `INVALID_EXPORT_FORMAT`。
+- 只读取本人 `articles`；参考文章（`reference_articles`）不会出现在预览或导出中。
+
 2026-10-02 规划（尚未实现，接口在对应任务完成后才算可用）：
 
 - T030：`POST /api/articles` 增加可选 `breakdownId` 与 `materials`（1～10 条本人已整理素材版本）；大纲生成在文章绑定框架时按槽位进行。
