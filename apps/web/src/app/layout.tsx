@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Noto_Serif_SC } from "next/font/google";
+import { ThemeSync } from "@/modules/theme/client/theme-sync";
+import { themeScript } from "@/modules/theme/theme";
 import "./globals.css";
 
 // 宋体只用于标题与阅读区：自托管、按 unicode-range 分片、不预加载，
@@ -20,8 +22,18 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="zh-CN" className={serif.variable}>
-      <body>{children}</body>
+    // 内联脚本在首次绘制前写入 data-theme，html 属性与服务端输出不同属预期。
+    <html lang="zh-CN" className={serif.variable} suppressHydrationWarning>
+      <head>
+        <script
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: 固定常量脚本，不含用户输入
+          dangerouslySetInnerHTML={{ __html: themeScript }}
+        />
+      </head>
+      <body>
+        <ThemeSync />
+        {children}
+      </body>
     </html>
   );
 }

@@ -6,34 +6,38 @@
  * 设计 token：与 docs/design-system.md 和 docs/design/content-write.pen 的变量同名。
  * 组件只引用这里的 token；需要新值时先在这里加 token，并同步设计稿。
  * Tailwind 默认调色板、字体、圆角与阴影已清空，只剩下面这些。
+ * 颜色用 light-dark(浅色, 深色)：随 color-scheme 切换，见下方 :root 与第 2 节“深色主题”。
  */
 @theme {
   /* 间距基准 4px（第 5 节），不随根字号变化 */
   --spacing: 4px;
 
   --color-*: initial;
-  --color-canvas: #f1eee7;
-  --color-sidebar: #e8e5dc;
-  --color-surface: #fdfcfa;
-  --color-sunken: #f4f2ec;
-  --color-ink: #1b2a27;
-  --color-ink-2: #56645f;
-  --color-ink-3: #7d8985;
-  --color-line: #dad8cf;
-  --color-line-strong: #89938d;
-  --color-accent: #174a42;
-  --color-accent-hover: #103b35;
-  --color-accent-soft: #e2eee8;
-  --color-evidence: #b98a2c;
-  --color-evidence-soft: #f3e6b8;
-  --color-evidence-ink: #7a5a12;
-  --color-danger: #8c2f23;
-  --color-danger-soft: #f7e8e4;
-  --color-ink-inverse: #fdfcfa;
-  --color-ink-inverse-2: #b8c2be;
-  --color-evidence-on-ink: #c9a24a;
-  --color-line-on-ink: #ffffff1f;
-  --color-overlay: oklch(0.24 0.02 180 / 0.32);
+  --color-canvas: light-dark(#f1eee7, #141917);
+  --color-sidebar: light-dark(#e8e5dc, #101413);
+  --color-surface: light-dark(#fdfcfa, #1c2220);
+  --color-sunken: light-dark(#f4f2ec, #181d1c);
+  --color-ink: light-dark(#1b2a27, #e3e7e1);
+  --color-ink-2: light-dark(#56645f, #a3ada8);
+  --color-ink-3: light-dark(#7d8985, #78837f);
+  --color-line: light-dark(#dad8cf, #2c3331);
+  --color-line-strong: light-dark(#89938d, #66726d);
+  --color-accent: light-dark(#174a42, #7cc2ad);
+  --color-accent-hover: light-dark(#103b35, #97d2c0);
+  --color-accent-soft: light-dark(#e2eee8, #1e3530);
+  --color-evidence: light-dark(#b98a2c, #c9a24a);
+  --color-evidence-soft: light-dark(#f3e6b8, #3a3020);
+  --color-evidence-ink: light-dark(#7a5a12, #e2c06e);
+  --color-danger: light-dark(#8c2f23, #ec8a78);
+  --color-danger-soft: light-dark(#f7e8e4, #3b221e);
+  --color-ink-inverse: light-dark(#fdfcfa, #141917);
+  --color-ink-inverse-2: light-dark(#b8c2be, #46524e);
+  --color-evidence-on-ink: light-dark(#c9a24a, #7a5a12);
+  --color-line-on-ink: light-dark(#ffffff1f, #0000001f);
+  --color-overlay: light-dark(
+    oklch(0.24 0.02 180 / 0.32),
+    oklch(0.08 0.01 180 / 0.6)
+  );
 
   --font-*: initial;
   --font-serif:
@@ -106,8 +110,8 @@
   /* 深度第 3、4 级：浮层与对话框 */
   --shadow-*: initial;
   --shadow-float:
-    0 8px 24px oklch(0.24 0.02 180 / 0.12),
-    0 1px 2px oklch(0.24 0.02 180 / 0.08);
+    0 8px 24px light-dark(oklch(0.24 0.02 180 / 0.12), oklch(0 0 0 / 0.4)),
+    0 1px 2px light-dark(oklch(0.24 0.02 180 / 0.08), oklch(0 0 0 / 0.3));
 
   /* 内容宽度（第 5 节），max-w-reading 等 */
   --container-reading: 612px;
@@ -119,9 +123,19 @@
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 }
 
+/*
+ * 主题：未选择时跟随系统；html[data-theme] 是用户在账号菜单中的选择，
+ * 由 layout.tsx 的内联脚本在首次绘制前写入（modules/theme）。
+ */
 :root {
-  color-scheme: light;
+  color-scheme: light dark;
   --measure-reading: 612px;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
 }
 
 @layer base {
