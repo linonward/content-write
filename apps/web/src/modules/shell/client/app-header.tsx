@@ -33,7 +33,7 @@ export function AppHeader() {
       </Link>
       <nav
         aria-label="主导航"
-        className="flex flex-1 gap-1 overflow-x-auto max-[680px]:order-last max-[680px]:basis-full"
+        className="flex flex-1 gap-1 overflow-x-auto max-md:order-last max-md:basis-full"
       >
         {items.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(`${href}/`);
@@ -43,8 +43,8 @@ export function AppHeader() {
               href={href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "inline-flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-muted-foreground no-underline hover:bg-muted",
-                active && "bg-secondary font-medium text-primary",
+                "inline-flex shrink-0 items-center gap-1.5 rounded-sm px-3 py-1.5 text-label text-ink-2 no-underline hover:bg-sunken",
+                active && "bg-accent-soft text-accent",
               )}
             >
               <Icon aria-hidden className="size-4" />

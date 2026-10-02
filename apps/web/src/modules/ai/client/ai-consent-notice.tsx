@@ -50,7 +50,7 @@ export function AiConsentNotice() {
           首次使用真实模型：生成时，相关素材和文章内容会发送给 DeepSeek
           模型服务处理。生成结果只是建议，事实仍需你核对。
         </p>
-        {error && <p className="text-destructive">{error}</p>}
+        {error && <p className="text-danger">{error}</p>}
         <Button
           type="button"
           size="sm"

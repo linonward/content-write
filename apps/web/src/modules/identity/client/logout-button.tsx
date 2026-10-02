@@ -42,7 +42,7 @@ export function LogoutButton() {
         {pending ? "退出中…" : "退出登录"}
       </Button>
       {error && (
-        <span className="text-xs text-destructive" role="alert">
+        <span className="text-xs text-danger" role="alert">
           {error}
         </span>
       )}

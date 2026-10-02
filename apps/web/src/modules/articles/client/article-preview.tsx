@@ -113,18 +113,18 @@ export function ArticlePreview({ id }: { id: string }) {
   const preview = state.kind === "ready" ? state.preview : null;
   return (
     <>
-      <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4 max-[680px]:mt-8">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pt-10 pb-4 max-md:pt-8">
         <nav
           aria-label="面包屑"
-          className="flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground"
+          className="flex min-w-0 items-center gap-1.5 text-sm text-ink-2"
         >
-          <Link href="/articles" className="shrink-0 hover:text-foreground">
+          <Link href="/articles" className="shrink-0 hover:text-ink">
             文章
           </Link>
           <ChevronRight aria-hidden className="size-3.5 shrink-0" />
           <Link
             href={`/articles/${id}`}
-            className="truncate font-medium text-foreground hover:underline"
+            className="truncate font-medium text-ink hover:underline"
           >
             {preview?.title ?? "文章"}
           </Link>
@@ -132,12 +132,10 @@ export function ArticlePreview({ id }: { id: string }) {
         </nav>
         <div className="flex items-center gap-3">
           {preview && (
-            <span className="text-xs text-muted-foreground">
-              版本 {preview.version}
-            </span>
+            <span className="text-xs text-ink-2">版本 {preview.version}</span>
           )}
           <Link
-            className={cn(buttonVariants({ variant: "outline" }))}
+            className={cn(buttonVariants({ variant: "secondary" }))}
             href={`/articles/${id}`}
           >
             返回编辑
@@ -146,9 +144,7 @@ export function ArticlePreview({ id }: { id: string }) {
       </div>
 
       {state.kind === "loading" && (
-        <p className="py-16 text-center text-sm text-muted-foreground">
-          正在渲染预览…
-        </p>
+        <p className="py-16 text-center text-sm text-ink-2">正在渲染预览…</p>
       )}
       {state.kind === "failed" && (
         <Alert
@@ -163,14 +159,14 @@ export function ArticlePreview({ id }: { id: string }) {
             </p>
             {state.error.status === 422 ? (
               <Link
-                className={cn(buttonVariants({ variant: "outline" }))}
+                className={cn(buttonVariants({ variant: "secondary" }))}
                 href={`/articles/${id}`}
               >
                 去写正文
               </Link>
             ) : state.error.status === 404 ? (
               <Link
-                className={cn(buttonVariants({ variant: "outline" }))}
+                className={cn(buttonVariants({ variant: "secondary" }))}
                 href="/articles"
               >
                 返回文章列表
@@ -178,7 +174,7 @@ export function ArticlePreview({ id }: { id: string }) {
             ) : (
               <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 onClick={() => void load()}
               >
                 重试
@@ -189,16 +185,16 @@ export function ArticlePreview({ id }: { id: string }) {
       )}
 
       {preview && (
-        <div className="flex items-start justify-center gap-12 pt-8 max-[860px]:flex-col max-[860px]:items-stretch max-[860px]:gap-6">
-          <aside className="w-[300px] shrink-0 space-y-4 max-[860px]:w-full">
+        <div className="flex items-start justify-center gap-12 pt-8 max-lg:flex-col max-lg:items-stretch max-lg:gap-6">
+          <aside className="flex w-75 shrink-0 flex-col gap-4 max-lg:w-full">
             <section
               aria-labelledby="export-title"
-              className="space-y-3 rounded-[10px] border border-border bg-card p-6"
+              className="flex flex-col gap-3 rounded-md border border-line bg-surface p-6"
             >
-              <h2 id="export-title" className="text-[15px] font-semibold">
+              <h2 id="export-title" className="text-title-card">
                 导出
               </h2>
-              <p className="text-[13px] leading-[1.6] text-muted-foreground">
+              <p className="text-label font-normal text-ink-2">
                 预览与导出共用同一条安全渲染链：脚本、事件属性、iframe
                 和不安全链接会被移除，图片不自动加载，只保留为链接。
               </p>
@@ -208,7 +204,7 @@ export function ArticlePreview({ id }: { id: string }) {
                   type="button"
                   size="lg"
                   className="w-full"
-                  variant={format === "html" ? "default" : "outline"}
+                  variant={format === "html" ? "primary" : "secondary"}
                   disabled={pending !== null}
                   onClick={() => void save(format, preview.fileName)}
                 >
@@ -218,16 +214,16 @@ export function ArticlePreview({ id }: { id: string }) {
                 </Button>
               ))}
               {downloadError && (
-                <p role="alert" className="text-[13px] text-destructive">
+                <p role="alert" className="text-label text-danger">
                   {downloadError}
                 </p>
               )}
             </section>
-            <p className="flex gap-2 rounded-md bg-[#f3e6b8] px-4 py-3 text-[13px] leading-[1.5] text-[#7a5a12]">
-              <Info aria-hidden className="mt-0.5 size-3.5 shrink-0" />
+            <p className="flex gap-2 rounded-sm bg-evidence-soft px-4 py-3 text-label font-normal text-evidence-ink">
+              <Info aria-hidden className="size-3.5 shrink-0 translate-y-0.5" />
               基础预览，微信编辑器可能调整最终样式。
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-meta text-ink-2 tabular-nums">
               版本 {preview.version} · {time(preview.renderedAt)} 渲染
             </p>
           </aside>
@@ -235,15 +231,13 @@ export function ArticlePreview({ id }: { id: string }) {
           <section
             aria-label="手机预览"
             data-testid="phone-preview"
-            className="w-[375px] max-w-full shrink-0 overflow-hidden rounded-[28px] border border-[#89938d] bg-white max-[860px]:self-center"
+            className="w-phone max-w-full shrink-0 overflow-hidden rounded-device border border-line-strong bg-surface max-lg:self-center"
           >
-            <div className="flex h-11 items-center justify-center border-b border-[#dad8cf] text-xs text-[#56645f]">
+            <div className="flex h-11 items-center justify-center border-b border-line text-meta text-ink-2">
               公众号文章预览 · 375px
             </div>
             <article className="p-6">
-              <h1 className="mb-6 font-[Noto_Serif_SC,Songti_SC,serif] text-[22px] leading-[1.4] font-semibold text-[#1b2a27]">
-                {preview.title}
-              </h1>
+              <h1 className={styles.title}>{preview.title}</h1>
               <div
                 className={styles.content}
                 // biome-ignore lint/security/noDangerouslySetInnerHtml: the API renders through remark/rehype with an allow-list sanitizer (no raw HTML, scripts, event attributes, iframes, images or unsafe URLs).

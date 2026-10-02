@@ -178,7 +178,7 @@ export function MaterialAnalysisPanel({
         <CardTitle>素材整理</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-ink-2">
           AI 整理仅归纳来源，不代表事实已核实。
           {processingAvailable ? modeNote(aiMode) : "当前未配置处理服务。"}
         </p>
@@ -211,7 +211,7 @@ export function MaterialAnalysisPanel({
                     key={`${claim.kind}-${claim.text}-${claim.evidenceIds.join(",")}`}
                   >
                     {claim.text}{" "}
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-sm text-ink-2">
                       (
                       {claim.kind === "author_opinion"
                         ? "作者观点"
@@ -228,9 +228,7 @@ export function MaterialAnalysisPanel({
                 {data.angles.map((angle) => (
                   <li key={angle.title}>
                     <strong>{angle.title}</strong>
-                    <p className="text-sm text-muted-foreground">
-                      {angle.rationale}
-                    </p>
+                    <p className="text-sm text-ink-2">{angle.rationale}</p>
                   </li>
                 ))}
               </ul>
@@ -239,9 +237,12 @@ export function MaterialAnalysisPanel({
               <h3 className="font-medium">来源片段</h3>
               <ul className="mt-2 space-y-2">
                 {data.evidenceSpans.map((span) => (
-                  <li key={span.id} className="rounded-md bg-muted p-3 text-sm">
+                  <li
+                    key={span.id}
+                    className="rounded-sm bg-sunken p-3 text-sm"
+                  >
                     {span.id} · 「{span.quote}」{" "}
-                    <span className="text-muted-foreground">
+                    <span className="text-ink-2">
                       [{span.start}, {span.end})
                     </span>
                   </li>

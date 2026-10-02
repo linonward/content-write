@@ -19,7 +19,7 @@ export default async function InviteUsersPage() {
       <section className={ui.formIntro}>
         <p className={ui.stage}>管理员</p>
         <h1 className={ui.formTitle}>创建受邀账号</h1>
-        <p className="mt-[18px] max-w-[570px] text-base leading-[1.8] text-[#66716c]">
+        <p className={ui.lead}>
           填写作者信息与初始密码。创建后，请通过可信渠道将邮箱、密码和登录地址交给受邀者。
         </p>
       </section>

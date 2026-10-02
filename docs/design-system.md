@@ -2,7 +2,7 @@
 
 产品名「拆写」，品牌标为墨绿圆角方块中的宋体「拆」字（白色），副标题「看懂一篇爆款，写出你自己的那篇。」。
 
-状态：已确认，含 2026-10-02 产品方向调整（从爆款开始的拆解入口、框架标签与槽位、本人草稿箱、导航与落地页），依据 `docs/product.md` 1.3 与 `.ai/plans/product-direction-2026-10.md`。尚未落地到 `apps/web/src/app/globals.css` 与共享组件。设计稿见 `docs/design/content-write.pen`（用 Pen 打开，pen.dev）。本文是页面设计稿和前端实现的唯一依据；与本文冲突的现有样式按本文修改。
+状态：已确认，含 2026-10-02 产品方向调整（从爆款开始的拆解入口、框架标签与槽位、本人草稿箱、导航与落地页），依据 `docs/product.md` 1.3 与 `.ai/plans/product-direction-2026-10.md`。token 与基础组件已落地（T032）：`apps/web/src/app/globals.css` 与 `apps/web/src/components/ui`；应用外壳与页面布局分别由 T034、T035 落地。设计稿见 `docs/design/content-write.pen`（用 Pen 打开，pen.dev）。本文是页面设计稿和前端实现的唯一依据；与本文冲突的现有样式按本文修改。
 
 ## 1. 视觉主题与氛围
 
@@ -156,7 +156,7 @@
 执行方式：
 
 - 设计稿：所有非零 padding / gap 绑定 `$space-*` 变量，页面不写数值；微调变量只出现在可复用组件内部。检查脚本遍历文档，非零数值或组件外的微调变量都视为违规。
-- 代码：Tailwind `--spacing` 为 4px 基准，页面与模块只用刻度类名；`p-[13px]` 这类任意值只允许在 `components/ui` 中出现，由 `pnpm lint` 中的检查脚本拦截（随设计系统落地一起加入）。
+- 代码：Tailwind `--spacing` 为 4px 基准，页面与模块只用刻度类名；`p-[13px]` 这类任意值只允许在 `components/ui` 中出现，由 `pnpm lint` 中的 `apps/web/scripts/design-tokens.ts` 拦截；同一脚本也拦截 hex 色值、自定义断点（`max-[680px]:`）与 shadcn 别名颜色（`text-muted-foreground` 等）。
 
 应用外壳：
 
@@ -253,6 +253,15 @@
 | `/settings/profile` | 未实现（T014 到 T016） | 作者画像、历史样本、记忆确认 |
 | `/admin/users` | 已实现 | 表单页宽度，创建受邀账号 |
 | `/`（落地页） | 未实现 | 未登录访客的介绍与申请试用入口，见“落地页”一节 |
+
+## 代码落地
+
+- Token：`apps/web/src/app/globals.css` 的 `@theme`，名称与本文和设计稿变量一致：颜色 `bg-surface`、`text-ink-2`；排版角色 `text-title-page`、`text-body`、`text-meta`（同时设定字号、行高与字重）；圆角 `rounded-xs/sm/md`；浮层阴影 `shadow-float`；内容宽度 `max-w-reading/form/paper/workspace`。Tailwind 默认调色板、圆角与阴影已清空，`--spacing` 固定 4px。
+- 两个只用于手机预览设备外框的尺寸：`rounded-device`（28）与 `w-phone`（375），对应设计稿画框 18。
+- 组件：`components/ui` 下的按钮（`primary`、`secondary`、`ghost`、`danger`，确认删除用 `danger-solid`；`sm`/`md`/`lg`）、输入与文本域、`Select`/`SelectField`（标准、紧凑）、对话框、面板（`Card`）、提示（`Alert`：中性、成功、警示、失败）、`StatusPill`、`Badge`（含“模拟”）、`EvidenceMark`/`EvidenceSource`、`FileDropzone`、`SaveStatus`、空状态。
+- 类名合并：`@/lib/utils` 的 `cn` 已登记排版角色与 `shadow-float`；不要直接从 `cn` 包导入。
+- 用 shadcn CLI 新增组件后，先把其中的别名颜色（`bg-primary`、`text-muted-foreground` 等）换成 token，否则 `pnpm lint` 会报错。
+- 开发环境的 `/design-system` 页面列出全部 token 与组件，用于和画框“00 基础规范”“01 组件”比对；生产环境返回 404。
 
 ## 设计稿
 

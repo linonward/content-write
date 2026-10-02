@@ -232,7 +232,7 @@ export function IdeasWorkspace() {
           <AlertDescription>
             {error}{" "}
             <Button
-              variant="outline"
+              variant="secondary"
               type="button"
               onClick={() =>
                 void refresh()
@@ -259,7 +259,7 @@ export function IdeasWorkspace() {
           <CardTitle>选择已整理素材</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-ink-2">
             {generationAvailable
               ? modeNote(aiMode)
               : "当前未配置可用的生成服务。"}{" "}
@@ -282,7 +282,7 @@ export function IdeasWorkspace() {
               {materials.map((material) => (
                 <label
                   key={material.id}
-                  className="flex cursor-pointer gap-3 rounded-lg border p-4 has-checked:border-primary has-checked:bg-primary/5"
+                  className="flex cursor-pointer gap-3 rounded-sm border p-4 has-checked:border-accent has-checked:bg-accent-soft"
                 >
                   <input
                     type="checkbox"
@@ -295,16 +295,16 @@ export function IdeasWorkspace() {
                   />
                   <span className="min-w-0">
                     <strong className="block">{material.title}</strong>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-ink-2">
                       版本 {material.currentVersion}
                     </span>
-                    <span className="mt-2 block text-sm text-muted-foreground">
+                    <span className="mt-2 block text-sm text-ink-2">
                       {material.summary}
                     </span>
                     {material.tags.length > 0 && (
                       <span className="mt-2 flex flex-wrap gap-1">
                         {material.tags.map((tag) => (
-                          <Badge key={tag} variant="secondary">
+                          <Badge key={tag} variant="muted">
                             {tag}
                           </Badge>
                         ))}
@@ -316,7 +316,7 @@ export function IdeasWorkspace() {
             </div>
           )}
           {materialsHasMore && (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-ink-2">
               当前显示最近 100 条已整理素材。
             </p>
           )}
@@ -333,7 +333,7 @@ export function IdeasWorkspace() {
             >
               {jobId ? "生成中…" : pending ? "提交中…" : "生成 3 个选题"}
             </Button>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-ink-2">
               已选择 {selected.length} / 10 条
             </span>
           </div>
@@ -345,21 +345,21 @@ export function IdeasWorkspace() {
           <div className="flex gap-2">
             <Button
               type="button"
-              variant={filter === "visible" ? "default" : "outline"}
+              variant={filter === "visible" ? "primary" : "secondary"}
               onClick={() => setFilter("visible")}
             >
               待看
             </Button>
             <Button
               type="button"
-              variant={filter === "saved" ? "default" : "outline"}
+              variant={filter === "saved" ? "primary" : "secondary"}
               onClick={() => setFilter("saved")}
             >
               收藏
             </Button>
             <Button
               type="button"
-              variant={filter === "ignored" ? "default" : "outline"}
+              variant={filter === "ignored" ? "primary" : "secondary"}
               onClick={() => setFilter("ignored")}
             >
               已忽略
@@ -383,14 +383,14 @@ export function IdeasWorkspace() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex gap-2">
-                  <Badge variant="secondary">
+                  <Badge variant="muted">
                     {idea.status === "saved"
                       ? "已收藏"
                       : idea.status === "ignored"
                         ? "已忽略"
                         : "待看"}
                   </Badge>
-                  <Badge variant="outline">{modeLabel(idea.mode)}</Badge>
+                  <Badge variant="neutral">{modeLabel(idea.mode)}</Badge>
                 </div>
                 <p>
                   <strong>目标读者：</strong>
@@ -420,7 +420,7 @@ export function IdeasWorkspace() {
                     ))}
                   </ol>
                 </div>
-                <details className="rounded-md border p-3">
+                <details className="rounded-sm border p-3">
                   <summary className="cursor-pointer font-medium">
                     查看引用素材（{idea.sources.length}）
                   </summary>
@@ -428,12 +428,10 @@ export function IdeasWorkspace() {
                     {idea.sources.map((source) => (
                       <li key={source.materialId}>
                         <strong>{source.title}</strong>{" "}
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-ink-2">
                           版本 {source.materialVersion}
                         </span>
-                        <p className="text-sm text-muted-foreground">
-                          {source.summary}
-                        </p>
+                        <p className="text-sm text-ink-2">{source.summary}</p>
                       </li>
                     ))}
                   </ul>
@@ -448,7 +446,7 @@ export function IdeasWorkspace() {
                   </Button>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     disabled={pending || idea.status === "saved"}
                     onClick={() => void changeStatus(idea.id, "saved")}
                   >
@@ -456,7 +454,7 @@ export function IdeasWorkspace() {
                   </Button>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     disabled={pending || idea.status === "ignored"}
                     onClick={() => void changeStatus(idea.id, "ignored")}
                   >

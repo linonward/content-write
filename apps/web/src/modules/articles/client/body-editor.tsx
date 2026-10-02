@@ -220,7 +220,7 @@ export function BodyEditor({
             <div className="flex flex-wrap gap-2">
               <Button
                 type="button"
-                variant="outline"
+                variant="secondary"
                 onClick={() => restore(recovery.copy)}
               >
                 {recovery.outdated ? "使用本机内容继续编辑" : "恢复本机内容"}
@@ -240,7 +240,7 @@ export function BodyEditor({
             </p>
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={() => void loadLatest()}
             >
               载入最新版本
@@ -260,11 +260,7 @@ export function BodyEditor({
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="article-body">正文（Markdown）</Label>
-          <span
-            className="text-xs text-muted-foreground"
-            role="status"
-            aria-live="polite"
-          >
+          <span className="text-xs text-ink-2" role="status" aria-live="polite">
             {label}
             {status.kind === "failed" && (
               <Button
@@ -284,7 +280,7 @@ export function BodyEditor({
           value={body}
           onChange={setBody}
         />
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-ink-2">
           {body.length.toLocaleString("zh-CN")} / 50,000 字符
         </p>
       </div>

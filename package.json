@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "turbo run dev --filter=@content-write/web --filter=@content-write/api",
     "build": "turbo run build",
-    "lint": "biome check .",
+    "lint": "biome check . && node apps/web/scripts/design-tokens.ts",
     "lint:fix": "biome check --write .",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",

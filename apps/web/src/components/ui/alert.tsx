@@ -1,15 +1,17 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "cn";
 import type * as React from "react";
+import { cn } from "@/lib/utils";
 
+// 提示区块：中性用 sunken；赭黄只用于证据缺口与非阻断警示；砖红只用于失败。
 const alertVariants = cva(
-  "group/alert relative grid w-full gap-0.5 rounded-lg border px-2.5 py-2 text-left text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4",
+  "group/alert relative grid w-full gap-0.5 rounded-sm px-4 py-3 text-left text-body has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        default: "bg-card text-card-foreground",
-        destructive:
-          "bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current",
+        default: "bg-sunken text-ink",
+        success: "bg-accent-soft text-accent",
+        warning: "bg-evidence-soft text-evidence-ink",
+        destructive: "bg-danger-soft text-danger",
       },
     },
     defaultVariants: {
@@ -38,7 +40,7 @@ function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="alert-title"
       className={cn(
-        "font-medium group-has-[>svg]/alert:col-start-2 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground",
+        "font-semibold group-has-[>svg]/alert:col-start-2",
         className,
       )}
       {...props}
@@ -54,7 +56,7 @@ function AlertDescription({
     <div
       data-slot="alert-description"
       className={cn(
-        "text-sm text-balance text-muted-foreground md:text-pretty [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
+        "text-body group-data-[variant=default]/alert:text-ink-2 [&_p:not(:last-child)]:pb-2",
         className,
       )}
       {...props}

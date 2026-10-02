@@ -13,7 +13,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -35,6 +34,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { StatusPill, type StatusTone } from "@/components/ui/status-pill";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -94,21 +94,20 @@ function origin(item: Summary) {
   return host;
 }
 
+const statusTones: Record<Status, StatusTone> = {
+  unprocessed: "pending",
+  processing: "processing",
+  failed: "failed",
+  done: "done",
+};
+
 function StatusBadge({ item }: { item: Summary }) {
   if (item.contentLength === 0)
-    return <Badge variant="outline">待粘贴正文</Badge>;
+    return <StatusPill tone="pending">待粘贴正文</StatusPill>;
   return (
-    <Badge
-      variant={
-        item.status === "failed"
-          ? "destructive"
-          : item.status === "done"
-            ? "secondary"
-            : "outline"
-      }
-    >
+    <StatusPill tone={statusTones[item.status]}>
       {statusLabels[item.status]}
-    </Badge>
+    </StatusPill>
   );
 }
 
@@ -311,10 +310,10 @@ export function BreakdownWorkspace() {
 
   return (
     <section
-      className="grid grid-cols-[minmax(240px,300px)_minmax(0,1fr)] items-start gap-6 max-[960px]:grid-cols-1"
+      className="flex items-start gap-6 max-lg:flex-col"
       aria-label="拆解"
     >
-      <Card className="min-h-[330px]">
+      <Card className="min-h-82 w-75 shrink-0 max-lg:w-full">
         <CardHeader>
           <CardTitle>
             <h2>参考文章 · {items.length}</h2>
@@ -332,7 +331,7 @@ export function BreakdownWorkspace() {
                 {listError}{" "}
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="secondary"
                   onClick={() =>
                     void refresh().catch((cause: unknown) =>
                       setListError(message(cause, "加载失败。")),
@@ -345,7 +344,7 @@ export function BreakdownWorkspace() {
             </Alert>
           )}
           {loading ? (
-            <p className="text-sm text-muted-foreground">加载中…</p>
+            <p className="text-sm text-ink-2">加载中…</p>
           ) : items.length === 0 ? (
             <Empty>
               <EmptyHeader>
@@ -364,13 +363,13 @@ export function BreakdownWorkspace() {
                     variant="ghost"
                     className={cn(
                       "h-auto w-full justify-between gap-3 rounded-none px-2 py-3.5 text-left",
-                      reference?.id === item.id && "bg-muted",
+                      reference?.id === item.id && "bg-sunken",
                     )}
                     onClick={() => void open(item.id)}
                   >
                     <span className="grid min-w-0 gap-1.5">
                       <strong className="truncate">{item.title}</strong>
-                      <span className="truncate text-xs text-muted-foreground">
+                      <span className="truncate text-xs text-ink-2">
                         {origin(item)} · {date(item.updatedAt)}
                       </span>
                     </span>
@@ -381,14 +380,14 @@ export function BreakdownWorkspace() {
             </ul>
           )}
           {hasMore && (
-            <p className="mt-3 text-xs text-muted-foreground">
+            <p className="mt-3 text-xs text-ink-2">
               当前显示最近 100 篇参考文章。
             </p>
           )}
         </CardContent>
       </Card>
 
-      <Card className="min-h-[330px] min-w-0">
+      <Card className="min-h-82 min-w-0 flex-1 max-lg:w-full">
         <CardContent className="grid gap-5">
           {error && (
             <Alert variant="destructive">
@@ -408,7 +407,7 @@ export function BreakdownWorkspace() {
             >
               <div>
                 <h2 className="text-xl font-medium">拆解一篇爆款</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-1 text-sm text-ink-2">
                   原文只保存给你自己分析，删除时连同拆解结果一起清除。
                 </p>
               </div>
@@ -547,7 +546,7 @@ export function BreakdownWorkspace() {
                 </Button>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => setMode("view")}
                 >
                   取消
@@ -563,7 +562,7 @@ export function BreakdownWorkspace() {
                   <h2 className="text-xl font-medium wrap-anywhere">
                     {reference.title}
                   </h2>
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="mt-1 text-xs text-ink-2">
                     参考文章 · 版本 {reference.currentVersion} ·{" "}
                     {reference.content.length.toLocaleString("zh-CN")} 字
                     {selected.breakdown &&
@@ -571,7 +570,7 @@ export function BreakdownWorkspace() {
                   </p>
                   {reference.sourceUrl && (
                     <a
-                      className="mt-1 block truncate text-xs text-primary underline"
+                      className="mt-1 block truncate text-xs text-accent underline"
                       href={reference.sourceUrl}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -592,7 +591,7 @@ export function BreakdownWorkspace() {
                   )}
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     disabled={pending || jobId !== null}
                     onClick={() => {
                       setTitle(reference.title);
@@ -605,9 +604,7 @@ export function BreakdownWorkspace() {
                   </Button>
                   <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                     <AlertDialogTrigger
-                      render={
-                        <Button variant="destructive" disabled={pending} />
-                      }
+                      render={<Button variant="danger" disabled={pending} />}
                     >
                       删除
                     </AlertDialogTrigger>
@@ -622,7 +619,7 @@ export function BreakdownWorkspace() {
                       <AlertDialogFooter>
                         <AlertDialogCancel>取消</AlertDialogCancel>
                         <AlertDialogAction
-                          variant="destructive"
+                          variant="danger-solid"
                           disabled={pending}
                           onClick={() => {
                             setDeleteOpen(false);
@@ -665,12 +662,12 @@ export function BreakdownWorkspace() {
               ) : (
                 <div className="grid gap-4">
                   <AiConsentNotice />
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-ink-2">
                     {jobId
                       ? "正在拆解，通常需要半分钟到一分钟。可以离开本页，稍后回来查看。"
                       : "拆解会把原文发送给生成服务，提取标题类型、开头钩子、段落槽位、节奏、结尾方式、有效原因与局限；不会改写原文。"}
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-ink-2">
                     {modeNote(selected.aiMode)}
                   </p>
                   <Button
@@ -683,7 +680,7 @@ export function BreakdownWorkspace() {
                   >
                     {jobId ? "拆解中…" : "拆解这篇文章"}
                   </Button>
-                  <div className="max-h-[480px] overflow-y-auto rounded-md border bg-muted/30 p-4 whitespace-pre-wrap wrap-anywhere text-sm leading-[1.8]">
+                  <div className="max-h-120 overflow-y-auto rounded-sm border bg-sunken p-4 font-serif text-reading whitespace-pre-wrap wrap-anywhere">
                     {reference.content}
                   </div>
                 </div>

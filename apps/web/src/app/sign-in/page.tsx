@@ -16,9 +16,7 @@ export default async function SignInPage() {
       <section className={ui.formIntro}>
         <p className={ui.stage}>受邀访问</p>
         <h1 className={ui.formTitle}>登录拆写</h1>
-        <p className="mt-[18px] max-w-[570px] text-base leading-[1.8] text-[#66716c]">
-          使用管理员为你创建的邮箱和密码登录。
-        </p>
+        <p className={ui.lead}>使用管理员为你创建的邮箱和密码登录。</p>
       </section>
       <SignInForm />
     </main>

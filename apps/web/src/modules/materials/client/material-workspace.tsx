@@ -34,8 +34,11 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
+import { FileDropzone } from "@/components/ui/file-dropzone";
 import { Input } from "@/components/ui/input";
+import { SelectField } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { StatusPill, type StatusTone } from "@/components/ui/status-pill";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -59,6 +62,29 @@ type Summary = Omit<Material, "content"> & {
 };
 type Filters = { q: string; kind: string; status: string; tag: string };
 const emptyFilters: Filters = { q: "", kind: "", status: "", tag: "" };
+
+const analysisLabels = {
+  unprocessed: "未整理",
+  processing: "处理中",
+  failed: "失败",
+  analyzed: "已整理",
+} as const;
+const analysisTones: Record<keyof typeof analysisLabels, StatusTone> = {
+  unprocessed: "pending",
+  processing: "processing",
+  failed: "failed",
+  analyzed: "done",
+};
+const kindOptions = [
+  { value: "", label: "全部类型" },
+  { value: "text", label: "文字" },
+  { value: "markdown", label: "Markdown" },
+  { value: "link", label: "链接" },
+];
+const statusOptions = [
+  { value: "", label: "全部状态" },
+  ...Object.entries(analysisLabels).map(([value, label]) => ({ value, label })),
+];
 
 const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -323,10 +349,10 @@ export function MaterialWorkspace() {
 
   return (
     <section
-      className="grid grid-cols-[minmax(220px,300px)_minmax(0,1fr)] items-start gap-8 max-[680px]:grid-cols-1"
+      className="flex items-start gap-6 max-md:flex-col"
       aria-label="素材箱"
     >
-      <Card className="min-h-[330px]">
+      <Card className="min-h-82 w-75 shrink-0 max-md:w-full">
         <CardHeader>
           <CardTitle>
             <h2>最近素材</h2>
@@ -356,33 +382,22 @@ export function MaterialWorkspace() {
               }
             />
             <div className="grid grid-cols-2 gap-2">
-              <select
+              <SelectField
                 aria-label="素材类型"
-                className="h-9 rounded-md border bg-background px-2 text-sm"
+                size="compact"
+                active={filters.kind !== ""}
+                options={kindOptions}
                 value={filters.kind}
-                onChange={(event) =>
-                  setFilters({ ...filters, kind: event.target.value })
-                }
-              >
-                <option value="">全部类型</option>
-                <option value="text">文字</option>
-                <option value="markdown">Markdown</option>
-                <option value="link">链接</option>
-              </select>
-              <select
+                onValueChange={(kind) => setFilters({ ...filters, kind })}
+              />
+              <SelectField
                 aria-label="处理状态"
-                className="h-9 rounded-md border bg-background px-2 text-sm"
+                size="compact"
+                active={filters.status !== ""}
+                options={statusOptions}
                 value={filters.status}
-                onChange={(event) =>
-                  setFilters({ ...filters, status: event.target.value })
-                }
-              >
-                <option value="">全部状态</option>
-                <option value="unprocessed">未处理</option>
-                <option value="processing">处理中</option>
-                <option value="failed">处理失败</option>
-                <option value="analyzed">已整理</option>
-              </select>
+                onValueChange={(status) => setFilters({ ...filters, status })}
+              />
             </div>
             <Input
               aria-label="标签过滤"
@@ -394,7 +409,7 @@ export function MaterialWorkspace() {
               }
             />
             <div className="flex gap-2">
-              <Button type="submit" variant="outline">
+              <Button type="submit" variant="secondary">
                 查找
               </Button>
               <Button
@@ -416,7 +431,7 @@ export function MaterialWorkspace() {
                 {listError}{" "}
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="secondary"
                   onClick={() =>
                     void refresh().catch((cause: unknown) =>
                       setListError(
@@ -431,7 +446,7 @@ export function MaterialWorkspace() {
             </Alert>
           )}
           {loading ? (
-            <p className="text-sm text-muted-foreground">加载中…</p>
+            <p className="text-sm text-ink-2">加载中…</p>
           ) : items.length === 0 ? (
             <Empty>
               <EmptyHeader>
@@ -456,13 +471,13 @@ export function MaterialWorkspace() {
                     variant="ghost"
                     className={cn(
                       "h-auto w-full justify-start rounded-none px-2 py-3.5 text-left",
-                      selected?.id === item.id && "bg-muted",
+                      selected?.id === item.id && "bg-sunken",
                     )}
                     onClick={() => void open(item.id)}
                   >
                     <span className="grid min-w-0 gap-1.5">
                       <strong className="truncate">{item.title}</strong>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-ink-2">
                         {item.kind === "link"
                           ? "链接"
                           : item.sourceFilename
@@ -471,18 +486,11 @@ export function MaterialWorkspace() {
                         · 版本 {item.currentVersion} ·{" "}
                         {new Date(item.updatedAt).toLocaleDateString("zh-CN")}
                       </span>
-                      <span className="text-xs text-muted-foreground">
-                        {
-                          (
-                            {
-                              unprocessed: "未处理",
-                              processing: "处理中",
-                              failed: "处理失败",
-                              analyzed: "已整理",
-                            } as const
-                          )[item.analysisStatus]
-                        }
-                        {item.tags.length ? ` · ${item.tags.join("、")}` : ""}
+                      <span className="flex flex-wrap items-center gap-2 text-meta text-ink-2">
+                        <StatusPill tone={analysisTones[item.analysisStatus]}>
+                          {analysisLabels[item.analysisStatus]}
+                        </StatusPill>
+                        {item.tags.length ? item.tags.join("、") : ""}
                       </span>
                     </span>
                   </Button>
@@ -491,13 +499,13 @@ export function MaterialWorkspace() {
             </ul>
           )}
           {hasMore && (
-            <p className="mt-3 text-xs text-muted-foreground">
+            <p className="mt-3 text-xs text-ink-2">
               当前显示最近 100 条匹配素材；请缩小搜索范围。
             </p>
           )}
         </CardContent>
       </Card>
-      <Card className="min-h-[330px]">
+      <Card className="min-h-82 min-w-0 flex-1 max-md:w-full">
         <CardHeader>
           <CardTitle>
             <h2>
@@ -510,7 +518,7 @@ export function MaterialWorkspace() {
           </CardTitle>
           {selected && (
             <CardAction>
-              <Badge variant="secondary">版本 {selected.currentVersion}</Badge>
+              <Badge variant="muted">版本 {selected.currentVersion}</Badge>
             </CardAction>
           )}
         </CardHeader>
@@ -527,21 +535,21 @@ export function MaterialWorkspace() {
           )}
           {mode === "view" && selected ? (
             <>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-ink-2">
                 更新于 {new Date(selected.updatedAt).toLocaleString("zh-CN")}
               </p>
               {selected.sourceFilename && (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-ink-2">
                   来源文件：{selected.sourceFilename} ·{" "}
                   {selected.kind === "markdown" ? "Markdown" : "纯文本"}
                 </p>
               )}
 
               {selected.sourceUrl && (
-                <p className="mt-2 text-xs text-muted-foreground wrap-anywhere">
+                <p className="mt-2 text-xs text-ink-2 wrap-anywhere">
                   来源链接：
                   <a
-                    className="text-primary underline"
+                    className="text-accent underline"
                     href={selected.sourceUrl}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -549,7 +557,7 @@ export function MaterialWorkspace() {
                     {selected.sourceUrl}
                   </a>
                   {selected.fetchStatus && (
-                    <Badge variant="secondary" className="ml-2">
+                    <Badge variant="muted" className="ml-2">
                       {selected.fetchStatus === "fetched"
                         ? "已抓取文字"
                         : selected.fetchStatus === "manual"
@@ -562,7 +570,7 @@ export function MaterialWorkspace() {
                 </p>
               )}
               {selected.content ? (
-                <div className="mt-7 whitespace-pre-wrap wrap-anywhere leading-[1.8]">
+                <div className="mt-7 font-serif text-reading whitespace-pre-wrap wrap-anywhere">
                   {selected.content}
                 </div>
               ) : selected.kind === "link" ? (
@@ -595,7 +603,7 @@ export function MaterialWorkspace() {
                 </Button>
                 <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                   <AlertDialogTrigger
-                    render={<Button variant="destructive" disabled={pending} />}
+                    render={<Button variant="danger" disabled={pending} />}
                   >
                     删除
                   </AlertDialogTrigger>
@@ -610,7 +618,7 @@ export function MaterialWorkspace() {
                     <AlertDialogFooter>
                       <AlertDialogCancel>取消</AlertDialogCancel>
                       <AlertDialogAction
-                        variant="destructive"
+                        variant="danger-solid"
                         disabled={pending}
                         onClick={() => {
                           setDeleteOpen(false);
@@ -663,7 +671,7 @@ export function MaterialWorkspace() {
                   {mode === "edit" && (
                     <Button
                       type="button"
-                      variant="outline"
+                      variant="secondary"
                       onClick={() => {
                         setMode("view");
                         setError("");
@@ -686,10 +694,9 @@ export function MaterialWorkspace() {
                     <FieldLabel htmlFor="material-file">
                       选择 Markdown 或纯文本文件
                     </FieldLabel>
-                    <Input
+                    <FileDropzone
                       id="material-file"
                       name="file"
-                      type="file"
                       accept=".md,.txt,text/markdown,text/plain"
                       required
                     />
@@ -698,7 +705,7 @@ export function MaterialWorkspace() {
                     </FieldDescription>
                   </Field>
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     className="justify-self-start"
                     type="submit"
                     disabled={pending}
@@ -742,7 +749,7 @@ export function MaterialWorkspace() {
                     </FieldDescription>
                   )}
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     className="justify-self-start"
                     type="submit"
                     disabled={pending}

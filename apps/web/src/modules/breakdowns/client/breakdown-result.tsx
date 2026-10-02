@@ -57,8 +57,8 @@ function Section({
 }) {
   return (
     <div className="grid gap-1">
-      <h4 className="text-xs text-muted-foreground">{label}</h4>
-      <div className="text-sm leading-[1.7]">{children}</div>
+      <h4 className="text-xs text-ink-2">{label}</h4>
+      <div className="text-body">{children}</div>
     </div>
   );
 }
@@ -89,22 +89,22 @@ export function BreakdownResult({
     ids.length ? `${ids.length} 处原文` : "无对照片段";
   const choice = (key: string) =>
     cn(
-      "w-full rounded-md border px-3 py-2.5 text-left transition-colors hover:bg-muted",
-      active === key && "border-primary bg-secondary",
+      "w-full rounded-sm border px-3 py-2.5 text-left transition-colors hover:bg-sunken",
+      active === key && "border-accent bg-sunken",
     );
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-6 max-[960px]:grid-cols-1">
+    <div className="grid grid-cols-2 gap-6 max-lg:grid-cols-1">
       <section aria-label="原文" className="min-w-0">
-        <p className="mb-3 text-xs text-muted-foreground">
+        <p className="mb-3 text-xs text-ink-2">
           原文 · 仅你可见，不会进入你的稿子
         </p>
-        <div className="max-h-[720px] overflow-y-auto rounded-md border bg-muted/30 p-4 whitespace-pre-wrap wrap-anywhere leading-[1.8]">
+        <div className="max-h-180 overflow-y-auto rounded-sm border bg-sunken p-4 font-serif text-reading whitespace-pre-wrap wrap-anywhere">
           {segments(content, marked).map((part) =>
             part.marked ? (
               <mark
                 key={part.key}
-                className="rounded-sm bg-amber-200/70 px-0.5"
+                className="rounded-xs bg-evidence-soft px-0.5"
               >
                 {part.text}
               </mark>
@@ -118,7 +118,7 @@ export function BreakdownResult({
         aria-label="拆解结果"
         className="grid min-w-0 content-start gap-5"
       >
-        <div className="grid grid-cols-2 gap-4 max-[520px]:grid-cols-1">
+        <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
           <Section label="标题类型">{result.titlePattern}</Section>
           <Section label="目标读者">{result.audience}</Section>
           <Section label="节奏">{result.rhythm}</Section>
@@ -128,16 +128,16 @@ export function BreakdownResult({
           className={choice("hook")}
           onClick={() => select("hook")}
         >
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-ink-2">
             开头钩子 · {evidenceLabel(result.hook.spanIds)}
           </span>
           <strong className="mt-1 block text-sm">{result.hook.type}</strong>
-          <span className="mt-1 block text-sm text-muted-foreground">
+          <span className="mt-1 block text-sm text-ink-2">
             {result.hook.technique}
           </span>
         </button>
         <div>
-          <h4 className="mb-2 text-xs text-muted-foreground">
+          <h4 className="mb-2 text-xs text-ink-2">
             段落槽位 · {result.slots.length} 段
           </h4>
           <ol className="grid gap-2">
@@ -153,12 +153,12 @@ export function BreakdownResult({
                     <strong className="text-sm">
                       {index + 1}. {slot.name}
                     </strong>
-                    <span className="shrink-0 text-xs text-muted-foreground">
+                    <span className="shrink-0 text-xs text-ink-2">
                       {evidenceLabel(slot.spanIds)}
                     </span>
                   </span>
                   <span className="mt-1 block text-sm">{slot.purpose}</span>
-                  <span className="mt-1 block text-sm text-muted-foreground">
+                  <span className="mt-1 block text-sm text-ink-2">
                     手法：{slot.technique}
                   </span>
                 </button>
@@ -171,15 +171,15 @@ export function BreakdownResult({
           className={choice("ending")}
           onClick={() => select("ending")}
         >
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-ink-2">
             结尾方式 · {evidenceLabel(result.ending.spanIds)}
           </span>
           <strong className="mt-1 block text-sm">{result.ending.type}</strong>
-          <span className="mt-1 block text-sm text-muted-foreground">
+          <span className="mt-1 block text-sm text-ink-2">
             {result.ending.technique}
           </span>
         </button>
-        <div className="grid grid-cols-2 gap-4 max-[520px]:grid-cols-1">
+        <div className="grid grid-cols-2 gap-4 max-sm:grid-cols-1">
           <Section label="为什么有效">
             <ul className="list-disc space-y-1 pl-4">
               {result.whyItWorks.map((item) => (
@@ -195,7 +195,7 @@ export function BreakdownResult({
             </ul>
           </Section>
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-ink-2">
           拆解只提取结构与写法，不预测阅读量；原文不会进入大纲、初稿或导出。
         </p>
       </section>

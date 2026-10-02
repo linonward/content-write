@@ -50,9 +50,7 @@ export function ArticleList() {
       </Alert>
     );
   if (!articles.length)
-    return (
-      <p className="text-muted-foreground">还没有文章。先从选题创建一篇。</p>
-    );
+    return <p className="text-ink-2">还没有文章。先从选题创建一篇。</p>;
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       {articles.map((article) => (
@@ -68,10 +66,8 @@ export function ArticleList() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <p className="text-sm text-muted-foreground">
-              面向：{article.audience}
-            </p>
-            <Badge variant="secondary">
+            <p className="text-sm text-ink-2">面向：{article.audience}</p>
+            <Badge variant="muted">
               {article.outlineConfirmedAt
                 ? "大纲已确认"
                 : article.hasOutline
