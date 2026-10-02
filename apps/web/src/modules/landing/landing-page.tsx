@@ -55,13 +55,10 @@ function ApplyLink({ size = "md" }: { size?: "md" | "lg" }) {
 
 function Nav() {
   return (
-    <header className="border-b border-line">
+    <header className="border-b border-line px-12 max-md:px-4">
       <nav
         aria-label="落地页导航"
-        className={cn(
-          inner,
-          "h-18 items-center gap-8 px-12 max-md:h-14 max-md:px-4",
-        )}
+        className={cn(inner, "h-18 items-center gap-8 max-md:h-14")}
       >
         <Link
           href="/"
