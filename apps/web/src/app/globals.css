@@ -72,6 +72,29 @@
   --text-mono--line-height: 1.5;
   --text-mono--font-weight: 500;
 
+  /* 仅落地页（“落地页”一节）：标题宋体 36–56（手机 24–34），正文 15–18 */
+  --text-display: 56px;
+  --text-display--line-height: 1.25;
+  --text-display--font-weight: 600;
+  --text-display-sm: 34px;
+  --text-display-sm--line-height: 1.3;
+  --text-display-sm--font-weight: 600;
+  --text-headline-lg: 40px;
+  --text-headline-lg--line-height: 1.35;
+  --text-headline-lg--font-weight: 600;
+  --text-headline: 36px;
+  --text-headline--line-height: 1.35;
+  --text-headline--font-weight: 600;
+  --text-headline-sm: 24px;
+  --text-headline-sm--line-height: 1.4;
+  --text-headline-sm--font-weight: 600;
+  --text-lead: 18px;
+  --text-lead--line-height: 1.8;
+  --text-intro: 16px;
+  --text-intro--line-height: 1.8;
+  --text-copy: 15px;
+  --text-copy--line-height: 1.8;
+
   /* 圆角：4 / 6 / 10，另有 rounded-full */
   --radius-*: initial;
   --radius-xs: 4px;
