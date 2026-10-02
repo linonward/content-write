@@ -16,6 +16,12 @@ import {
   type DraftContext,
   validateDraft,
 } from "../draft";
+import {
+  createMockEdit,
+  type Edit,
+  type EditContext,
+  validateEdit,
+} from "../edit";
 import { TerminalJobError } from "../failures";
 import {
   createMockIdeas,
@@ -42,6 +48,7 @@ import {
   analysisMessages,
   breakdownMessages,
   draftMessages,
+  editMessages,
   ideasMessages,
   outlineMessages,
 } from "./prompts";
@@ -205,6 +212,22 @@ export async function generateBreakdown(
     breakdownMessages(title, content),
     (value) =>
       asParse(validateBreakdown(content, locateBreakdown(content, value))),
+    deps,
+  );
+  return { output: data, meta: { mode, usage } };
+}
+
+export async function generateEdit(
+  context: EditContext,
+  deps?: DeepSeekDeps,
+): Promise<Generated<Edit>> {
+  const mode = requireMode();
+  if (mode === "mock")
+    return { output: createMockEdit(context), meta: { mode, usage: null } };
+  const { data, usage } = await generateJson(
+    "edit_suggestion",
+    editMessages(context),
+    (value) => asParse(validateEdit(value, context.selectionText)),
     deps,
   );
   return { output: data, meta: { mode, usage } };

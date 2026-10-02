@@ -5,6 +5,7 @@ import {
   generateAnalysis,
   generateBreakdown,
   generateDraft,
+  generateEdit,
   generateIdeas,
   generateOutline,
   type RunMeta,
@@ -12,6 +13,7 @@ import {
 import { validateAnalysis } from "./analysis";
 import { completeBreakdownJob, loadBreakdownReference } from "./breakdown-jobs";
 import { completeDraftJob, loadDraftContext } from "./draft-jobs";
+import { completeEditJob, loadEditContext } from "./edit-jobs";
 import { describeFailure, TerminalJobError } from "./failures";
 import { completeIdeaJob, loadIdeaSources } from "./idea-jobs";
 import { completeOutlineJob, loadOutlineContext } from "./outline-jobs";
@@ -159,10 +161,13 @@ export async function failJob(job: Claimed, code: string, terminal = false) {
   );
 }
 
-export async function staleJob(job: Claimed) {
+export async function staleJob(
+  job: Claimed,
+  code = "MATERIAL_VERSION_CHANGED",
+) {
   await getPool().query(
-    "UPDATE ai_jobs SET status = 'stale', error_code = 'MATERIAL_VERSION_CHANGED', claim_token = NULL, lease_until = NULL, updated_at = now() WHERE id = $1 AND claim_token = $2 AND status = 'running'",
-    [job.id, job.claim_token],
+    "UPDATE ai_jobs SET status = 'stale', error_code = $3, claim_token = NULL, lease_until = NULL, updated_at = now() WHERE id = $1 AND claim_token = $2 AND status = 'running'",
+    [job.id, job.claim_token, code],
   );
 }
 
@@ -223,6 +228,16 @@ async function runDraft(job: Claimed, started: number) {
   await completeDraftJob(job, output, performance.now() - started, meta);
 }
 
+async function runEdit(job: Claimed, started: number) {
+  const context = await loadEditContext(job);
+  if (!context) {
+    await staleJob(job, "ARTICLE_CHANGED");
+    return;
+  }
+  const { output, meta } = await generateEdit(context);
+  await completeEditJob(job, output, performance.now() - started, meta);
+}
+
 async function runBreakdown(job: Claimed, started: number) {
   const reference = await loadBreakdownReference(job);
   if (!reference) {
@@ -246,6 +261,7 @@ const handlers: Record<
   outline_generation: runOutline,
   draft_generation: runDraft,
   reference_breakdown: runBreakdown,
+  edit_suggestion: runEdit,
 };
 export const claimableKinds = Object.keys(handlers);
 

@@ -9,7 +9,8 @@ export type JobKind =
   | "idea_generation"
   | "outline_generation"
   | "draft_generation"
-  | "reference_breakdown";
+  | "reference_breakdown"
+  | "edit_suggestion";
 
 export type NewJob = {
   kind: JobKind;

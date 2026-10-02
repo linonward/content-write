@@ -3,6 +3,7 @@ import { cors } from "hono/cors";
 import { webOrigin } from "./config";
 import { apiError } from "./http";
 import { aiRoutes, jobRoutes } from "./modules/ai-jobs/routes";
+import { articleEditRoutes } from "./modules/article-edits/routes";
 import { articleExportRoutes } from "./modules/article-export/routes";
 import { articleRoutes } from "./modules/articles/routes";
 import { breakdownRoutes } from "./modules/breakdowns/routes";
@@ -28,6 +29,7 @@ app.route("/api", aiRoutes);
 app.route("/api", ideaRoutes);
 app.route("/api", articleRoutes);
 app.route("/api", articleExportRoutes);
+app.route("/api", articleEditRoutes);
 app.route("/api", breakdownRoutes);
 
 app.notFound(() => apiError("NOT_FOUND", "接口不存在。", 404));
