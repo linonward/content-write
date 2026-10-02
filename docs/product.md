@@ -624,7 +624,7 @@ docs/runbook.md
 | T016 | confirmed-memory | 候选记忆、确认、修改、禁用、删除和上下文版本 | T015 |
 | T017 | preview-export | 手机预览、安全渲染、Markdown 与 HTML 下载 | T011 |
 | T018 | record-publication | 记录手动发布链接、时间和文章版本 | T017 |
-| T019 | home-onboarding | 首页、初次引导、目标、聚合信息和响应式布局 | T007、T009、T011、T014、T018 |
+| T019 | home-onboarding | 首页、初次引导、目标、聚合信息和页面响应式（外壳响应式见 T034） | T007、T009、T011、T014、T018 |
 | T020 | feedback-and-funnel | 用户反馈、事件、去重、漏斗和隐私配置 | T013、T016、T018、T019 |
 | T021 | real-provider | 已取消，由 T028 取代 | 无 |
 | T022 | quality-and-regression | 完整 E2E、安全与故障回归、10 组质量评估 | T020、T028；授权素材 |
@@ -636,7 +636,12 @@ docs/runbook.md
 | T029 | reference-breakdown | 参考文章保存与抓取、拆解任务与 `/breakdowns`、删除清除，10 篇真实质量评估 | T028 |
 | T030 | framework-outline | 用框架创建文章、按槽位生成大纲、框架标签，参考文章 ID 拒绝作为证据 | T029 |
 | T031 | wechat-draft | 本人公众号推送草稿箱，结果待确认与版本落后提示 | T017；公众号凭证与固定出口 IP |
+| T032 | design-system | 设计系统 token、字体与基础组件落地，任意值检查 | 无 |
+| T033 | landing | 落地页：未登录介绍与邮件申请试用，已登录跳转首页 | T032；申请邮箱 |
+| T034 | app-shell | 应用外壳：可折叠侧栏、账号菜单、顶栏、底部标签栏 | T032 |
+| T035 | primary-pages | 一级页面重排：首页、拆解、素材箱、选题、文章列表 | T034 |
 2026-10-02 起的执行顺序：T028、T029、T030、T017、T031；T013 到 T016、T018 到 T020 与 T027b/c 顺延到这条链路之后。T022 依赖改为 T020、T028。
+界面重构（2026-10-02 起）：T032、T033、T034、T035 依次进行，依据 `docs/design-system.md`。
 每项功能实施时就完成相关权限和错误测试。
 不得等 T022 才首次验证数据隔离。
 依赖任务合并主分支后才开始下游任务。
