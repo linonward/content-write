@@ -24,6 +24,8 @@ export type NewJob = {
   articleVersion?: number;
   referenceArticleId?: string;
   referenceVersion?: number;
+  /** Author profile version the generation will use; omitted when there is none. */
+  profileVersion?: number | null;
 };
 
 const shanghaiToday = sql<string>`(now() AT TIME ZONE 'Asia/Shanghai')::date`;
@@ -121,6 +123,7 @@ export async function enqueueJob(db: Executor, job: NewJob) {
     articleVersion: job.articleVersion ?? null,
     referenceArticleId: job.referenceArticleId ?? null,
     referenceVersion: job.referenceVersion ?? null,
+    profileVersion: job.profileVersion ?? null,
     deadlineAt: sql`now() + interval '5 minutes'`,
   });
   return { status: "created" as const, jobId };

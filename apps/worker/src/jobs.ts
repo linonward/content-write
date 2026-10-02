@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
-import { getPool } from "@content-write/db/client";
+import { readProfileRevision } from "@content-write/db/author-profile";
+import { getDb, getPool } from "@content-write/db/client";
 import {
   generateAnalysis,
   generateBreakdown,
@@ -29,6 +30,7 @@ export type Claimed = {
   article_version: number | null;
   reference_article_id: string | null;
   reference_version: number | null;
+  profile_version: number | null;
   kind: string;
   claim_token: string;
   attempts: number;
@@ -54,7 +56,7 @@ export async function claimJob(): Promise<Claimed | null> {
        UPDATE ai_jobs j SET status = 'running', claim_token = $1, lease_until = now() + interval '30 seconds',
          attempts = attempts + 1, updated_at = now()
        FROM next_job WHERE j.id = next_job.id
-       RETURNING j.id, j.user_id, j.material_id, j.material_version, j.source_count, j.article_id, j.article_version, j.reference_article_id, j.reference_version, j.kind, j.claim_token, j.attempts`,
+       RETURNING j.id, j.user_id, j.material_id, j.material_version, j.source_count, j.article_id, j.article_version, j.reference_article_id, j.reference_version, j.profile_version, j.kind, j.claim_token, j.attempts`,
       [randomUUID(), claimableKinds],
     );
     await client.query("COMMIT");
@@ -200,8 +202,13 @@ async function runIdeas(job: Claimed, started: number) {
     await staleJob(job);
     return;
   }
-  const { output, meta } = await generateIdeas(sources);
+  const { output, meta } = await generateIdeas(sources, await profileFor(job));
   await completeIdeaJob(job, output, performance.now() - started, meta);
+}
+
+/** The profile revision recorded when the job was queued, not the current one. */
+function profileFor(job: Claimed) {
+  return readProfileRevision(getDb(), job.user_id, job.profile_version);
 }
 
 async function runOutline(job: Claimed, started: number) {
@@ -214,6 +221,7 @@ async function runOutline(job: Claimed, started: number) {
     context.brief,
     context.sources,
     context.framework,
+    await profileFor(job),
   );
   await completeOutlineJob(job, output, performance.now() - started, meta);
 }
@@ -224,7 +232,7 @@ async function runDraft(job: Claimed, started: number) {
     await staleJob(job);
     return;
   }
-  const { output, meta } = await generateDraft(context);
+  const { output, meta } = await generateDraft(context, await profileFor(job));
   await completeDraftJob(job, output, performance.now() - started, meta);
 }
 

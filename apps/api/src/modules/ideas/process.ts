@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { currentProfileVersion } from "@content-write/db/author-profile";
 import { fromClient, getPool } from "@content-write/db/client";
 import { aiAvailable, aiMode } from "../../config";
 import {
@@ -37,9 +38,12 @@ export async function startIdeaGeneration(
     // T027b/c move this module to getDb().transaction(); until then share the pg transaction.
     const db = fromClient(client);
     await lockUserQueue(db, userId);
+    const profileVersion = await currentProfileVersion(db, userId);
     const inputHash = hashInput({
       kind: "idea_generation",
       sources,
+      // Undefined without a profile, keeping hashes of earlier jobs.
+      profile: profileVersion ?? undefined,
       mode: aiMode(),
     });
     const prior = await findIdempotentJob(db, userId, key, inputHash);
@@ -80,6 +84,7 @@ export async function startIdeaGeneration(
       idempotencyKey: key,
       inputHash,
       sourceCount: sources.length,
+      profileVersion,
     });
     if (result.status !== "created") {
       await client.query("COMMIT");
