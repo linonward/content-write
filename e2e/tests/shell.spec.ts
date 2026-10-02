@@ -41,7 +41,7 @@ test("persists sidebar choice, supports shortcut and preserves editor focus", as
   await expect(
     page.getByRole("heading", { name: "素材箱", exact: true }),
   ).toBeVisible();
-  const input = page.getByLabel("标题", { exact: true });
+  const input = page.getByLabel("搜索素材", { exact: true });
   await input.focus();
   await page.keyboard.press("Control+Backslash");
   await expect(input).toBeFocused();

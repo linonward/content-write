@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { AiConsentNotice } from "@/modules/ai/client/ai-consent-notice";
 import { type AiMode, modeNote } from "@/modules/ai/client/ai-mode";
 
@@ -173,14 +173,23 @@ export function MaterialAnalysisPanel({
 
   const data = analysis?.result;
   return (
-    <Card className="mt-7">
-      <CardHeader>
-        <CardTitle>素材整理</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-5">
+    <section className="grid gap-5" aria-label="素材整理">
+      <div className="flex items-center gap-2">
+        <h3 className="text-label">素材整理</h3>
+        {(analysis?.mode ?? aiMode) === "mock" && (
+          <Badge variant="mock">模拟</Badge>
+        )}
+      </div>
+      <div className="grid gap-5">
         <p className="text-sm text-ink-2">
-          AI 整理仅归纳来源，不代表事实已核实。
-          {processingAvailable ? modeNote(aiMode) : "当前未配置处理服务。"}
+          {loading ? (
+            "正在读取当前版本的整理状态。"
+          ) : (
+            <>
+              AI 整理仅归纳来源，不代表事实已核实。
+              {processingAvailable ? modeNote(aiMode) : "当前未配置处理服务。"}
+            </>
+          )}
         </p>
         <AiConsentNotice />
         {error && (
@@ -189,12 +198,14 @@ export function MaterialAnalysisPanel({
           </Alert>
         )}
         {loading ? (
-          <p>加载中…</p>
+          <p role="status" className="text-body text-ink-2">
+            加载中…
+          </p>
         ) : data ? (
           <>
             <div>
               <h3 className="font-medium">摘要</h3>
-              <p className="mt-2 whitespace-pre-wrap">{data.summary}</p>
+              <p className="pt-2 whitespace-pre-wrap">{data.summary}</p>
             </div>
             {data.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
@@ -205,7 +216,7 @@ export function MaterialAnalysisPanel({
             )}
             <div>
               <h3 className="font-medium">关键观点</h3>
-              <ul className="mt-2 list-disc space-y-2 pl-5">
+              <ul className="pt-2 list-disc space-y-2 pl-5">
                 {data.claims.map((claim) => (
                   <li
                     key={`${claim.kind}-${claim.text}-${claim.evidenceIds.join(",")}`}
@@ -224,7 +235,7 @@ export function MaterialAnalysisPanel({
             </div>
             <div>
               <h3 className="font-medium">可写角度</h3>
-              <ul className="mt-2 space-y-2">
+              <ul className="pt-2 space-y-2">
                 {data.angles.map((angle) => (
                   <li key={angle.title}>
                     <strong>{angle.title}</strong>
@@ -235,7 +246,7 @@ export function MaterialAnalysisPanel({
             </div>
             <div>
               <h3 className="font-medium">来源片段</h3>
-              <ul className="mt-2 space-y-2">
+              <ul className="pt-2 space-y-2">
                 {data.evidenceSpans.map((span) => (
                   <li
                     key={span.id}
@@ -271,7 +282,7 @@ export function MaterialAnalysisPanel({
                     : "处理服务未配置"}
           </Button>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </section>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { Plus } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
@@ -15,13 +16,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Card,
-  CardAction,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Empty,
   EmptyDescription,
@@ -37,11 +39,11 @@ import {
 import { FileDropzone } from "@/components/ui/file-dropzone";
 import { Input } from "@/components/ui/input";
 import { SelectField } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { StatusPill, type StatusTone } from "@/components/ui/status-pill";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { AppPage } from "@/modules/shell/client/app-shell";
 import { useUnsavedChanges } from "@/modules/shell/client/unsaved-changes";
 import { MaterialAnalysisPanel } from "./material-analysis-panel";
 
@@ -118,7 +120,9 @@ export function MaterialWorkspace() {
   const [appliedFilters, setAppliedFilters] = useState<Filters>(emptyFilters);
   const [listError, setListError] = useState("");
   const [selected, setSelected] = useState<Material | null>(null);
-  const [mode, setMode] = useState<"create" | "view" | "edit">("create");
+  const [mode, setMode] = useState<"create" | "view" | "edit">("view");
+  const [createOpen, setCreateOpen] = useState(false);
+  const [source, setSource] = useState<"text" | "file" | "link">("text");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(true);
@@ -158,6 +162,14 @@ export function MaterialWorkspace() {
   }, [refresh]);
 
   useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("new") === "1") {
+      setMode("create");
+      setCreateOpen(true);
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, []);
+
+  useEffect(() => {
     refresh()
       .catch((cause: unknown) =>
         setListError(cause instanceof Error ? cause.message : "加载失败。"),
@@ -192,6 +204,8 @@ export function MaterialWorkspace() {
     setLinkDirty(false);
     setFileDirty(false);
     setMode("create");
+    setCreateOpen(true);
+    setSource("text");
     setError("");
     setNotice("");
   }
@@ -229,6 +243,9 @@ export function MaterialWorkspace() {
       setTitle(result.material.title);
       setContent(result.material.content);
       setMode("view");
+      setCreateOpen(false);
+      setFileDirty(false);
+      setLinkDirty(false);
       await refresh();
       setNotice(editing ? "素材已保存为新版本。" : "素材已保存。");
     } catch (cause) {
@@ -283,6 +300,9 @@ export function MaterialWorkspace() {
       setContent(result.material.content);
       setMode("view");
       formElement.reset();
+      setCreateOpen(false);
+      setFileDirty(false);
+      setLinkDirty(false);
       await refresh();
       setNotice("文件已导入素材箱。");
     } catch (cause) {
@@ -326,6 +346,9 @@ export function MaterialWorkspace() {
       setContent(result.material.content);
       setMode("view");
       formElement.reset();
+      setCreateOpen(false);
+      setFileDirty(false);
+      setLinkDirty(false);
       await refresh();
       setNotice(
         result.material.fetchStatus === "fetched"
@@ -351,7 +374,8 @@ export function MaterialWorkspace() {
     try {
       await api<void>(`/${selected.id}`, { method: "DELETE" });
       await refresh();
-      startCreate();
+      setSelected(null);
+      setMode("view");
       setNotice("素材及其历史版本已删除。");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "删除失败，请重试。");
@@ -360,427 +384,537 @@ export function MaterialWorkspace() {
     }
   }
 
-  return (
-    <section
-      className="flex items-start gap-6 max-md:flex-col"
-      aria-label="素材箱"
-    >
-      <Card className="min-h-82 w-75 shrink-0 max-md:w-full">
-        <CardHeader>
-          <CardTitle>
-            <h2>最近素材</h2>
-          </CardTitle>
-          <CardAction>
-            <Button variant="ghost" type="button" onClick={startCreate}>
-              + 新建
+  const textForm = (
+    <form onSubmit={(event) => void save(event)}>
+      <FieldGroup>
+        <Field>
+          <FieldLabel htmlFor="material-title">标题</FieldLabel>
+          <Input
+            id="material-title"
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            maxLength={200}
+            required
+          />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="material-content">
+            {selected?.kind === "link" && !selected.content
+              ? "粘贴正文"
+              : "正文"}
+          </FieldLabel>
+          <Textarea
+            id="material-content"
+            value={content}
+            onChange={(event) => setContent(event.target.value)}
+            maxLength={50_000}
+            rows={14}
+            required
+          />
+          <FieldDescription>
+            {content.length} / 50000 字。当前仅保存文字，不会自动调用模型。
+          </FieldDescription>
+        </Field>
+        <div className="flex items-center gap-3">
+          <Button type="submit" disabled={pending}>
+            {pending ? "保存中…" : "保存素材"}
+          </Button>
+          {mode === "edit" && (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setMode("view");
+                setError("");
+              }}
+            >
+              取消
             </Button>
-          </CardAction>
-        </CardHeader>
-        <CardContent>
-          <form
-            className="space-y-3"
-            onSubmit={(event) => {
-              event.preventDefault();
-              setLoading(true);
-              setAppliedFilters({ ...filters });
-            }}
-          >
-            <Input
-              aria-label="搜索素材"
-              placeholder="搜索标题、正文或链接"
-              maxLength={100}
-              value={filters.q}
-              onChange={(event) =>
-                setFilters({ ...filters, q: event.target.value })
-              }
-            />
-            <div className="grid grid-cols-2 gap-2">
-              <SelectField
-                aria-label="素材类型"
-                size="compact"
-                active={filters.kind !== ""}
-                options={kindOptions}
-                value={filters.kind}
-                onValueChange={(kind) => setFilters({ ...filters, kind })}
-              />
-              <SelectField
-                aria-label="处理状态"
-                size="compact"
-                active={filters.status !== ""}
-                options={statusOptions}
-                value={filters.status}
-                onValueChange={(status) => setFilters({ ...filters, status })}
-              />
-            </div>
-            <Input
-              aria-label="标签过滤"
-              placeholder="输入完整标签"
-              maxLength={50}
-              value={filters.tag}
-              onChange={(event) =>
-                setFilters({ ...filters, tag: event.target.value })
-              }
-            />
-            <div className="flex gap-2">
-              <Button type="submit" variant="secondary">
-                查找
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => {
-                  setFilters(emptyFilters);
-                  setLoading(true);
-                  setAppliedFilters({ ...emptyFilters });
-                }}
-              >
-                清除
-              </Button>
-            </div>
-          </form>
-          {listError && (
-            <Alert variant="destructive" className="mt-4">
-              <AlertDescription>
-                {listError}{" "}
+          )}
+        </div>
+      </FieldGroup>
+    </form>
+  );
+  return (
+    <AppPage
+      title="素材箱"
+      description="收集自己的经历、观点与证据。"
+      actions={
+        <Button
+          onClick={startCreate}
+          aria-label="添加素材"
+          className="max-md:size-9 max-md:p-0"
+        >
+          <Plus className="size-4 md:hidden" aria-hidden="true" />
+          <span className="max-md:sr-only">添加素材</span>
+        </Button>
+      }
+    >
+      {notice && (
+        <Alert role="status">
+          <AlertDescription>{notice}</AlertDescription>
+        </Alert>
+      )}
+      {error && !createOpen && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      <section
+        className="grid items-start gap-6 lg:grid-cols-3"
+        aria-label="素材箱"
+      >
+        <Card
+          className={cn(
+            "min-w-0 gap-0 overflow-hidden py-0 max-md:border-0 max-md:bg-transparent max-md:py-0",
+            selected && "max-md:hidden",
+          )}
+        >
+          <CardContent className="grid gap-3 p-4 max-md:p-0">
+            <form
+              className="grid gap-2"
+              onSubmit={(event) => {
+                event.preventDefault();
+                setLoading(true);
+                setAppliedFilters({ ...filters });
+              }}
+            >
+              <div className="flex min-w-0 gap-2">
+                <Input
+                  className="min-w-0"
+                  aria-label="搜索素材"
+                  placeholder="搜索素材"
+                  maxLength={100}
+                  value={filters.q}
+                  onChange={(event) =>
+                    setFilters({ ...filters, q: event.target.value })
+                  }
+                />
+                <Button type="submit" variant="secondary" size="sm">
+                  查找
+                </Button>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <SelectField
+                  aria-label="素材类型"
+                  size="compact"
+                  active={filters.kind !== ""}
+                  options={kindOptions}
+                  value={filters.kind}
+                  onValueChange={(kind) => setFilters({ ...filters, kind })}
+                />
+                <SelectField
+                  aria-label="处理状态"
+                  size="compact"
+                  active={filters.status !== ""}
+                  options={statusOptions}
+                  value={filters.status}
+                  onValueChange={(status) => setFilters({ ...filters, status })}
+                />
                 <Button
                   type="button"
-                  variant="secondary"
-                  onClick={() =>
-                    void refresh().catch((cause: unknown) =>
-                      setListError(
-                        cause instanceof Error ? cause.message : "加载失败。",
-                      ),
-                    )
-                  }
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setFilters(emptyFilters);
+                    setLoading(true);
+                    setAppliedFilters({ ...emptyFilters });
+                  }}
                 >
-                  重试
+                  清除
                 </Button>
-              </AlertDescription>
-            </Alert>
-          )}
-          {loading ? (
-            <p className="text-sm text-ink-2">加载中…</p>
-          ) : items.length === 0 ? (
-            <Empty>
-              <EmptyHeader>
-                <EmptyTitle>
-                  {Object.values(appliedFilters).some(Boolean)
-                    ? "没有匹配的素材"
-                    : "还没有素材"}
-                </EmptyTitle>
-                <EmptyDescription>
-                  {Object.values(appliedFilters).some(Boolean)
-                    ? "试试其他搜索或过滤条件。"
-                    : "写下第一条想法吧。"}
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
-          ) : (
-            <ul className="mt-2">
-              {items.map((item) => (
-                <li className="border-b last:border-b-0" key={item.id}>
+              </div>
+              <details className="text-label text-ink-2">
+                <summary className="cursor-pointer">
+                  标签{filters.tag ? ` · ${filters.tag}` : ""}
+                </summary>
+                <div className="pt-2">
+                  <Input
+                    aria-label="标签过滤"
+                    placeholder="输入完整标签后查找"
+                    maxLength={50}
+                    value={filters.tag}
+                    onChange={(event) =>
+                      setFilters({ ...filters, tag: event.target.value })
+                    }
+                  />
+                </div>
+              </details>
+            </form>
+            {listError && (
+              <Alert variant="destructive" className="p-3">
+                <AlertDescription>
+                  {listError}{" "}
                   <Button
                     type="button"
-                    variant="ghost"
-                    className={cn(
-                      "h-auto w-full justify-start rounded-none px-2 py-3.5 text-left",
-                      selected?.id === item.id && "bg-sunken",
-                    )}
-                    onClick={() => void open(item.id)}
+                    variant="secondary"
+                    onClick={() =>
+                      void refresh().catch((cause: unknown) =>
+                        setListError(
+                          cause instanceof Error ? cause.message : "加载失败。",
+                        ),
+                      )
+                    }
                   >
-                    <span className="grid min-w-0 gap-1.5">
-                      <strong className="truncate">{item.title}</strong>
-                      <span className="text-xs text-ink-2">
-                        {item.kind === "link"
-                          ? "链接"
-                          : item.sourceFilename
-                            ? "文件导入"
-                            : "文字"}{" "}
-                        · 版本 {item.currentVersion} ·{" "}
-                        {new Date(item.updatedAt).toLocaleDateString("zh-CN")}
+                    重试
+                  </Button>
+                </AlertDescription>
+              </Alert>
+            )}
+            {loading ? (
+              <p role="status" className="text-body text-ink-2">
+                加载中…
+              </p>
+            ) : items.length === 0 ? (
+              <Empty>
+                <EmptyHeader>
+                  <EmptyTitle>
+                    {Object.values(appliedFilters).some(Boolean)
+                      ? "没有匹配的素材"
+                      : "还没有素材"}
+                  </EmptyTitle>
+                  <EmptyDescription>
+                    {Object.values(appliedFilters).some(Boolean)
+                      ? "试试其他搜索或过滤条件。"
+                      : "写下第一条想法吧。"}
+                  </EmptyDescription>
+                </EmptyHeader>
+              </Empty>
+            ) : (
+              <ul className="grid">
+                {items.map((item) => (
+                  <li className="border-b last:border-b-0" key={item.id}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className={cn(
+                        "h-auto min-h-16 w-full justify-between gap-3 rounded-none border-l-2 border-l-transparent px-3 py-2 text-left",
+                        selected?.id === item.id &&
+                          "border-l-accent bg-accent-soft hover:bg-accent-soft",
+                      )}
+                      onClick={() => void open(item.id)}
+                    >
+                      <span className="grid min-w-0 flex-1 gap-1">
+                        <strong className="truncate text-title-card">
+                          {item.title}
+                        </strong>
+                        <span className="truncate text-meta text-ink-2">
+                          {item.kind === "link"
+                            ? "链接"
+                            : item.sourceFilename
+                              ? "文件导入"
+                              : "文字"}{" "}
+                          · 版本 {item.currentVersion} ·{" "}
+                          {new Date(item.updatedAt).toLocaleDateString("zh-CN")}
+                        </span>
                       </span>
-                      <span className="flex flex-wrap items-center gap-2 text-meta text-ink-2">
+                      <span className="shrink-0">
                         <StatusPill tone={analysisTones[item.analysisStatus]}>
                           {analysisLabels[item.analysisStatus]}
                         </StatusPill>
-                        {item.tags.length ? item.tags.join("、") : ""}
                       </span>
-                    </span>
-                  </Button>
-                </li>
-              ))}
-            </ul>
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {hasMore && (
+              <p className="pt-3 text-xs text-ink-2">
+                当前显示最近 100 条匹配素材；请缩小搜索范围。
+              </p>
+            )}
+          </CardContent>
+        </Card>
+        <Card
+          className={cn(
+            "min-w-0 gap-0 overflow-hidden lg:col-span-2",
+            !selected && "max-md:hidden",
           )}
-          {hasMore && (
-            <p className="mt-3 text-xs text-ink-2">
-              当前显示最近 100 条匹配素材；请缩小搜索范围。
-            </p>
+        >
+          {selected ? (
+            <>
+              <CardHeader className="gap-2">
+                <CardTitle>
+                  <h2 className="wrap-anywhere">
+                    {mode === "edit" ? "编辑素材" : selected.title}
+                  </h2>
+                </CardTitle>
+                <Badge variant="muted">版本 {selected.currentVersion}</Badge>
+                <Button
+                  variant="ghost"
+                  className="justify-self-start md:hidden"
+                  onClick={() => {
+                    setSelected(null);
+                    setMode("view");
+                  }}
+                >
+                  返回素材列表
+                </Button>
+              </CardHeader>
+              {mode === "edit" ? (
+                <CardContent>{textForm}</CardContent>
+              ) : (
+                <CardContent className="grid gap-3 px-0">
+                  <div className="grid gap-3 px-6">
+                    <p className="text-xs text-ink-2">
+                      更新于{" "}
+                      {new Date(selected.updatedAt).toLocaleString("zh-CN")}
+                    </p>
+                    {selected.sourceFilename && (
+                      <p className="text-xs text-ink-2">
+                        来源文件：{selected.sourceFilename} ·{" "}
+                        {selected.kind === "markdown" ? "Markdown" : "纯文本"}
+                      </p>
+                    )}
+                    {selected.sourceUrl && (
+                      <p className="flex flex-wrap items-center gap-2 text-meta text-ink-2 wrap-anywhere">
+                        来源链接：
+                        <a
+                          className="text-accent underline"
+                          href={selected.sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {selected.sourceUrl}
+                        </a>
+                        {selected.fetchStatus && (
+                          <Badge variant="muted" className="inline-flex">
+                            {selected.fetchStatus === "fetched"
+                              ? "已抓取文字"
+                              : selected.fetchStatus === "manual"
+                                ? "手动粘贴"
+                                : selected.fetchStatus === "failed"
+                                  ? "抓取失败"
+                                  : "未抓取"}
+                          </Badge>
+                        )}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-3">
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          setMode("edit");
+                          setNotice("");
+                        }}
+                      >
+                        {selected.kind === "link" && !selected.content
+                          ? "粘贴正文"
+                          : "编辑"}
+                      </Button>
+                      <AlertDialog
+                        open={deleteOpen}
+                        onOpenChange={setDeleteOpen}
+                      >
+                        <AlertDialogTrigger
+                          render={
+                            <Button variant="danger" disabled={pending} />
+                          }
+                        >
+                          删除
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>删除素材？</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              将删除「{selected.title}
+                              」及其全部历史版本、引用它的选题和文章，此操作不可恢复。
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>取消</AlertDialogCancel>
+                            <AlertDialogAction
+                              variant="danger-solid"
+                              disabled={pending}
+                              onClick={() => {
+                                setDeleteOpen(false);
+                                void remove();
+                              }}
+                            >
+                              确认删除
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </div>
+                  <div className="grid border-t lg:grid-cols-2">
+                    <section className="min-w-0 p-6">
+                      <h3 className="pb-4 text-label text-ink-2">
+                        原文 · 仅你可见
+                      </h3>{" "}
+                      {selected.content ? (
+                        <div className="font-serif text-reading whitespace-pre-wrap wrap-anywhere">
+                          {selected.content}
+                        </div>
+                      ) : selected.kind === "link" ? (
+                        <Empty className="p-0">
+                          <EmptyHeader>
+                            <EmptyTitle>暂无正文</EmptyTitle>
+                            <EmptyDescription>
+                              可编辑素材并粘贴网页正文；不会根据链接编造内容。
+                            </EmptyDescription>
+                          </EmptyHeader>
+                        </Empty>
+                      ) : null}
+                    </section>
+                    <section className="min-w-0 bg-sunken p-6">
+                      <MaterialAnalysisPanel
+                        key={`${selected.id}:${selected.currentVersion}`}
+                        materialId={selected.id}
+                        version={selected.currentVersion}
+                        onStatusChange={handleStatusChange}
+                      />
+                    </section>
+                  </div>
+                </CardContent>
+              )}
+            </>
+          ) : (
+            <Empty>
+              <EmptyHeader>
+                <EmptyTitle>选择一条素材</EmptyTitle>
+                <EmptyDescription>
+                  在左侧查看原文、整理结果与来源。
+                </EmptyDescription>
+              </EmptyHeader>
+            </Empty>
           )}
-        </CardContent>
-      </Card>
-      <Card className="min-h-82 min-w-0 flex-1 max-md:w-full">
-        <CardHeader>
-          <CardTitle>
-            <h2>
-              {mode === "create"
-                ? "添加文字素材"
-                : mode === "edit"
-                  ? "编辑素材"
-                  : selected?.title}
-            </h2>
-          </CardTitle>
-          {selected && (
-            <CardAction>
-              <Badge variant="muted">版本 {selected.currentVersion}</Badge>
-            </CardAction>
-          )}
-        </CardHeader>
-        <CardContent>
+        </Card>
+      </section>
+      <Dialog
+        open={createOpen}
+        onOpenChange={(open) => {
+          if (pending) return;
+          setCreateOpen(open);
+          if (!open) {
+            setMode("view");
+            setTitle(selected?.title ?? "");
+            setContent(selected?.content ?? "");
+            setLinkDirty(false);
+            setFileDirty(false);
+            setError("");
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>添加素材</DialogTitle>
+            <DialogDescription>
+              保存你的素材；整理需要你主动发起。
+            </DialogDescription>
+          </DialogHeader>
+          <fieldset
+            className="flex gap-1 rounded-sm bg-sunken p-1"
+            aria-label="素材来源"
+          >
+            {(
+              [
+                ["text", "文字"],
+                ["file", "文件"],
+                ["link", "链接"],
+              ] as const
+            ).map(([value, label]) => (
+              <Button
+                key={value}
+                type="button"
+                className="flex-1"
+                variant={source === value ? "secondary" : "ghost"}
+                aria-pressed={source === value}
+                onClick={() => setSource(value)}
+              >
+                {label}
+              </Button>
+            ))}
+          </fieldset>
           {error && (
-            <Alert variant="destructive" className="mb-4">
+            <Alert variant="destructive">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          {notice && (
-            <Alert role="status" className="mb-4">
-              <AlertDescription>{notice}</AlertDescription>
-            </Alert>
-          )}
-          {mode === "view" && selected ? (
-            <>
-              <p className="text-xs text-ink-2">
-                更新于 {new Date(selected.updatedAt).toLocaleString("zh-CN")}
-              </p>
-              {selected.sourceFilename && (
-                <p className="text-xs text-ink-2">
-                  来源文件：{selected.sourceFilename} ·{" "}
-                  {selected.kind === "markdown" ? "Markdown" : "纯文本"}
-                </p>
-              )}
-
-              {selected.sourceUrl && (
-                <p className="mt-2 text-xs text-ink-2 wrap-anywhere">
-                  来源链接：
-                  <a
-                    className="text-accent underline"
-                    href={selected.sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {selected.sourceUrl}
-                  </a>
-                  {selected.fetchStatus && (
-                    <Badge variant="muted" className="ml-2">
-                      {selected.fetchStatus === "fetched"
-                        ? "已抓取文字"
-                        : selected.fetchStatus === "manual"
-                          ? "手动粘贴"
-                          : selected.fetchStatus === "failed"
-                            ? "抓取失败"
-                            : "未抓取"}
-                    </Badge>
-                  )}
-                </p>
-              )}
-              {selected.content ? (
-                <div className="mt-7 font-serif text-reading whitespace-pre-wrap wrap-anywhere">
-                  {selected.content}
-                </div>
-              ) : selected.kind === "link" ? (
-                <Empty className="mt-6">
-                  <EmptyHeader>
-                    <EmptyTitle>暂无正文</EmptyTitle>
-                    <EmptyDescription>
-                      可编辑素材并粘贴网页正文；不会根据链接编造内容。
-                    </EmptyDescription>
-                  </EmptyHeader>
-                </Empty>
-              ) : null}
-              <MaterialAnalysisPanel
-                key={`${selected.id}:${selected.currentVersion}`}
-                materialId={selected.id}
-                version={selected.currentVersion}
-                onStatusChange={handleStatusChange}
-              />
-              <div className="mt-6 flex items-center gap-3">
-                <Button
-                  type="button"
-                  onClick={() => {
-                    setMode("edit");
-                    setNotice("");
-                  }}
-                >
-                  {selected.kind === "link" && !selected.content
-                    ? "粘贴正文"
-                    : "编辑"}
-                </Button>
-                <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-                  <AlertDialogTrigger
-                    render={<Button variant="danger" disabled={pending} />}
-                  >
-                    删除
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>删除素材？</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        将删除「{selected.title}
-                        」及其全部历史版本、引用它的选题和文章，此操作不可恢复。
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>取消</AlertDialogCancel>
-                      <AlertDialogAction
-                        variant="danger-solid"
-                        disabled={pending}
-                        onClick={() => {
-                          setDeleteOpen(false);
-                          void remove();
-                        }}
-                      >
-                        确认删除
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-            </>
-          ) : (
-            <form onSubmit={(event) => void save(event)}>
+          <div hidden={source !== "text"}>{textForm}</div>
+          <div hidden={source !== "file"}>
+            <form onSubmit={(event) => void upload(event)}>
               <FieldGroup>
+                <h3 className="text-title-card">从文件导入</h3>
                 <Field>
-                  <FieldLabel htmlFor="material-title">标题</FieldLabel>
-                  <Input
-                    id="material-title"
-                    value={title}
-                    onChange={(event) => setTitle(event.target.value)}
-                    maxLength={200}
-                    required
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="material-content">
-                    {selected?.kind === "link" && !selected.content
-                      ? "粘贴正文"
-                      : "正文"}
+                  <FieldLabel htmlFor="material-file">
+                    选择 Markdown 或纯文本文件
                   </FieldLabel>
-                  <Textarea
-                    id="material-content"
-                    value={content}
-                    onChange={(event) => setContent(event.target.value)}
-                    maxLength={50_000}
-                    rows={14}
+                  <FileDropzone
+                    id="material-file"
+                    name="file"
+                    onChange={(event) =>
+                      setFileDirty(!!event.currentTarget.files?.length)
+                    }
+                    accept=".md,.txt,text/markdown,text/plain"
                     required
                   />
                   <FieldDescription>
-                    {content.length} / 50000
-                    字。当前仅保存文字，不会自动调用模型。
+                    仅支持 UTF-8；单文件不超过 1 MiB，正文不超过 50000 字。
                   </FieldDescription>
                 </Field>
-                <div className="flex items-center gap-3">
-                  <Button type="submit" disabled={pending}>
-                    {pending ? "保存中…" : "保存素材"}
-                  </Button>
-                  {mode === "edit" && (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={() => {
-                        setMode("view");
-                        setError("");
-                      }}
-                    >
-                      取消
-                    </Button>
-                  )}
-                </div>
+                <Button
+                  variant="secondary"
+                  className="justify-self-start"
+                  type="submit"
+                  disabled={pending}
+                >
+                  {pending ? "导入中…" : "导入文件"}
+                </Button>
               </FieldGroup>
             </form>
-          )}
-          {mode === "create" && (
-            <>
-              <Separator className="my-7" />
-              <form onSubmit={(event) => void upload(event)}>
-                <FieldGroup>
-                  <h3 className="text-lg font-medium">从文件导入</h3>
-                  <Field>
-                    <FieldLabel htmlFor="material-file">
-                      选择 Markdown 或纯文本文件
+          </div>
+          <div hidden={source !== "link"}>
+            <form onSubmit={(event) => void saveLink(event)}>
+              <FieldGroup>
+                <h3 className="text-title-card">保存网页链接</h3>
+                <Field>
+                  <FieldLabel htmlFor="material-url">公开网页 URL</FieldLabel>
+                  <Input
+                    id="material-url"
+                    name="url"
+                    onChange={(event) =>
+                      setLinkDirty(!!event.currentTarget.value)
+                    }
+                    type="url"
+                    placeholder="https://example.com/article"
+                    maxLength={2048}
+                    required
+                  />
+                  <FieldDescription>
+                    仅支持 HTTP/HTTPS 公网地址。抓取失败时仍会保存链接。
+                  </FieldDescription>
+                </Field>
+                {remoteFetchEnabled ? (
+                  <Field orientation="horizontal">
+                    <Switch
+                      id="material-fetch"
+                      checked={fetchRequested}
+                      onCheckedChange={setFetchRequested}
+                    />
+                    <FieldLabel htmlFor="material-fetch">
+                      尝试抓取公开网页文字
                     </FieldLabel>
-                    <FileDropzone
-                      id="material-file"
-                      name="file"
-                      onChange={(event) =>
-                        setFileDirty(!!event.currentTarget.files?.length)
-                      }
-                      accept=".md,.txt,text/markdown,text/plain"
-                      required
-                    />
-                    <FieldDescription>
-                      仅支持 UTF-8；单文件不超过 1 MiB，正文不超过 50000 字。
-                    </FieldDescription>
                   </Field>
-                  <Button
-                    variant="secondary"
-                    className="justify-self-start"
-                    type="submit"
-                    disabled={pending}
-                  >
-                    {pending ? "导入中…" : "导入文件"}
-                  </Button>
-                </FieldGroup>
-              </form>
-              <Separator className="my-7" />
-              <form onSubmit={(event) => void saveLink(event)}>
-                <FieldGroup>
-                  <h3 className="text-lg font-medium">保存网页链接</h3>
-                  <Field>
-                    <FieldLabel htmlFor="material-url">公开网页 URL</FieldLabel>
-                    <Input
-                      id="material-url"
-                      name="url"
-                      onChange={(event) =>
-                        setLinkDirty(!!event.currentTarget.value)
-                      }
-                      type="url"
-                      placeholder="https://example.com/article"
-                      maxLength={2048}
-                      required
-                    />
-                    <FieldDescription>
-                      仅支持 HTTP/HTTPS 公网地址。抓取失败时仍会保存链接。
-                    </FieldDescription>
-                  </Field>
-                  {remoteFetchEnabled ? (
-                    <Field orientation="horizontal">
-                      <Switch
-                        id="material-fetch"
-                        checked={fetchRequested}
-                        onCheckedChange={setFetchRequested}
-                      />
-                      <FieldLabel htmlFor="material-fetch">
-                        尝试抓取公开网页文字
-                      </FieldLabel>
-                    </Field>
-                  ) : (
-                    <FieldDescription>
-                      此环境未开启远程抓取；保存后可粘贴正文。
-                    </FieldDescription>
-                  )}
-                  <Button
-                    variant="secondary"
-                    className="justify-self-start"
-                    type="submit"
-                    disabled={pending}
-                  >
-                    {pending ? "保存中…" : "保存链接"}
-                  </Button>
-                </FieldGroup>
-              </form>
-            </>
-          )}
-        </CardContent>
-      </Card>
-    </section>
+                ) : (
+                  <FieldDescription>
+                    此环境未开启远程抓取；保存后可粘贴正文。
+                  </FieldDescription>
+                )}
+                <Button
+                  variant="secondary"
+                  className="justify-self-start"
+                  type="submit"
+                  disabled={pending}
+                >
+                  {pending ? "保存中…" : "保存链接"}
+                </Button>
+              </FieldGroup>
+            </form>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </AppPage>
   );
 }

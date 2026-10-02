@@ -72,6 +72,7 @@ export function IdeasWorkspace() {
   const [filter, setFilter] = useState<"visible" | "saved" | "ignored">(
     "visible",
   );
+  const [selecting, setSelecting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -127,9 +128,9 @@ export function IdeasWorkspace() {
         .then(async ({ job }) => {
           if (!live) return;
           if (job.status === "succeeded") {
+            setNotice("选题已生成，可查看来源并收藏。");
             setJobId(null);
             await refresh();
-            if (live) setNotice("选题已生成，可查看来源并收藏。 ");
           } else if (["failed", "stale"].includes(job.status)) {
             setJobId(null);
             setError(
@@ -226,7 +227,7 @@ export function IdeasWorkspace() {
     filter === "visible" ? idea.status !== "ignored" : idea.status === filter,
   );
   return (
-    <div className="space-y-8">
+    <div className="mx-auto grid w-full max-w-220 gap-6">
       {error && (
         <Alert variant="destructive">
           <AlertDescription>
@@ -254,73 +255,18 @@ export function IdeasWorkspace() {
           <AlertDescription>{notice}</AlertDescription>
         </Alert>
       )}
-      <Card>
-        <CardHeader>
-          <CardTitle>选择已整理素材</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          <p className="text-sm text-ink-2">
-            {generationAvailable
-              ? modeNote(aiMode)
-              : "当前未配置可用的生成服务。"}{" "}
-            所有来源说法都需要作者核对。
-          </p>
-          <AiConsentNotice />
-          {loading ? (
-            <p>加载中…</p>
-          ) : materials.length === 0 ? (
-            <Empty>
-              <EmptyHeader>
-                <EmptyTitle>还没有已整理素材</EmptyTitle>
-                <EmptyDescription>
-                  先到素材箱处理至少一条素材的当前版本。
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
-          ) : (
-            <div className="grid gap-3 sm:grid-cols-2">
-              {materials.map((material) => (
-                <label
-                  key={material.id}
-                  className="flex cursor-pointer gap-3 rounded-sm border p-4 has-checked:border-accent has-checked:bg-accent-soft"
-                >
-                  <input
-                    type="checkbox"
-                    className="mt-1"
-                    checked={selected.includes(material.id)}
-                    onChange={() => toggle(material.id)}
-                    disabled={
-                      !selected.includes(material.id) && selected.length >= 10
-                    }
-                  />
-                  <span className="min-w-0">
-                    <strong className="block">{material.title}</strong>
-                    <span className="text-xs text-ink-2">
-                      版本 {material.currentVersion}
-                    </span>
-                    <span className="mt-2 block text-sm text-ink-2">
-                      {material.summary}
-                    </span>
-                    {material.tags.length > 0 && (
-                      <span className="mt-2 flex flex-wrap gap-1">
-                        {material.tags.map((tag) => (
-                          <Badge key={tag} variant="muted">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </span>
-                    )}
-                  </span>
-                </label>
-              ))}
-            </div>
-          )}
-          {materialsHasMore && (
-            <p className="text-xs text-ink-2">
-              当前显示最近 100 条已整理素材。
-            </p>
-          )}
-          <div className="flex flex-wrap items-center gap-3">
+      <Card size="sm">
+        <CardHeader className="flex flex-wrap items-center justify-between gap-3">
+          <CardTitle>已选择 {selected.length} / 10 条素材</CardTitle>
+          <div className="flex flex-wrap gap-2">
+            {" "}
+            <Button
+              variant="secondary"
+              aria-expanded={selecting}
+              onClick={() => setSelecting(!selecting)}
+            >
+              选择已整理素材
+            </Button>{" "}
             <Button
               type="button"
               onClick={() => void generate()}
@@ -333,15 +279,96 @@ export function IdeasWorkspace() {
             >
               {jobId ? "生成中…" : pending ? "提交中…" : "生成 3 个选题"}
             </Button>
-            <span className="text-sm text-ink-2">
-              已选择 {selected.length} / 10 条
-            </span>
           </div>
+        </CardHeader>
+        <CardContent className="grid gap-3">
+          <p className="text-sm text-ink-2">
+            {generationAvailable
+              ? modeNote(aiMode)
+              : "当前未配置可用的生成服务。"}{" "}
+            所有来源说法都需要作者核对。
+          </p>
+          {selected.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {selected.map((id) => {
+                const material = materials.find((item) => item.id === id);
+                return material ? (
+                  <Button
+                    key={id}
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => toggle(id)}
+                    aria-label={`移除素材 ${material.title}`}
+                  >
+                    {material.title} ×
+                  </Button>
+                ) : null;
+              })}
+            </div>
+          )}
+          <AiConsentNotice />
+          {selecting &&
+            (loading ? (
+              <p role="status" className="text-body text-ink-2">
+                加载中…
+              </p>
+            ) : materials.length === 0 ? (
+              <Empty>
+                <EmptyHeader>
+                  <EmptyTitle>还没有已整理素材</EmptyTitle>
+                  <EmptyDescription>
+                    先到素材箱处理至少一条素材的当前版本。
+                  </EmptyDescription>
+                </EmptyHeader>
+              </Empty>
+            ) : (
+              <div className="grid max-h-80 gap-2 overflow-y-auto sm:grid-cols-2">
+                {materials.map((material) => (
+                  <label
+                    key={material.id}
+                    className="flex cursor-pointer gap-3 rounded-sm border p-4 has-checked:border-accent has-checked:bg-accent-soft"
+                  >
+                    <input
+                      type="checkbox"
+                      className="accent-accent"
+                      checked={selected.includes(material.id)}
+                      onChange={() => toggle(material.id)}
+                      disabled={
+                        !selected.includes(material.id) && selected.length >= 10
+                      }
+                    />
+                    <span className="min-w-0">
+                      <strong className="block">{material.title}</strong>
+                      <span className="text-xs text-ink-2">
+                        版本 {material.currentVersion}
+                      </span>
+                      <span className="pt-2 block text-sm text-ink-2">
+                        {material.summary}
+                      </span>
+                      {material.tags.length > 0 && (
+                        <span className="pt-2 flex flex-wrap gap-1">
+                          {material.tags.map((tag) => (
+                            <Badge key={tag} variant="muted">
+                              {tag}
+                            </Badge>
+                          ))}
+                        </span>
+                      )}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            ))}
+          {materialsHasMore && selecting && (
+            <p className="text-xs text-ink-2">
+              当前显示最近 100 条已整理素材。
+            </p>
+          )}
         </CardContent>
       </Card>
-      <section aria-label="生成的选题" className="space-y-4">
+      <section aria-label="生成的选题" className="grid gap-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-2xl font-medium">我的选题</h2>
+          <h2 className="text-title-section">我的选题</h2>
           <div className="flex gap-2">
             <Button
               type="button"
@@ -367,7 +394,9 @@ export function IdeasWorkspace() {
           </div>
         </div>
         {loading ? (
-          <p>加载中…</p>
+          <p role="status" className="text-body text-ink-2">
+            加载中…
+          </p>
         ) : shown.length === 0 ? (
           <Empty>
             <EmptyHeader>
@@ -381,7 +410,7 @@ export function IdeasWorkspace() {
               <CardHeader>
                 <CardTitle>{idea.title}</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="grid gap-4">
                 <div className="flex gap-2">
                   <Badge variant="muted">
                     {idea.status === "saved"
@@ -390,7 +419,9 @@ export function IdeasWorkspace() {
                         ? "已忽略"
                         : "待看"}
                   </Badge>
-                  <Badge variant="neutral">{modeLabel(idea.mode)}</Badge>
+                  <Badge variant={idea.mode === "mock" ? "mock" : "neutral"}>
+                    {idea.mode === "mock" ? "模拟" : modeLabel(idea.mode)}
+                  </Badge>
                 </div>
                 <p>
                   <strong>目标读者：</strong>
@@ -404,27 +435,29 @@ export function IdeasWorkspace() {
                   <strong>素材如何支持：</strong>
                   {idea.rationale}
                 </p>
-                <div>
-                  <strong>证据缺口</strong>
-                  <ul className="mt-1 list-disc pl-5">
-                    {idea.evidenceGaps.map((gap) => (
-                      <li key={gap}>{gap}</li>
-                    ))}
-                  </ul>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="grid gap-2 rounded-sm bg-evidence-soft p-4 text-evidence-ink">
+                    <strong className="text-label">证据缺口</strong>
+                    <ul className="list-disc pl-5">
+                      {idea.evidenceGaps.map((gap) => (
+                        <li key={gap}>{gap}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="grid gap-2">
+                    <strong className="text-label">建议结构</strong>
+                    <ol className="list-decimal pl-5">
+                      {idea.suggestedStructure.map((step) => (
+                        <li key={step}>{step}</li>
+                      ))}
+                    </ol>
+                  </div>
                 </div>
-                <div>
-                  <strong>建议结构</strong>
-                  <ol className="mt-1 list-decimal pl-5">
-                    {idea.suggestedStructure.map((step) => (
-                      <li key={step}>{step}</li>
-                    ))}
-                  </ol>
-                </div>
-                <details className="rounded-sm border p-3">
+                <details className="border-t pt-3">
                   <summary className="cursor-pointer font-medium">
                     查看引用素材（{idea.sources.length}）
                   </summary>
-                  <ul className="mt-3 space-y-3">
+                  <ul className="pt-3 space-y-3">
                     {idea.sources.map((source) => (
                       <li key={source.materialId}>
                         <strong>{source.title}</strong>{" "}

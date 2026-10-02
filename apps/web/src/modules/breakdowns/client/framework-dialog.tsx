@@ -181,7 +181,9 @@ export function FrameworkDialog({
             </span>
           </div>
           {materials === null ? (
-            <p className="text-sm text-ink-2">加载中…</p>
+            <p role="status" className="text-body text-ink-2">
+              加载中…
+            </p>
           ) : materials.length === 0 ? (
             <p className="text-sm text-ink-2">
               还没有已整理的素材。先在素材箱保存并整理你自己的素材。
@@ -193,12 +195,12 @@ export function FrameworkDialog({
                   <label
                     className={cn(
                       "flex cursor-pointer items-start gap-3 px-3 py-2.5 text-sm",
-                      chosen.includes(material.id) && "bg-sunken",
+                      chosen.includes(material.id) && "bg-accent-soft",
                     )}
                   >
                     <input
                       type="checkbox"
-                      className="mt-1"
+                      className="accent-accent"
                       checked={chosen.includes(material.id)}
                       disabled={
                         !chosen.includes(material.id) &&
@@ -225,7 +227,7 @@ export function FrameworkDialog({
           </p>
         </section>
         <section aria-label="文章 brief" className="grid gap-2">
-          <h3 className="text-sm font-medium">
+          <h3 className="text-label font-medium">
             文章 brief（按框架与素材预填，可修改）
           </h3>
           <FieldGroup className="gap-3">
