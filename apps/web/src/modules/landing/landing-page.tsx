@@ -1,4 +1,4 @@
-import { ArrowRight, Minus, Plus } from "lucide-react";
+import { ArrowRight, Plus } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { StatusPill } from "@/components/ui/status-pill";
@@ -496,13 +496,10 @@ function WhoAndFaq() {
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 text-intro font-semibold text-ink outline-none focus-visible:outline-2 focus-visible:outline-accent max-md:p-4 [&::-webkit-details-marker]:hidden">
                 {faq.question}
+                {/* 展开时加号旋转 135° 成为关闭符号；减少动效时直接切换。 */}
                 <Plus
                   aria-hidden
-                  className="size-4.5 shrink-0 text-ink-2 group-open:hidden"
-                />
-                <Minus
-                  aria-hidden
-                  className="hidden size-4.5 shrink-0 text-ink-2 group-open:block"
+                  className="size-4.5 shrink-0 text-ink-2 transition-transform duration-200 ease-standard group-open:rotate-135 motion-reduce:transition-none"
                 />
               </summary>
               <p className="px-6 pb-6 text-copy text-ink-2 max-md:px-4 max-md:pb-4">
