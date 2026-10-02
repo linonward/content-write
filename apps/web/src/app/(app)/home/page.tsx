@@ -3,18 +3,17 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { ui } from "@/lib/styles";
 import { requireSession } from "@/modules/identity/server/session";
-import { AppHeader } from "@/modules/shell/client/app-header";
+import { AppPage } from "@/modules/shell/client/app-shell";
 
 export default async function HomePage() {
   const session = await requireSession();
   const isAdmin = session.user.role === "admin";
 
   return (
-    <main className={ui.shell}>
-      <AppHeader />
+    <AppPage title="首页" description="从你的素材与观点开始写作。">
       <section className="flex max-w-paper flex-col gap-2 pt-16 pb-12 max-md:pt-12 max-md:pb-8">
         <p className={ui.stage}>写作空间</p>
-        <h1 className={ui.heroTitle}>你好，{session.user.name}。</h1>
+        <h2 className={ui.heroTitle}>你好，{session.user.name}。</h2>
         <p className={ui.lead}>
           你的账号已可以使用。现在可以保存、整理素材，寻找选题并确认文章大纲。
         </p>
@@ -61,8 +60,8 @@ export default async function HomePage() {
         </Link>
       </p>
       <p className="pt-6 text-body text-ink-2">
-        选题和大纲需要作者主动生成；初稿生成将在后续开放。打开首页不会自动调用模型。
+        选题、大纲和初稿需要作者主动生成。打开首页不会自动调用模型。
       </p>
-    </main>
+    </AppPage>
   );
 }

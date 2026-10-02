@@ -44,7 +44,7 @@
 | T031 | 本人公众号草稿箱：只创建草稿、结果待确认、版本落后提示 | 待开始 | T017；公众号凭证与固定出口 IP | feat/T031-wechat-draft | 未创建 | 无 | 无 | 无 |
 | T032 | 设计系统 token、字体与基础组件落地，任意值检查 | 已完成 | 无；与 T013、T014 协调 | feat/T032-design-system | 已清理 | 8593364 | 94e6ecf | .ai/verifications/T032.md |
 | T033 | 落地页 `/`：未登录介绍与邮件申请试用，已登录跳转 `/home` | 已完成 | T032；申请邮箱 | feat/T033-landing | 已清理 | 00a1d7e | e694a0d | .ai/verifications/T033.md |
-| T034 | 应用外壳：可折叠侧栏、账号菜单、顶栏、底部标签栏 | 待开始 | T032；T014 设置入口迁移 | feat/T034-app-shell | 未创建 | 无 | 无 | 无 |
+| T034 | 应用外壳：可折叠侧栏、账号菜单、顶栏、底部标签栏 | 待合并 | T032；T014 设置入口迁移 | feat/T034-app-shell | ../content-write-app-shell | 无 | 无 | .ai/verifications/T034.md |
 | T035 | 一级页面重排：首页、拆解、素材箱、选题、文章列表 | 待开始 | T034 | feat/T035-primary-pages | 未创建 | 无 | 无 | 无 |
 
 ## 当前阻塞

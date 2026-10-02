@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { AiMode } from "@/modules/ai/client/ai-mode";
+import { useUnsavedChanges } from "@/modules/shell/client/unsaved-changes";
 import { AiEditPanel } from "./ai-edit-panel";
 import {
   type LocalCopy,
@@ -201,6 +202,7 @@ export function BodyEditor({
   }
 
   const dirty = changed({ title, body }, saved.current);
+  useUnsavedChanges(dirty);
   const label =
     status.kind === "saving"
       ? "保存中…"

@@ -42,6 +42,7 @@ import { StatusPill, type StatusTone } from "@/components/ui/status-pill";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { useUnsavedChanges } from "@/modules/shell/client/unsaved-changes";
 import { MaterialAnalysisPanel } from "./material-analysis-panel";
 
 type Material = {
@@ -125,6 +126,16 @@ export function MaterialWorkspace() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [deleteOpen, setDeleteOpen] = useState(false);
+  useUnsavedChanges(
+    mode === "create"
+      ? !!(title || content)
+      : mode === "edit" &&
+          !!selected &&
+          (title !== selected.title || content !== selected.content),
+  );
+  const [linkDirty, setLinkDirty] = useState(false);
+  const [fileDirty, setFileDirty] = useState(false);
+  useUnsavedChanges(mode === "create" && (linkDirty || fileDirty));
   const [remoteFetchEnabled, setRemoteFetchEnabled] = useState(false);
   const [fetchRequested, setFetchRequested] = useState(true);
 
@@ -178,6 +189,8 @@ export function MaterialWorkspace() {
     setSelected(null);
     setTitle("");
     setContent("");
+    setLinkDirty(false);
+    setFileDirty(false);
     setMode("create");
     setError("");
     setNotice("");
@@ -697,6 +710,9 @@ export function MaterialWorkspace() {
                     <FileDropzone
                       id="material-file"
                       name="file"
+                      onChange={(event) =>
+                        setFileDirty(!!event.currentTarget.files?.length)
+                      }
                       accept=".md,.txt,text/markdown,text/plain"
                       required
                     />
@@ -723,6 +739,9 @@ export function MaterialWorkspace() {
                     <Input
                       id="material-url"
                       name="url"
+                      onChange={(event) =>
+                        setLinkDirty(!!event.currentTarget.value)
+                      }
                       type="url"
                       placeholder="https://example.com/article"
                       maxLength={2048}

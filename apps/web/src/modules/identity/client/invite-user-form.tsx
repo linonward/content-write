@@ -11,8 +11,11 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/modules/identity/client/auth-client";
+import { useUnsavedChanges } from "@/modules/shell/client/unsaved-changes";
 
 export function InviteUserForm() {
+  const [dirty, setDirty] = useState(false);
+  useUnsavedChanges(dirty);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const [createdEmail, setCreatedEmail] = useState("");
@@ -51,6 +54,7 @@ export function InviteUserForm() {
       }
       setCreatedEmail(email);
       formElement.reset();
+      setDirty(false);
     } catch {
       setError("创建暂时不可用，请稍后重试。");
     } finally {
@@ -59,7 +63,13 @@ export function InviteUserForm() {
   }
 
   return (
-    <form onSubmit={submit}>
+    <form
+      onSubmit={submit}
+      onChange={(event) => {
+        const data = new FormData(event.currentTarget);
+        setDirty([...data.values()].some((value) => String(value).length > 0));
+      }}
+    >
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="invite-name">姓名</FieldLabel>

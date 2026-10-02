@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { request } from "@/modules/articles/client/request";
+import { useUnsavedChanges } from "@/modules/shell/client/unsaved-changes";
 
 type Profile = {
   bio: string;
@@ -62,6 +63,19 @@ export function ProfileForm() {
     );
   }, [load]);
 
+  const topics = split(form?.topics ?? "");
+  const bannedWords = split(form?.bannedWords ?? "");
+  const dirty =
+    !!form &&
+    !!saved &&
+    JSON.stringify({ ...form, topics, bannedWords }) !==
+      JSON.stringify({
+        ...toForm(saved),
+        topics: saved.topics,
+        bannedWords: saved.bannedWords,
+      });
+  useUnsavedChanges(dirty);
+
   if (!form || !saved)
     return error ? (
       <Alert variant="destructive">
@@ -71,15 +85,6 @@ export function ProfileForm() {
       <p className="text-label text-ink-2">加载中…</p>
     );
 
-  const topics = split(form.topics);
-  const bannedWords = split(form.bannedWords);
-  const dirty =
-    JSON.stringify({ ...form, topics, bannedWords }) !==
-    JSON.stringify({
-      ...toForm(saved),
-      topics: saved.topics,
-      bannedWords: saved.bannedWords,
-    });
   const set = (patch: Partial<Form>) => {
     setNotice("");
     setForm({ ...form, ...patch });

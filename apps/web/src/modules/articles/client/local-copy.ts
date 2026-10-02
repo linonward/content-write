@@ -69,3 +69,12 @@ export function recoveryState(
     ? ("restorable" as const)
     : ("outdated" as const);
 }
+
+/** Any persisted recovery copy will be lost on sign-out. */
+export function hasLocalCopies(storage: Storage) {
+  for (let index = 0; index < storage.length; index++) {
+    const key = storage.key(index);
+    if (key?.startsWith(PREFIX)) return true;
+  }
+  return false;
+}

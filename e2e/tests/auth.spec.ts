@@ -33,7 +33,11 @@ test("signs in, reaches home and signs out", async ({ page }) => {
   await expect(
     page.getByRole("heading", { name: "你好，E2E 作者。" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "退出登录" }).click();
+  await page
+    .getByRole("button", { name: "账号菜单" })
+    .filter({ visible: true })
+    .click();
+  await page.getByRole("menuitem", { name: "退出登录" }).click();
   await expect(page).toHaveURL(/\/sign-in$/);
   await page.goto("/home");
   await expect(page).toHaveURL(/\/sign-in$/);

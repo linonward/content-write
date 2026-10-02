@@ -41,6 +41,7 @@ import { cn } from "@/lib/utils";
 import { AiConsentNotice } from "@/modules/ai/client/ai-consent-notice";
 import { type AiMode, modeLabel, modeNote } from "@/modules/ai/client/ai-mode";
 import { request } from "@/modules/articles/client/request";
+import { useUnsavedChanges } from "@/modules/shell/client/unsaved-changes";
 import { type Breakdown, BreakdownResult } from "./breakdown-result";
 import { FrameworkDialog } from "./framework-dialog";
 
@@ -130,6 +131,14 @@ export function BreakdownWorkspace() {
   const [jobId, setJobId] = useState<string | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [frameworkOpen, setFrameworkOpen] = useState(false);
+  useUnsavedChanges(
+    mode === "create"
+      ? !!(title || content || url)
+      : mode === "edit" &&
+          !!selected &&
+          (title !== selected.reference.title ||
+            content !== selected.reference.content),
+  );
 
   const refresh = useCallback(async () => {
     const response = await request<{ references: Summary[]; hasMore: boolean }>(
