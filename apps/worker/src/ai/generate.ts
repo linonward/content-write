@@ -1,3 +1,4 @@
+import type { AuthorProfile } from "@content-write/db/author-profile";
 import type { FrameworkSnapshot } from "@content-write/db/framework";
 import type { BreakdownResult } from "@content-write/db/schema";
 import {
@@ -37,6 +38,7 @@ import {
   type OutlineSource,
   validateOutline,
 } from "../outline";
+import { avoidingBannedWords, withProfile } from "../profile";
 import { type AiMode, aiMode } from "./config";
 import {
   type DeepSeekDeps,
@@ -131,6 +133,7 @@ export async function generateAnalysis(
 
 export async function generateIdeas(
   sources: IdeaSource[],
+  profile: AuthorProfile | null = null,
   deps?: DeepSeekDeps,
 ): Promise<Generated<GeneratedIdea[]>> {
   const mode = requireMode();
@@ -138,11 +141,15 @@ export async function generateIdeas(
     return { output: createMockIdeas(sources), meta: { mode, usage: null } };
   const { data, usage } = await generateJson(
     "idea_generation",
-    ideasMessages(sources),
-    (value) =>
-      asParse(
-        validateIdeas((value as { ideas?: unknown } | null)?.ideas, sources),
-      ),
+    withProfile(ideasMessages(sources), profile),
+    avoidingBannedWords(
+      (value) =>
+        asParse(
+          validateIdeas((value as { ideas?: unknown } | null)?.ideas, sources),
+        ),
+      profile,
+      (ideas) => ideas.flatMap((idea) => [idea.title, idea.thesis]),
+    ),
     deps,
   );
   return { output: data, meta: { mode, usage } };
@@ -152,6 +159,7 @@ export async function generateOutline(
   brief: Brief,
   sources: OutlineSource[],
   framework: FrameworkSnapshot | null = null,
+  profile: AuthorProfile | null = null,
   deps?: DeepSeekDeps,
 ): Promise<Generated<Outline>> {
   const mode = requireMode();
@@ -164,17 +172,31 @@ export async function generateOutline(
     };
   const { data, usage } = await generateJson(
     "outline_generation",
-    outlineMessages(
-      brief,
-      sources.map((source) => ({
-        ...source,
-        evidence:
-          source.evidence ??
-          source.evidenceIds.map((id) => ({ id, quote: "" })),
-      })),
-      framework,
+    withProfile(
+      outlineMessages(
+        brief,
+        sources.map((source) => ({
+          ...source,
+          evidence:
+            source.evidence ??
+            source.evidenceIds.map((id) => ({ id, quote: "" })),
+        })),
+        framework,
+      ),
+      profile,
     ),
-    (value) => asParse(validateOutline(value, sources, framework)),
+    avoidingBannedWords(
+      (value) => asParse(validateOutline(value, sources, framework)),
+      profile,
+      (outline) => [
+        outline.workingTitle,
+        outline.thesis,
+        ...outline.sections.flatMap((section) => [
+          section.heading,
+          ...section.keyPoints,
+        ]),
+      ],
+    ),
     deps,
   );
   return { output: data, meta: { mode, usage } };
@@ -182,6 +204,7 @@ export async function generateOutline(
 
 export async function generateDraft(
   context: DraftContext,
+  profile: AuthorProfile | null = null,
   deps?: DeepSeekDeps,
 ): Promise<Generated<Draft>> {
   const mode = requireMode();
@@ -189,8 +212,12 @@ export async function generateDraft(
     return { output: createMockDraft(context), meta: { mode, usage: null } };
   const { data, usage } = await generateJson(
     "draft_generation",
-    draftMessages(context),
-    (value) => asParse(validateDraft(value, context.sources)),
+    withProfile(draftMessages(context), profile),
+    avoidingBannedWords(
+      (value) => asParse(validateDraft(value, context.sources)),
+      profile,
+      (draft) => [draft.title, draft.markdown],
+    ),
     deps,
   );
   return { output: data, meta: { mode, usage } };

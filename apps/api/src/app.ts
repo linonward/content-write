@@ -11,6 +11,7 @@ import { healthRoutes } from "./modules/health/routes";
 import { ideaRoutes } from "./modules/ideas/routes";
 import { identityRoutes } from "./modules/identity/routes";
 import { materialRoutes } from "./modules/materials/routes";
+import { profileRoutes } from "./modules/profile/routes";
 
 export const app = new Hono();
 
@@ -24,6 +25,7 @@ app.use(
 app.route("/api", healthRoutes);
 app.route("/api", identityRoutes);
 app.route("/api", materialRoutes);
+app.route("/api", profileRoutes);
 app.route("/api", jobRoutes);
 app.route("/api", aiRoutes);
 app.route("/api", ideaRoutes);

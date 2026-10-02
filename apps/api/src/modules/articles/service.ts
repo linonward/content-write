@@ -4,6 +4,7 @@ import {
   readArticleSources,
   sourcesIntact,
 } from "@content-write/db/article-sources";
+import { currentProfileVersion } from "@content-write/db/author-profile";
 import { type Executor, getDb } from "@content-write/db/client";
 import { frameworkSnapshot, slotsMatch } from "@content-write/db/framework";
 import { sql } from "drizzle-orm";
@@ -274,6 +275,7 @@ export async function startOutlineGeneration(
     const sources = await readArticleSources(tx, id, userId, { lock: true });
     if (!sourcesIntact(sources, article.sourceCount))
       throw new ArticleError("sources_missing");
+    const profileVersion = await currentProfileVersion(tx, userId);
     const inputHash = hashInput({
       kind: "outline_generation",
       id,
@@ -285,6 +287,7 @@ export async function startOutlineGeneration(
       })),
       // Undefined for articles without a framework, keeping their earlier hashes.
       framework: article.framework ?? undefined,
+      profile: profileVersion ?? undefined,
       mode: aiMode(),
     });
     // Idempotency comes before the version check so a retried request returns its job.
@@ -303,6 +306,7 @@ export async function startOutlineGeneration(
       sourceCount: sources.length,
       articleId: id,
       articleVersion: expectedVersion,
+      profileVersion,
     });
   });
   if (result.status === "conflict")
@@ -327,6 +331,7 @@ export async function startDraftGeneration(
     const sources = await readArticleSources(tx, id, userId, { lock: true });
     if (!sourcesIntact(sources, article.sourceCount))
       throw new ArticleError("sources_missing");
+    const profileVersion = await currentProfileVersion(tx, userId);
     const inputHash = hashInput({
       kind: "draft_generation",
       id,
@@ -336,6 +341,7 @@ export async function startDraftGeneration(
         material_version: source.materialVersion,
       })),
       options: { targetChars: [1200, 2000] },
+      profile: profileVersion ?? undefined,
       mode: aiMode(),
     });
     const prior = await findIdempotentJob(tx, userId, key, inputHash);
@@ -354,6 +360,7 @@ export async function startDraftGeneration(
       sourceCount: sources.length,
       articleId: id,
       articleVersion: expectedVersion,
+      profileVersion,
     });
   });
   if (result.status === "conflict")

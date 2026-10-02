@@ -53,7 +53,19 @@ export function AppHeader() {
           );
         })}
       </nav>
-      <LogoutButton />
+      <div className="flex items-center gap-1">
+        <Link
+          href="/settings/profile"
+          aria-current={pathname.startsWith("/settings") ? "page" : undefined}
+          className={cn(
+            "rounded-sm px-3 py-1.5 text-label text-ink-2 no-underline hover:bg-sunken",
+            pathname.startsWith("/settings") && "bg-accent-soft text-accent",
+          )}
+        >
+          作者设置
+        </Link>
+        <LogoutButton />
+      </div>
     </header>
   );
 }

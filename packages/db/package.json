@@ -10,6 +10,7 @@
     "./article-revisions": "./src/article-revisions.ts",
     "./article-sources": "./src/article-sources.ts",
     "./auth-schema": "./src/auth-schema.ts",
+    "./author-profile": "./src/author-profile.ts",
     "./client": "./src/client.ts",
     "./edit-suggestions": "./src/edit-suggestions.ts",
     "./framework": "./src/framework.ts",

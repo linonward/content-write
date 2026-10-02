@@ -107,6 +107,12 @@ T013 新增（AI 修改选区；全部需要会话，写操作需可信 Origin�
 - `POST /api/articles/:id/suggestions/:sid/reject`：204，不改动文章；重复拒绝 204，已应用 409 `SUGGESTION_CLOSED`。
 - `GET /api/articles/:id/revisions` 的 `source` 增加 `ai_edit`。删除素材时，引用它的文章连同修改建议一起删除。
 
+T014 新增（作者设置）：
+
+- `GET /api/profile`：本人资料 `{bio, topics, audience, preferences, bannedWords, version, updatedAt}`；没有保存过时为空值与 `version: 0`。
+- `PUT /api/profile`：需可信 Origin。`{expectedVersion, bio, topics, audience, preferences, bannedWords}`；简介与表达偏好最多 1000 字，目标读者最多 200 字，写作主题最多 10 个（每个 30 字内），禁用词最多 50 个（每个 20 字内）；列表去空格、去空项、去重。`expectedVersion: 0` 表示首次创建。成功返回 `{version}`，同时写入该版本快照；版本不是当前 409 `PROFILE_VERSION_CONFLICT`，输入无效 422 `INVALID_PROFILE`，超过 32 KB 413。
+- 选题、大纲、初稿任务记录排队时的资料版本（`ai_jobs.profile_version`，没有资料为 null）；有资料时资料版本计入幂等输入，资料变化后同一 Idempotency-Key 返回 409。
+
 2026-10-02 规划（尚未实现，接口在对应任务完成后才算可用）：
 
 - T031：`POST /api/articles/:id/wechat-draft`（携带 `expectedVersion` 与 Idempotency-Key，只创建草稿）、`GET /api/articles/:id/wechat-draft`（推送记录与确认状态）；未配置公众号返回 503。

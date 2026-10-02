@@ -134,6 +134,8 @@ export const aiJobs = pgTable(
       { onDelete: "cascade" },
     ),
     referenceVersion: integer("reference_version"),
+    // Author profile revision the generation was queued with; null when the author had none.
+    profileVersion: integer("profile_version"),
     sourceCount: integer("source_count").notNull().default(1),
     kind: text("kind").notNull(),
     status: text("status").notNull().default("queued"),
@@ -580,6 +582,48 @@ export const editSuggestions = pgTable(
     index("edit_suggestions_article_created_idx").on(
       table.articleId,
       table.createdAt,
+    ),
+  ],
+);
+
+// The author's own description and preferences; each save is a new version.
+export const authorProfiles = pgTable("author_profiles", {
+  userId: text("user_id")
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  bio: text("bio").notNull().default(""),
+  topics: jsonb("topics").$type<string[]>().notNull().default([]),
+  audience: text("audience").notNull().default(""),
+  preferences: text("preferences").notNull().default(""),
+  bannedWords: jsonb("banned_words").$type<string[]>().notNull().default([]),
+  version: integer("version").notNull().default(1),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// Snapshots let a queued generation use exactly the profile it was queued with.
+export const authorProfileRevisions = pgTable(
+  "author_profile_revisions",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    version: integer("version").notNull(),
+    bio: text("bio").notNull(),
+    topics: jsonb("topics").$type<string[]>().notNull(),
+    audience: text("audience").notNull(),
+    preferences: text("preferences").notNull(),
+    bannedWords: jsonb("banned_words").$type<string[]>().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("author_profile_revisions_version_idx").on(
+      table.userId,
+      table.version,
     ),
   ],
 );

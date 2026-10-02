@@ -2,9 +2,9 @@
 
 更新时间：2026-10-02 13:05 CST
 已完成：19 / 34（T021 已取消）
-待合并：1
+待合并：2
 阻塞：0
-当前任务：T013 ai-edit-selection（待合并，PR #49）
+当前任务：T013 ai-edit-selection（待合并，PR #49）；T014 author-preferences（待合并，PR #48）
 下一项：界面重构 T033 落地页（需要申请试用邮箱）→ T034 → T035；T031 wechat-draft（需要公众号凭证与固定出口 IP）；T017 已完成，可开始 5 位作者付费意愿验证
 真实模型验收：T028 冒烟通过（DeepSeek，整理、选题、大纲、初稿各一次）；T029 拆解 10 篇真实文章评估 10/10 可用（`deepseek-flash`）
 线上验收：未开始
@@ -24,7 +24,7 @@
 | T011 | Markdown 编辑、自动保存、版本冲突和本地恢复 | 已完成 | T010 | feat/T011-edit-and-save | 已清理 | 1069b64 | ccdfafa | .ai/verifications/T011.md |
 | T012 | 查看版本、恢复旧版本并生成新版本 | 已完成 | T011 | feat/T012-restore-revision | 已清理 | 3b46a88 | 9d663d3 | .ai/verifications/T012.md |
 | T013 | AI 修改选区、差异预览、应用、拒绝、过期校验 | 待合并 | T011、T012 | feat/T013-ai-edit-selection | content-write-ai-edit-selection | 17e3773、8be6250 | 无 | .ai/verifications/T013.md |
-| T014 | 作者画像与表达偏好保存并影响后续生成 | 待开始 | T002、T010 | feat/T014-author-preferences | 未创建 | 无 | 无 | 无 |
+| T014 | 作者画像与表达偏好保存并影响后续生成 | 待合并 | T002、T010 | feat/T014-author-preferences | content-write-author-preferences | 1d34041 | 无 | .ai/verifications/T014.md |
 | T015 | 添加、启停、删除历史文章并用于风格示例 | 待开始 | T014 | feat/T015-writing-samples | 未创建 | 无 | 无 | 无 |
 | T016 | 候选记忆、确认、修改、禁用、删除和上下文版本 | 待开始 | T015 | feat/T016-confirmed-memory | 未创建 | 无 | 无 | 无 |
 | T017 | 手机预览、安全渲染、Markdown 与 HTML 下载 | 已完成 | T011 | feat/T017-preview-export | 已清理 | b0cb9ef | 3d03285 | .ai/verifications/T017.md |
@@ -60,6 +60,8 @@
 - 2026-10-02 12:45 CST：T032 从 `16db048` 实现设计系统 token、Noto Serif SC、基础组件与 token 检查脚本；去掉页面中全部任意值、hex 与 shadcn 别名颜色，原生 select 与文件选择换成组件。完整检查通过（API 集成 57/57），Playwright 14/14（新增素材箱导入与筛选），组件计算样式与设计稿 `01 组件` 数值一致。实现提交 `8593364`，PR #50 待合并。
 
 - 2026-10-02 12:30 CST：新增界面重构任务 T032（设计系统与基础组件）、T033（落地页）、T034（应用外壳）、T035（一级页面），依据 `docs/design-system.md` 与 `docs/design/content-write.pen`；顺序 T032 → T033 → T034 → T035。T019 的外壳响应式移入 T034。文章工作区、预览、登录与账号管理页的重排另立任务。
+
+- 2026-10-02 12:25 CST：T014 从 `ac27801` 实现作者设置（迁移 0016（T013 已占用 0015）、`/api/profile`、任务记录资料版本、提示词加入作者设置与禁用词检查、`/settings/profile` 页面）；按用户要求开始，T015、T016 依赖本任务未并行。独立空库迁移与完整检查通过（API 集成 60/60），Playwright 14/14；DeepSeek 冒烟 4 次通过，修复了带资料时正文改称“素材作者”的问题。等待 PR。
 
 - 2026-10-02 11:50 CST：PR #43（T017）合并为 `3d03285`，主分支独立空库迁移 0000–0013、完整检查（API 集成 50/50）与 Playwright 10/10 通过；PR #44（T030）rebase 后合并为 `eebee96`，主分支独立空库迁移 0000–0014、完整检查（API 集成 55/55）与 Playwright 12/12 通过。两个任务的验证数据库与 worktree 已清理。验收中确认集合路径与预览/导出路径每次请求查询两次会话（结果正确，多一次数据库查询），另行修复。
 
