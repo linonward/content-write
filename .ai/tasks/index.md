@@ -1,11 +1,11 @@
 # Phase 0 开发看板
 
-更新时间：2026-10-02 11:35 CST
-已完成：16 / 30（T021 已取消）
-待合并：2
+更新时间：2026-10-02 11:50 CST
+已完成：18 / 30（T021 已取消）
+待合并：0
 阻塞：0
-当前任务：T030 framework-outline、T017 preview-export（并行，均待合并）
-下一项：T031 wechat-draft（T017 合并并完成集成验收、具备公众号凭证与固定出口 IP 后）
+当前任务：无
+下一项：T031 wechat-draft（需要公众号凭证与固定出口 IP）；T017 已完成，可开始 5 位作者付费意愿验证
 真实模型验收：T028 冒烟通过（DeepSeek，整理、选题、大纲、初稿各一次）；T029 拆解 10 篇真实文章评估 10/10 可用（`deepseek-flash`）
 线上验收：未开始
 
@@ -27,7 +27,7 @@
 | T014 | 作者画像与表达偏好保存并影响后续生成 | 待开始 | T002、T010 | feat/T014-author-preferences | 未创建 | 无 | 无 | 无 |
 | T015 | 添加、启停、删除历史文章并用于风格示例 | 待开始 | T014 | feat/T015-writing-samples | 未创建 | 无 | 无 | 无 |
 | T016 | 候选记忆、确认、修改、禁用、删除和上下文版本 | 待开始 | T015 | feat/T016-confirmed-memory | 未创建 | 无 | 无 | 无 |
-| T017 | 手机预览、安全渲染、Markdown 与 HTML 下载 | 待合并 | T011 | feat/T017-preview-export | content-write-preview-export | b0cb9ef | 无 | .ai/verifications/T017.md |
+| T017 | 手机预览、安全渲染、Markdown 与 HTML 下载 | 已完成 | T011 | feat/T017-preview-export | 已清理 | b0cb9ef | 3d03285 | .ai/verifications/T017.md |
 | T018 | 记录手动发布链接、时间和文章版本 | 待开始 | T017 | feat/T018-record-publication | 未创建 | 无 | 无 | 无 |
 | T019 | 首页、初次引导、目标、聚合信息和响应式布局 | 待开始 | T007、T009、T011、T014、T018 | feat/T019-home-onboarding | 未创建 | 无 | 无 | 无 |
 | T020 | 用户反馈、事件、去重、漏斗和隐私配置 | 待开始 | T013、T016、T018、T019 | feat/T020-feedback-and-funnel | 未创建 | 无 | 无 | 无 |
@@ -40,7 +40,7 @@
 | T027 | API 按 route/service/repository 分层，数据访问收敛到 Drizzle；用户行为不变 | T027a 已完成；b/c 待开始 | T026；T027a 先于 T010 | refactor/T027a-articles-layering | 已清理 | 11180c1 | d6acd92 | .ai/verifications/T027.md |
 | T028 | DeepSeek 真实模型接入，现有整理、选题、大纲、初稿真实调用与用量记录 | 已完成 | T026；凭证 | feat/T028-deepseek-provider | 已清理 | a9edb1d | 956bcf9 | .ai/verifications/T028.md |
 | T029 | 参考文章与拆解：保存与抓取、拆解任务、`/breakdowns`、删除清除、10 篇质量评估 | 已完成 | T028；新方向设计更新 | feat/T029-reference-breakdown | 已清理 | 3275453 | b1da2f1 | .ai/verifications/T029.md |
-| T030 | 按框架写：用框架创建文章、槽位大纲、框架标签、参考文章不作证据 | 待合并 | T029 | feat/T030-framework-outline | content-write-framework-outline | 2770895 | 无 | .ai/verifications/T030.md |
+| T030 | 按框架写：用框架创建文章、槽位大纲、框架标签、参考文章不作证据 | 已完成 | T029 | feat/T030-framework-outline | 已清理 | 2770895 | eebee96 | .ai/verifications/T030.md |
 | T031 | 本人公众号草稿箱：只创建草稿、结果待确认、版本落后提示 | 待开始 | T017；公众号凭证与固定出口 IP | feat/T031-wechat-draft | 未创建 | 无 | 无 | 无 |
 
 ## 当前阻塞
@@ -48,6 +48,8 @@
 暂无已确认阻塞。
 
 ## 最近更新
+
+- 2026-10-02 11:50 CST：PR #43（T017）合并为 `3d03285`，主分支独立空库迁移 0000–0013、完整检查（API 集成 50/50）与 Playwright 10/10 通过；PR #44（T030）rebase 后合并为 `eebee96`，主分支独立空库迁移 0000–0014、完整检查（API 集成 55/55）与 Playwright 12/12 通过。两个任务的验证数据库与 worktree 已清理。验收中确认集合路径与预览/导出路径每次请求查询两次会话（结果正确，多一次数据库查询），另行修复。
 
 - 2026-10-02 11:35 CST：T030 从 `2510968` 实现按框架写（迁移 0014、从拆解创建文章、`PUT /api/articles/:id/framework`、槽位大纲与校验、框架标签与对话框），与 T017 按用户要求并行。独立空库迁移与完整检查通过（API 集成 51/51），Playwright 10/10；DeepSeek 冒烟一篇真实热门文章到初稿通过（8 槽位、1 个缺口，初稿与原文最长相同字串 6 字）。等待 PR。
 
