@@ -208,6 +208,7 @@ async function runOutline(job: Claimed, started: number) {
   const { output, meta } = await generateOutline(
     context.brief,
     context.sources,
+    context.framework,
   );
   await completeOutlineJob(job, output, performance.now() - started, meta);
 }

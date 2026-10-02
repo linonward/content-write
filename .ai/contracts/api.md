@@ -90,7 +90,15 @@ T017 新增（预览与导出；只读，需要会话，跨用户与不存在均
 - `GET /api/articles/:id/export?format=markdown|html`：附件下载。`markdown` 为 `text/markdown; charset=utf-8`，内容是 `# 标题` 加作者原文；`html` 为 `text/html; charset=utf-8` 的独立文档，正文片段与预览相同，带 `default-src 'none'` 的 CSP。`Content-Disposition: attachment; filename="article-v<版本>.<md|html>"; filename*=UTF-8''<标题>.<md|html>`，另有 `nosniff`、`sandbox` CSP 与 `no-store`。缺少或其他格式 422 `INVALID_EXPORT_FORMAT`。
 - 只读取本人 `articles`；参考文章（`reference_articles`）不会出现在预览或导出中。
 
+T030 新增（按框架写）：
+
+- `POST /api/articles` 增加第二种输入：`{breakdownId, materials: [{id, version}], brief: {workingTitle, audience, thesis}}`，素材 1～10 条且不重复。拆解必须属于本人（否则 404 `BREAKDOWN_NOT_FOUND`）；每条素材必须属于本人、仍是给定版本且该版本已整理（否则 409 `MATERIALS_NOT_READY`，参考文章 ID 同样被拒）。成功 201 `{articleId}`，文章 `ideaId` 为空，绑定拆解并保存框架快照。原有 `{ideaId}` 输入不变；两种都不符合时 422 `INVALID_ARTICLE_SOURCE`（原 `INVALID_IDEA`）。
+- `PUT /api/articles/:id/framework`：`{expectedVersion, breakdownId | null}` 绑定或取消框架，版本加一，同时清除大纲与确认状态（大纲是按旧结构写的）。拆解不属于本人 404，版本冲突 409。
+- `GET /api/articles/:id` 增加 `breakdownId`、`referenceArticleId`（参考文章删除后为 null）与 `framework`（快照：`name`、`titlePattern`、`hook`、`slots[{id,name,purpose,technique}]`、`rhythm`、`ending`；不含原文、片段与参考文章的目标读者）。
+- 大纲小节增加可选 `slotId`。`PUT /api/articles/:id/outline` 校验：`slotId` 必须属于绑定框架且不重复，未绑定框架时不能出现，否则 422 `INVALID_SLOTS`；作者可以删除、增加或调整小节顺序。证据只接受文章自己素材的 `素材id:片段id`，参考文章及其片段 ID 返回 422 `INVALID_EVIDENCE`。
+- `GET /api/breakdowns` 列表每项增加 `breakdownId`（当前版本已拆解时）。
+- 参考文章删除后，文章的 `breakdownId` 置空、框架快照保留，仍可按快照生成大纲。
+
 2026-10-02 规划（尚未实现，接口在对应任务完成后才算可用）：
 
-- T030：`POST /api/articles` 增加可选 `breakdownId` 与 `materials`（1～10 条本人已整理素材版本）；大纲生成在文章绑定框架时按槽位进行。
 - T031：`POST /api/articles/:id/wechat-draft`（携带 `expectedVersion` 与 Idempotency-Key，只创建草稿）、`GET /api/articles/:id/wechat-draft`（推送记录与确认状态）；未配置公众号返回 503。

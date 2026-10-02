@@ -1,4 +1,8 @@
 import { citesOnlySourceEvidence } from "@content-write/db/article-sources";
+import {
+  type FrameworkSnapshot,
+  slotsMatch,
+} from "@content-write/db/framework";
 import { z } from "zod";
 
 const text = (max: number) => z.string().trim().min(1).max(max);
@@ -14,6 +18,7 @@ export const outlineSchema = z.strictObject({
         keyPoints: z.array(text(500)).min(1).max(8),
         evidenceIds: z.array(text(200)).max(12),
         missingEvidence: z.array(text(300)).max(8),
+        slotId: text(40).optional(),
       }),
     )
     .min(2)
@@ -31,7 +36,15 @@ export type OutlineSource = {
 };
 export type Brief = Pick<Outline, "workingTitle" | "audience" | "thesis">;
 
-export function validateOutline(input: unknown, sources: OutlineSource[]) {
+/**
+ * Evidence must come from the article's own sources. With a framework, a
+ * generated outline fills every slot once, in order (gaps stay as sections).
+ */
+export function validateOutline(
+  input: unknown,
+  sources: OutlineSource[],
+  framework: FrameworkSnapshot | null = null,
+) {
   const parsed = outlineSchema.safeParse(input);
   if (!parsed.success) return parsed;
   if (!citesOnlySourceEvidence(parsed.data.sections, sources)) {
@@ -40,7 +53,44 @@ export function validateOutline(input: unknown, sources: OutlineSource[]) {
       error: new Error("Outline cites unknown evidence"),
     };
   }
+  if (!slotsMatch(parsed.data.sections, framework, { complete: true })) {
+    return {
+      success: false as const,
+      error: new Error(
+        framework
+          ? "sections 必须与框架槽位一一对应、按顺序排列，每节填写 slotId"
+          : "Outline names slots without a framework",
+      ),
+    };
+  }
   return parsed;
+}
+
+/**
+ * Deterministic framework outline: one section per slot, citing the sources'
+ * spans in turn. Slots left without evidence are marked as gaps, not filled.
+ */
+export function createMockFrameworkOutline(
+  brief: Brief,
+  sources: OutlineSource[],
+  framework: FrameworkSnapshot,
+): Outline {
+  const evidence = sources.flatMap((source) =>
+    source.evidenceIds.map((id) => `${source.id}:${id}`),
+  );
+  return {
+    ...brief,
+    sections: framework.slots.map((slot, index) => ({
+      heading: slot.name,
+      purpose: slot.purpose,
+      keyPoints: [`用你的素材完成：${slot.purpose}`.slice(0, 500)],
+      evidenceIds: evidence[index] ? [evidence[index]] : [],
+      missingEvidence: evidence[index]
+        ? []
+        : [`素材中没有支撑「${slot.name}」的内容，可补充素材或删除这一节。`],
+      slotId: slot.id,
+    })),
+  };
 }
 
 export function createMockOutline(

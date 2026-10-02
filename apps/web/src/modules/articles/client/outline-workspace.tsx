@@ -8,9 +8,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { AiConsentNotice } from "@/modules/ai/client/ai-consent-notice";
 import { type AiMode, modeLabel, modeNote } from "@/modules/ai/client/ai-mode";
 import { DraftPanel, type DraftState } from "./draft-panel";
+import {
+  type Framework,
+  FrameworkPicker,
+  FrameworkTag,
+} from "./framework-panel";
 import { request } from "./request";
 import { RevisionHistory } from "./revision-history";
 
@@ -20,6 +26,7 @@ type Section = {
   keyPoints: string[];
   evidenceIds: string[];
   missingEvidence: string[];
+  slotId?: string;
 };
 type Outline = {
   workingTitle: string;
@@ -43,6 +50,9 @@ type Article = DraftState & {
   version: number;
   outline: Outline | null;
   outlineConfirmedAt: string | null;
+  breakdownId: string | null;
+  referenceArticleId: string | null;
+  framework: Framework | null;
   sources: Source[];
 };
 type Job = { id: string; status: string; errorCode: string | null };
@@ -327,6 +337,12 @@ export function OutlineWorkspace({ id }: { id: string }) {
         <Badge variant="outline">
           {modeLabel(generationAvailable ? aiMode : null)}
         </Badge>
+        {article.framework && (
+          <FrameworkTag
+            framework={article.framework}
+            referenceArticleId={article.referenceArticleId}
+          />
+        )}
       </div>
       <Card>
         <CardHeader>
@@ -418,9 +434,24 @@ export function OutlineWorkspace({ id }: { id: string }) {
           )}
         </CardContent>
       </Card>
+      <FrameworkPicker
+        articleId={id}
+        version={article.version}
+        breakdownId={article.breakdownId}
+        hasFramework={Boolean(article.framework)}
+        hasOutline={Boolean(article.outline)}
+        disabled={pending || Boolean(jobId) || briefDirty || outlineDirty}
+        onChanged={async (message) => {
+          await refresh();
+          setNotice(message);
+        }}
+        onError={setError}
+      />
       <Card>
         <CardHeader>
-          <CardTitle>文章大纲</CardTitle>
+          <CardTitle>
+            {article.framework ? "文章大纲 · 按框架生成" : "文章大纲"}
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
           <p className="text-sm text-muted-foreground">
@@ -440,7 +471,11 @@ export function OutlineWorkspace({ id }: { id: string }) {
             }
             onClick={() => void generate()}
           >
-            {jobId ? "生成中…" : "根据 brief 生成大纲"}
+            {jobId
+              ? "生成中…"
+              : article.framework
+                ? "按框架和 brief 生成大纲"
+                : "根据 brief 生成大纲"}
           </Button>
           <div className="space-y-2">
             <Label htmlFor="outline-title">大纲标题</Label>
@@ -475,100 +510,131 @@ export function OutlineWorkspace({ id }: { id: string }) {
               }
             />
           </div>
-          {outline.sections.map((section, index) => (
-            <div
-              key={sectionKeys[index]}
-              className="space-y-3 rounded-lg border p-4"
-            >
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium">第 {index + 1} 节</h3>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  disabled={outline.sections.length <= 2 || pending}
-                  onClick={() => removeSection(index)}
-                >
-                  删除本节
-                </Button>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor={`heading-${index}`}>小节标题</Label>
-                <Input
-                  id={`heading-${index}`}
-                  value={section.heading}
-                  maxLength={200}
-                  onChange={(event) =>
-                    updateSection(index, { heading: event.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor={`purpose-${index}`}>本节目的</Label>
-                <Textarea
-                  id={`purpose-${index}`}
-                  value={section.purpose}
-                  maxLength={500}
-                  onChange={(event) =>
-                    updateSection(index, { purpose: event.target.value })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor={`points-${index}`}>要点（每行一条）</Label>
-                <Textarea
-                  id={`points-${index}`}
-                  value={section.keyPoints.join("\n")}
-                  onChange={(event) =>
-                    updateSection(index, {
-                      keyPoints: event.target.value.split("\n"),
-                    })
-                  }
-                />
-              </div>
-              <fieldset className="space-y-2">
-                <legend className="text-sm font-medium">引用片段</legend>
-                {article.sources.flatMap((source) =>
-                  source.evidenceSpans.map((span) => {
-                    const evidenceId = `${source.materialId}:${span.id}`;
-                    return (
-                      <label key={evidenceId} className="flex gap-2 text-sm">
-                        <input
-                          type="checkbox"
-                          checked={section.evidenceIds.includes(evidenceId)}
-                          onChange={() =>
-                            updateSection(index, {
-                              evidenceIds: section.evidenceIds.includes(
-                                evidenceId,
-                              )
-                                ? section.evidenceIds.filter(
-                                    (item) => item !== evidenceId,
-                                  )
-                                : [...section.evidenceIds, evidenceId],
-                            })
-                          }
-                        />
-                        <span>
-                          {source.title}：{span.quote}
-                        </span>
-                      </label>
-                    );
-                  }),
+          {outline.sections.map((section, index) => {
+            const slotIndex =
+              article.framework?.slots.findIndex(
+                (slot) => slot.id === section.slotId,
+              ) ?? -1;
+            const slot = article.framework?.slots[slotIndex];
+            // A slot the author's materials cannot support is shown as a gap, not filled in.
+            const gap = Boolean(slot) && section.evidenceIds.length === 0;
+            return (
+              <div
+                key={sectionKeys[index]}
+                className={cn(
+                  "space-y-3 rounded-lg border p-4",
+                  gap && "border-amber-300 bg-amber-50/60",
                 )}
-              </fieldset>
-              <div className="space-y-2">
-                <Label htmlFor={`missing-${index}`}>待补证据（每行一条）</Label>
-                <Textarea
-                  id={`missing-${index}`}
-                  value={section.missingEvidence.join("\n")}
-                  onChange={(event) =>
-                    updateSection(index, {
-                      missingEvidence: lines(event.target.value),
-                    })
-                  }
-                />
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="flex flex-wrap items-center gap-2 font-medium">
+                    第 {index + 1} 节
+                    {slot && (
+                      <Badge
+                        variant="outline"
+                        title={`手法：${slot.technique}`}
+                      >
+                        槽位 {slotIndex + 1} · {slot.name}
+                      </Badge>
+                    )}
+                    {gap && <Badge variant="destructive">缺少素材</Badge>}
+                  </h3>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    disabled={outline.sections.length <= 2 || pending}
+                    onClick={() => removeSection(index)}
+                  >
+                    删除本节
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor={`heading-${index}`}>小节标题</Label>
+                  <Input
+                    id={`heading-${index}`}
+                    value={section.heading}
+                    maxLength={200}
+                    onChange={(event) =>
+                      updateSection(index, { heading: event.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor={`purpose-${index}`}>本节目的</Label>
+                  <Textarea
+                    id={`purpose-${index}`}
+                    value={section.purpose}
+                    maxLength={500}
+                    onChange={(event) =>
+                      updateSection(index, { purpose: event.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor={`points-${index}`}>要点（每行一条）</Label>
+                  <Textarea
+                    id={`points-${index}`}
+                    value={section.keyPoints.join("\n")}
+                    onChange={(event) =>
+                      updateSection(index, {
+                        keyPoints: event.target.value.split("\n"),
+                      })
+                    }
+                  />
+                </div>
+                <fieldset className="space-y-2">
+                  <legend className="text-sm font-medium">引用片段</legend>
+                  {article.sources.flatMap((source) =>
+                    source.evidenceSpans.map((span) => {
+                      const evidenceId = `${source.materialId}:${span.id}`;
+                      return (
+                        <label key={evidenceId} className="flex gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={section.evidenceIds.includes(evidenceId)}
+                            onChange={() =>
+                              updateSection(index, {
+                                evidenceIds: section.evidenceIds.includes(
+                                  evidenceId,
+                                )
+                                  ? section.evidenceIds.filter(
+                                      (item) => item !== evidenceId,
+                                    )
+                                  : [...section.evidenceIds, evidenceId],
+                              })
+                            }
+                          />
+                          <span>
+                            {source.title}：{span.quote}
+                          </span>
+                        </label>
+                      );
+                    }),
+                  )}
+                </fieldset>
+                <div className="space-y-2">
+                  <Label htmlFor={`missing-${index}`}>
+                    待补证据（每行一条）
+                  </Label>
+                  <Textarea
+                    id={`missing-${index}`}
+                    value={section.missingEvidence.join("\n")}
+                    onChange={(event) =>
+                      updateSection(index, {
+                        missingEvidence: lines(event.target.value),
+                      })
+                    }
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
+          {article.framework && (
+            <p className="text-xs text-muted-foreground">
+              证据只来自本文绑定的 {article.sourceCount}{" "}
+              条素材；参考文章不会作为证据出现。
+            </p>
+          )}
           <div className="flex flex-wrap gap-3">
             <Button
               type="button"

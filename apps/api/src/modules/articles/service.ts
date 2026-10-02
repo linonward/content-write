@@ -5,6 +5,7 @@ import {
   sourcesIntact,
 } from "@content-write/db/article-sources";
 import { type Executor, getDb } from "@content-write/db/client";
+import { frameworkSnapshot, slotsMatch } from "@content-write/db/framework";
 import { sql } from "drizzle-orm";
 import { aiAvailable, aiMode } from "../../config";
 import {
@@ -19,6 +20,9 @@ import * as repo from "./repository";
 export type ArticleErrorReason =
   | "idea_missing"
   | "idea_sources_stale"
+  | "breakdown_missing"
+  | "materials_not_ready"
+  | "invalid_slots"
   | "article_missing"
   | "version_conflict"
   | "sources_missing"
@@ -71,6 +75,45 @@ export async function createArticle(userId: string, ideaId: string) {
     const existing = await repo.findArticleIdByIdea(tx, userId, ideaId);
     if (!existing) throw new Error("Article conflict without an existing row");
     return { id: existing, created: false };
+  });
+}
+
+/**
+ * Creates an article that follows a breakdown's framework and is written from
+ * the author's own analyzed materials. Only the structure is copied over.
+ */
+export async function createFromBreakdown(
+  userId: string,
+  input: {
+    breakdownId: string;
+    materials: { id: string; version: number }[];
+    brief: Brief;
+  },
+) {
+  return getDb().transaction(async (tx) => {
+    const breakdown = await repo.findOwnedBreakdown(
+      tx,
+      userId,
+      input.breakdownId,
+    );
+    if (!breakdown) throw new ArticleError("breakdown_missing");
+    const sources = await repo.lockCurrentMaterials(
+      tx,
+      userId,
+      input.materials,
+    );
+    if (sources.length !== input.materials.length)
+      throw new ArticleError("materials_not_ready");
+    const id = await repo.insertArticle(tx, {
+      userId,
+      ...input.brief,
+      sourceCount: sources.length,
+      breakdownId: breakdown.id,
+      framework: frameworkSnapshot(breakdown.result),
+    });
+    if (!id) throw new Error("Article insert without an idea conflicted");
+    await repo.insertArticleSources(tx, id, sources);
+    return id;
   });
 }
 
@@ -142,6 +185,31 @@ export async function updateBrief(
   });
 }
 
+/**
+ * Binds or removes the framework. The outline was planned for the old
+ * structure, so it is discarded together with its confirmation.
+ */
+export async function setFramework(
+  userId: string,
+  id: string,
+  expectedVersion: number,
+  breakdownId: string | null,
+) {
+  return getDb().transaction(async (tx) => {
+    await lockVersion(tx, userId, id, expectedVersion);
+    const breakdown = breakdownId
+      ? await repo.findOwnedBreakdown(tx, userId, breakdownId)
+      : null;
+    if (breakdownId && !breakdown) throw new ArticleError("breakdown_missing");
+    return repo.updateArticle(tx, id, {
+      breakdownId: breakdown?.id ?? null,
+      framework: breakdown ? frameworkSnapshot(breakdown.result) : null,
+      outline: null,
+      outlineConfirmedAt: null,
+    });
+  });
+}
+
 /** Saving an outline revokes any earlier confirmation. */
 export async function saveOutline(
   userId: string,
@@ -164,6 +232,8 @@ export async function saveOutline(
       )
     )
       throw new ArticleError("invalid_evidence");
+    if (!slotsMatch(outline.sections, article.framework))
+      throw new ArticleError("invalid_slots");
     return repo.updateArticle(tx, id, {
       workingTitle: outline.workingTitle,
       audience: outline.audience,
@@ -213,6 +283,8 @@ export async function startOutlineGeneration(
         material_id: source.materialId,
         material_version: source.materialVersion,
       })),
+      // Undefined for articles without a framework, keeping their earlier hashes.
+      framework: article.framework ?? undefined,
       mode: aiMode(),
     });
     // Idempotency comes before the version check so a retried request returns its job.

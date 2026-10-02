@@ -6,6 +6,7 @@ import {
   articleRevisions,
   articleSources,
   articles,
+  breakdowns,
   ideaSources,
   ideas,
   materialAnalyses,
@@ -69,6 +70,61 @@ export async function countIdeaSources(db: Executor, ideaId: string) {
     .from(ideaSources)
     .where(eq(ideaSources.ideaId, ideaId));
   return row?.count ?? 0;
+}
+
+export async function findOwnedBreakdown(
+  db: Executor,
+  userId: string,
+  breakdownId: string,
+) {
+  const [row] = await db
+    .select({ id: breakdowns.id, result: breakdowns.result })
+    .from(breakdowns)
+    .where(and(eq(breakdowns.id, breakdownId), eq(breakdowns.userId, userId)));
+  return row;
+}
+
+/**
+ * The chosen materials that are still at the given version and analyzed;
+ * locks them in id order like the other source readers.
+ */
+export function lockCurrentMaterials(
+  db: Executor,
+  userId: string,
+  chosen: { id: string; version: number }[],
+): Promise<PinnedSource[]> {
+  return db
+    .select({
+      materialId: materials.id,
+      materialVersion: materials.currentVersion,
+    })
+    .from(materials)
+    .innerJoin(
+      materialAnalyses,
+      and(
+        eq(materialAnalyses.materialId, materials.id),
+        eq(materialAnalyses.materialVersion, materials.currentVersion),
+      ),
+    )
+    .where(
+      and(
+        eq(materials.userId, userId),
+        inArray(
+          materials.id,
+          chosen.map((item) => item.id),
+        ),
+      ),
+    )
+    .orderBy(asc(materials.id))
+    .for("update", { of: materials })
+    .then((rows) =>
+      rows.filter((row) =>
+        chosen.some(
+          (item) =>
+            item.id === row.materialId && item.version === row.materialVersion,
+        ),
+      ),
+    );
 }
 
 /** Returns the new id, or undefined when the user already has an article for this idea. */
@@ -140,12 +196,17 @@ export async function findArticle(db: Executor, userId: string, id: string) {
       version: articles.version,
       outline: articles.outline,
       outlineConfirmedAt: articles.outlineConfirmedAt,
+      breakdownId: articles.breakdownId,
+      framework: articles.framework,
+      // Null once the reference is deleted; the snapshot stays on the article.
+      referenceArticleId: breakdowns.referenceArticleId,
       title: articles.title,
       body: articles.body,
       currentDraftId: articles.currentDraftId,
       updatedAt: articles.updatedAt,
     })
     .from(articles)
+    .leftJoin(breakdowns, eq(breakdowns.id, articles.breakdownId))
     .where(and(eq(articles.id, id), eq(articles.userId, userId)));
   return article;
 }
@@ -220,6 +281,7 @@ export async function lockArticle(db: Executor, userId: string, id: string) {
       sourceCount: articles.sourceCount,
       outline: articles.outline,
       outlineConfirmedAt: articles.outlineConfirmedAt,
+      framework: articles.framework,
       title: articles.title,
       body: articles.body,
     })

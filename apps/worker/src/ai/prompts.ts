@@ -1,3 +1,4 @@
+import type { FrameworkSnapshot } from "@content-write/db/framework";
 import type { ChatMessage } from "./deepseek";
 
 const RULES = `通用规则：
@@ -72,6 +73,7 @@ export function outlineMessages(
     summary: string;
     evidence: { id: string; quote: string }[];
   }[],
+  framework: FrameworkSnapshot | null = null,
 ): ChatMessage[] {
   const list = sources
     .map(
@@ -92,16 +94,39 @@ ${RULES}
 - evidenceIds：每节最多 12 个，只能使用下面列出的"素材id:片段id"原样字符串。
 - missingEvidence：每节最多 8 条，列出该节还缺的证据。
 json 示例：
-{"workingTitle":"……","audience":"……","thesis":"……","sections":[{"heading":"……","purpose":"……","keyPoints":["……"],"evidenceIds":["素材id:e1"],"missingEvidence":["……"]}]}`,
+{"workingTitle":"……","audience":"……","thesis":"……","sections":[{"heading":"……","purpose":"……","keyPoints":["……"],"evidenceIds":["素材id:e1"],"missingEvidence":["……"]}]}${
+        framework ? FRAMEWORK_RULES : ""
+      }`,
     },
     {
       role: "user",
       content: `${material(
         "brief",
         `工作标题：${brief.workingTitle}\n目标读者：${brief.audience}\n核心观点：${brief.thesis}`,
-      )}\n\n${material("素材", list)}`,
+      )}${framework ? `\n\n${material("写作框架", describeFramework(framework))}` : ""}\n\n${material("素材", list)}`,
     },
   ];
+}
+
+const FRAMEWORK_RULES = `
+按写作框架组织大纲：
+- 框架来自对另一篇文章的拆解，只描述结构与写法，不含那篇文章的内容；只借用结构，不要模仿或猜测那篇文章写了什么。
+- sections 与框架槽位一一对应：数量相同、顺序相同，每节的 slotId 原样填写槽位 id。
+- heading 与 keyPoints 写作者自己的内容，按槽位的作用与手法组织；论据与事实只能来自素材。
+- 素材撑不起某个槽位时，不要编造：这一节 evidenceIds 留空，在 missingEvidence 写明还缺什么，keyPoints 写作者需要补充的方向。
+json 示例中的每节都要加上 "slotId":"slot1" 这样的字段。`;
+
+function describeFramework(framework: FrameworkSnapshot) {
+  return [
+    `标题类型：${framework.titlePattern}`,
+    `开头：${framework.hook.type}——${framework.hook.technique}`,
+    ...framework.slots.map(
+      (slot) =>
+        `槽位 ${slot.id}「${slot.name}」作用：${slot.purpose}；手法：${slot.technique}`,
+    ),
+    `节奏：${framework.rhythm}`,
+    `结尾：${framework.ending.type}——${framework.ending.technique}`,
+  ].join("\n");
 }
 
 export function draftMessages(context: {

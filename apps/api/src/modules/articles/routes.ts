@@ -16,6 +16,7 @@ import {
   applyDraft,
   confirmOutline,
   createArticle,
+  createFromBreakdown,
   discardDraft,
   getArticle,
   getRevision,
@@ -23,6 +24,7 @@ import {
   restoreRevision,
   saveBody,
   saveOutline,
+  setFramework,
   startDraftGeneration,
   startOutlineGeneration,
   updateBrief,
@@ -47,6 +49,7 @@ const outlineSchema = z.strictObject({
         keyPoints: z.array(text(500)).min(1).max(8),
         evidenceIds: z.array(text(200)).max(12),
         missingEvidence: z.array(text(300)).max(8),
+        slotId: text(40).optional(),
       }),
     )
     .min(2)
@@ -69,6 +72,27 @@ const restoreInput = z.strictObject({
   revision: z.int().positive(),
 });
 const createInput = z.strictObject({ ideaId: z.string().uuid() });
+const createFromBreakdownInput = z.strictObject({
+  breakdownId: z.string().uuid(),
+  materials: z
+    .array(
+      z.strictObject({ id: z.string().uuid(), version: z.int().positive() }),
+    )
+    .min(1)
+    .max(10)
+    .refine(
+      (items) => new Set(items.map((item) => item.id)).size === items.length,
+    ),
+  brief: z.strictObject({
+    workingTitle: text(200),
+    audience: text(200),
+    thesis: text(500),
+  }),
+});
+const frameworkInput = z.strictObject({
+  expectedVersion: z.int().positive(),
+  breakdownId: z.string().uuid().nullable(),
+});
 export const articleRoutes = new Hono<AuthedEnv>();
 
 const readBody = (request: Request) => readJson(request, 32_768);
@@ -87,6 +111,20 @@ function articleFailure(
         "IDEA_SOURCES_STALE",
         "选题来源已变化，请重新生成选题。",
         409,
+      );
+    case "breakdown_missing":
+      return apiError("BREAKDOWN_NOT_FOUND", "拆解结果不存在。", 404);
+    case "materials_not_ready":
+      return apiError(
+        "MATERIALS_NOT_READY",
+        "所选素材已修改、删除或尚未整理，请刷新后重新选择。",
+        409,
+      );
+    case "invalid_slots":
+      return apiError(
+        "INVALID_SLOTS",
+        "大纲引用了不属于当前框架的槽位，或重复使用了同一槽位。",
+        422,
       );
     case "article_missing":
       return apiError("ARTICLE_NOT_FOUND", "文章不存在。", 404);
@@ -145,8 +183,25 @@ articleRoutes.post("/articles", async (context) => {
     return apiError("ARTICLE_INPUT_TOO_LARGE", "请求内容过长。", 413);
   if (body.status === "invalid")
     return apiError("INVALID_JSON", "请求内容不是有效 JSON。", 400);
+  const fromBreakdown = createFromBreakdownInput.safeParse(body.value);
+  if (fromBreakdown.success) {
+    try {
+      const articleId = await createFromBreakdown(
+        context.get("userId"),
+        fromBreakdown.data,
+      );
+      return context.json({ articleId }, 201);
+    } catch (error) {
+      return articleFailure(error);
+    }
+  }
   const parsed = createInput.safeParse(body.value);
-  if (!parsed.success) return apiError("INVALID_IDEA", "请选择有效选题。", 422);
+  if (!parsed.success)
+    return apiError(
+      "INVALID_ARTICLE_SOURCE",
+      "请选择有效选题，或选择拆解框架与 1～10 条不重复的素材并填写 brief。",
+      422,
+    );
   try {
     const result = await createArticle(
       context.get("userId"),
@@ -215,6 +270,31 @@ articleRoutes.post(
     }
   },
 );
+articleRoutes.put("/articles/:id/framework", async (context) => {
+  const body = await readBody(context.req.raw);
+  if (body.status === "large")
+    return apiError("ARTICLE_INPUT_TOO_LARGE", "请求内容过长。", 413);
+  if (body.status === "invalid")
+    return apiError("INVALID_JSON", "请求内容不是有效 JSON。", 400);
+  const parsed = frameworkInput.safeParse(body.value);
+  if (!parsed.success)
+    return apiError(
+      "INVALID_FRAMEWORK",
+      "请提供当前文章版本，以及要使用的拆解（或 null 表示不用框架）。",
+      422,
+    );
+  try {
+    const version = await setFramework(
+      context.get("userId"),
+      context.req.param("id"),
+      parsed.data.expectedVersion,
+      parsed.data.breakdownId,
+    );
+    return context.json({ version });
+  } catch (error) {
+    return articleFailure(error, "修改");
+  }
+});
 articleRoutes.put("/articles/:id/outline", async (context) => {
   const body = await readBody(context.req.raw);
   if (body.status === "large")

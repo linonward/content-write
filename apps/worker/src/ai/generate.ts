@@ -1,3 +1,4 @@
+import type { FrameworkSnapshot } from "@content-write/db/framework";
 import type { BreakdownResult } from "@content-write/db/schema";
 import {
   createMockAnalysis,
@@ -24,6 +25,7 @@ import {
 } from "../ideas";
 import {
   type Brief,
+  createMockFrameworkOutline,
   createMockOutline,
   type Outline,
   type OutlineSource,
@@ -142,12 +144,15 @@ export async function generateIdeas(
 export async function generateOutline(
   brief: Brief,
   sources: OutlineSource[],
+  framework: FrameworkSnapshot | null = null,
   deps?: DeepSeekDeps,
 ): Promise<Generated<Outline>> {
   const mode = requireMode();
   if (mode === "mock")
     return {
-      output: createMockOutline(brief, sources),
+      output: framework
+        ? createMockFrameworkOutline(brief, sources, framework)
+        : createMockOutline(brief, sources),
       meta: { mode, usage: null },
     };
   const { data, usage } = await generateJson(
@@ -160,8 +165,9 @@ export async function generateOutline(
           source.evidence ??
           source.evidenceIds.map((id) => ({ id, quote: "" })),
       })),
+      framework,
     ),
-    (value) => asParse(validateOutline(value, sources)),
+    (value) => asParse(validateOutline(value, sources, framework)),
     deps,
   );
   return { output: data, meta: { mode, usage } };

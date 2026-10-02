@@ -42,6 +42,7 @@ import { AiConsentNotice } from "@/modules/ai/client/ai-consent-notice";
 import { type AiMode, modeLabel, modeNote } from "@/modules/ai/client/ai-mode";
 import { request } from "@/modules/articles/client/request";
 import { type Breakdown, BreakdownResult } from "./breakdown-result";
+import { FrameworkDialog } from "./framework-dialog";
 
 type Status = "unprocessed" | "processing" | "failed" | "done";
 type Summary = {
@@ -57,6 +58,7 @@ type Summary = {
 type Detail = {
   reference: Summary & { content: string };
   breakdown: {
+    id: string;
     referenceVersion: number;
     mode: string;
     result: Breakdown;
@@ -128,6 +130,7 @@ export function BreakdownWorkspace() {
   const [notice, setNotice] = useState("");
   const [jobId, setJobId] = useState<string | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [frameworkOpen, setFrameworkOpen] = useState(false);
 
   const refresh = useCallback(async () => {
     const response = await request<{ references: Summary[]; hasMore: boolean }>(
@@ -165,7 +168,10 @@ export function BreakdownWorkspace() {
     )
       .then((value) => setRemoteFetch(value.remoteFetchEnabled))
       .catch(() => setRemoteFetch(false));
-  }, [refresh]);
+    // An article's framework tag links back here with the reference to open.
+    const linked = new URLSearchParams(window.location.search).get("id");
+    if (linked) void open(linked);
+  }, [refresh, open]);
 
   const selectedId = selected?.reference.id;
   useEffect(() => {
@@ -575,6 +581,15 @@ export function BreakdownWorkspace() {
                   )}
                 </div>
                 <div className="flex flex-wrap gap-2">
+                  {selected.breakdown && (
+                    <Button
+                      type="button"
+                      disabled={pending}
+                      onClick={() => setFrameworkOpen(true)}
+                    >
+                      用这个框架写
+                    </Button>
+                  )}
                   <Button
                     type="button"
                     variant="outline"
@@ -622,6 +637,17 @@ export function BreakdownWorkspace() {
                 </div>
               </div>
 
+              {selected.breakdown && (
+                <FrameworkDialog
+                  key={selected.breakdown.id}
+                  open={frameworkOpen}
+                  onOpenChange={setFrameworkOpen}
+                  breakdownId={selected.breakdown.id}
+                  frameworkName={selected.breakdown.result.hook.type}
+                  slotCount={selected.breakdown.result.slots.length}
+                  audience={selected.breakdown.result.audience}
+                />
+              )}
               {selected.breakdown ? (
                 <BreakdownResult
                   content={reference.content}
