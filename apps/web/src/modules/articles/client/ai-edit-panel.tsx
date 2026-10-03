@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { type AiMode, modeLabel, modeNote } from "@/modules/ai/client/ai-mode";
 import { editDiff } from "./edit-diff";
+import { jobFailureMessage } from "./job-failure";
 import type { TextRange } from "./markdown-editor";
 import { request } from "./request";
 
@@ -144,7 +145,10 @@ export function AiEditPanel({
             setError(
               job.status === "stale"
                 ? "生成期间正文已变化，这次结果未保存，请重新选择后再试。"
-                : "修改建议生成失败，请重试。",
+                : jobFailureMessage(
+                    job.errorCode,
+                    "修改建议生成失败，请重试。",
+                  ),
             );
           }
         })

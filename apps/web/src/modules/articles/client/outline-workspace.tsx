@@ -18,6 +18,7 @@ import {
   FrameworkPicker,
   FrameworkTag,
 } from "./framework-panel";
+import { jobFailureMessage } from "./job-failure";
 import { request } from "./request";
 import { RevisionHistory } from "./revision-history";
 
@@ -133,7 +134,12 @@ export function OutlineWorkspace({ id }: { id: string }) {
         : null,
     );
     if (result.latestJob?.status === "failed")
-      setError("上次大纲生成失败，请检查来源后重试。");
+      setError(
+        jobFailureMessage(
+          result.latestJob.errorCode,
+          "上次大纲生成失败，请检查来源后重试。",
+        ),
+      );
     if (result.latestJob?.status === "stale")
       setError("上次大纲任务因文章或来源变化而失效，请刷新后重试。");
   }, [id]);
@@ -161,7 +167,7 @@ export function OutlineWorkspace({ id }: { id: string }) {
             setError(
               job.status === "stale"
                 ? "文章或来源已变化，请刷新后重试。"
-                : "大纲生成失败，请重试。",
+                : jobFailureMessage(job.errorCode, "大纲生成失败，请重试。"),
             );
           }
         })

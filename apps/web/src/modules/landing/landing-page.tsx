@@ -7,6 +7,7 @@ import {
   APPLY_EMAIL,
   applyHref,
   audiences,
+  claim,
   faqs,
   flow,
   phaseNote,
@@ -140,7 +141,8 @@ function Hero() {
             </Item>
           </h1>
           <Item as="p" className="text-lead text-ink-2 max-md:text-intro">
-            贴入一篇爆款，拆出它的结构与写法；再用你自己的素材按这个结构写，每一句都标出出处，确认后推送到草稿箱。
+            贴入一篇爆款，拆出它的结构与写法，再用你自己的素材按这个结构写。
+            {claim}
           </Item>
           <Item className="flex items-center gap-4 max-md:flex-col max-md:items-stretch">
             <ApplyLink size="lg" />
@@ -152,7 +154,7 @@ function Hero() {
             </Link>
           </Item>
           <Item as="p" className="text-label font-normal text-ink-2">
-            只取结构，不搬文字；草稿由你在公众号后台检查并发布。
+            生成结果会对照参考原文检查；草稿由你在公众号后台检查并发布。
           </Item>
         </Stagger>
         <HeroVisual />
@@ -276,10 +278,10 @@ function Proof() {
         <Reveal className="flex max-w-180 flex-col gap-3">
           <p className={eyebrow}>来源与原则</p>
           <h2 id="proof-title" className={sectionTitle}>
-            每一句都能找到出处。
+            证据只来自你的素材。
           </h2>
           <p className="text-intro text-ink-2">
-            初稿里的每条论据都对应到你的素材、版本和原文片段；没有素材支撑的说法不会被悄悄写进去，而是单独列为待补证据。
+            初稿里的每条论据都对应到你的素材、版本和原文片段，能找到出处；参考文章不能当作证据，没有素材支撑的说法单独列为待补证据。
           </p>
         </Reveal>
         <Reveal

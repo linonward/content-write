@@ -21,7 +21,8 @@ export type Usage = {
 
 export type ParseResult<T> =
   | { success: true; data: T }
-  | { success: false; error: string };
+  // `code` replaces AI_OUTPUT_INVALID as the job's error when the repair fails the same way.
+  | { success: false; error: string; code?: string };
 
 export type DeepSeekDeps = {
   fetch: typeof fetch;
@@ -205,5 +206,5 @@ export async function generateJson<T>(
   );
   const repaired = problemWith(second, parse);
   if (repaired.success) return { data: repaired.data, usage };
-  throw new TerminalJobError("AI_OUTPUT_INVALID");
+  throw new TerminalJobError(repaired.code ?? "AI_OUTPUT_INVALID");
 }

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { type AiMode, modeLabel, modeNote } from "@/modules/ai/client/ai-mode";
 import { BodyEditor } from "./body-editor";
+import { jobFailureMessage } from "./job-failure";
 import { request } from "./request";
 
 type SourceLink = {
@@ -152,7 +153,7 @@ export function DraftPanel({
             setError(
               job.status === "stale"
                 ? "生成期间大纲或来源已变化，这次结果未保存，请重新生成。"
-                : "初稿生成失败，请重试。",
+                : jobFailureMessage(job.errorCode, "初稿生成失败，请重试。"),
             );
           }
         })

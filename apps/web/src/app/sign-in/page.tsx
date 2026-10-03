@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { SignInForm } from "@/modules/identity/client/sign-in-form";
 import { getCurrentSession } from "@/modules/identity/server/session";
 import deskPhoto from "@/modules/identity/sign-in-desk.jpg";
+import { claim } from "@/modules/landing/content";
 
 // 设计稿画框 15：左栏品牌、写作台配图、一句产品说明与试用状态；右侧 400 宽登录面板。
 // 移动端单列，隐藏配图，说明放在面板之后。
@@ -49,7 +50,7 @@ export default async function SignInPage() {
             看懂一篇爆款，写出你自己的那篇。
           </p>
           <p className="text-copy text-ink-2 max-md:text-body">
-            拆出爆款的结构与写法，再用你自己的素材写；每一句标出出处，由你决定是否采用。
+            拆出爆款的结构与写法，再用你自己的素材写。{claim}
           </p>
         </div>
         <p className="text-meta text-ink-2 max-md:order-4 max-md:px-4 max-md:pt-3 max-md:pb-8">

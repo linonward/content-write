@@ -11,6 +11,16 @@ test("shows the landing page to signed-out visitors", async ({ page }) => {
     }),
   ).toBeVisible();
 
+  // The main claim leads; sentence-level provenance is no longer the headline promise.
+  await expect(
+    page
+      .getByText(
+        "证据只来自你自己的素材；参考文章只留下结构，原文不会进你的稿子。",
+      )
+      .filter({ visible: true }),
+  ).toBeVisible();
+  await expect(page.getByText(/每一句都(标出|能找到)出处/)).toHaveCount(0);
+
   // The only primary action is applying, by email until the application form has a backend.
   const apply = page.getByRole("link", { name: "申请试用" });
   const visible = await apply.filter({ visible: true }).count();
@@ -33,6 +43,9 @@ test("shows the landing page to signed-out visitors", async ({ page }) => {
   // FAQ answers the plagiarism question up front; footer hides pages that do not exist yet.
   await expect(page.getByText("这算不算洗稿？")).toBeVisible();
   await expect(page.getByText(/^不算。拆解只提取结构与写法/)).toBeVisible();
+  await expect(
+    page.getByText(/对照原文检查，与原文连续 12 个字相同的结果不会保存/),
+  ).toBeVisible();
   await expect(page.getByRole("link", { name: "隐私说明" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "使用条款" })).toHaveCount(0);
 
@@ -43,6 +56,9 @@ test("shows the landing page to signed-out visitors", async ({ page }) => {
 
   await page.getByRole("link", { name: "已有账号？登录" }).click();
   await expect(page).toHaveURL(/\/sign-in$/);
+  await expect(
+    page.getByText(/原文不会进你的稿子/).filter({ visible: true }),
+  ).toBeVisible();
 });
 
 test("sends signed-in authors from the landing page to home", async ({
