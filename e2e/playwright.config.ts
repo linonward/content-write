@@ -32,7 +32,9 @@ export default defineConfig({
       command: "pnpm --filter @content-write/api start",
       url: `${apiURL}/api/healthz`,
       // Browser tests use the deterministic mock adapter, never a real model.
-      env: { AI_MODE: "mock" },
+      // Both projects share one user, so the suite outgrows the daily quota of 20;
+      // the quota itself is covered by the API integration tests.
+      env: { AI_MODE: "mock", AI_DAILY_JOB_LIMIT: "200" },
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,
     },

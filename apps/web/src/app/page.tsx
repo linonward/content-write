@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getCurrentSession } from "@/modules/identity/server/session";
+import { claim } from "@/modules/landing/content";
 import { LandingPage } from "@/modules/landing/landing-page";
 
-const description =
-  "贴入一篇爆款，拆出它的结构与写法；再用你自己的素材按这个结构写，每一句都标出出处。邀请制试用准备中。";
+const description = `贴入一篇爆款，拆出它的结构与写法，再用你自己的素材按这个结构写。${claim}邀请制试用准备中。`;
 
 export const metadata: Metadata = {
   title: "拆写 · 看懂一篇爆款，写出你自己的那篇",

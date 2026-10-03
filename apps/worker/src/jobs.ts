@@ -25,6 +25,7 @@ import { describeFailure, TerminalJobError } from "./failures";
 import { completeIdeaJob, loadIdeaSources } from "./idea-jobs";
 import { completeMemoryJob } from "./memory-jobs";
 import { completeOutlineJob, loadOutlineContext } from "./outline-jobs";
+import { readBoundReference } from "./reference-copy";
 import { mockRun, runUsage } from "./runs";
 
 export type Claimed = {
@@ -236,6 +237,13 @@ function profileFor(job: Claimed) {
   return readProfileRevision(getDb(), job.user_id, job.profile_version);
 }
 
+/** The original behind the article's framework; generated text is checked against it, never sent with it. */
+async function referenceFor(job: Claimed) {
+  return job.article_id
+    ? readBoundReference(getDb(), job.user_id, job.article_id)
+    : null;
+}
+
 async function runOutline(job: Claimed, started: number) {
   const context = await loadOutlineContext(job);
   if (!context) {
@@ -250,6 +258,7 @@ async function runOutline(job: Claimed, started: number) {
     undefined,
     await samplesFor(job),
     await memoriesFor(job),
+    await referenceFor(job),
   );
   await completeOutlineJob(job, output, performance.now() - started, meta);
 }
@@ -266,6 +275,7 @@ async function runDraft(job: Claimed, started: number) {
     undefined,
     await samplesFor(job),
     await memoriesFor(job),
+    await referenceFor(job),
   );
   await completeDraftJob(job, output, performance.now() - started, meta);
 }
@@ -282,6 +292,7 @@ async function runEdit(job: Claimed, started: number) {
     await samplesFor(job),
     await profileFor(job),
     await memoriesFor(job),
+    await referenceFor(job),
   );
   await completeEditJob(job, output, performance.now() - started, meta);
 }

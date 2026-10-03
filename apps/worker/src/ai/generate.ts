@@ -48,6 +48,12 @@ import {
   validateOutline,
 } from "../outline";
 import { avoidingBannedWords, withProfile } from "../profile";
+import {
+  copiedRun,
+  REFERENCE_COPIED,
+  type ReferenceText,
+  withoutReferenceCopy,
+} from "../reference-copy";
 import { type AiMode, aiMode } from "./config";
 import {
   type DeepSeekDeps,
@@ -87,6 +93,42 @@ function asParse<T>(
             : "结构不符合要求",
       };
 }
+
+/** Mock output is deterministic and cannot be repaired: a copied run fails the job. */
+function refuseReferenceCopy(
+  reference: ReferenceText | null,
+  texts: string[],
+  allowed: string[] = [],
+) {
+  if (reference && copiedRun(reference, texts, allowed))
+    throw new TerminalJobError(REFERENCE_COPIED);
+}
+
+/** Every text of an outline: with a framework, none may carry the reference original. */
+const outlineTexts = (outline: Outline) => [
+  outline.workingTitle,
+  outline.audience,
+  outline.thesis,
+  ...outline.sections.flatMap((section) => [
+    section.heading,
+    section.purpose,
+    ...section.keyPoints,
+    ...section.missingEvidence,
+  ]),
+];
+
+const draftTexts = (draft: Draft) => [
+  draft.title,
+  draft.markdown,
+  ...draft.sourceMap.map((entry) => entry.claim),
+  ...draft.evidenceGaps,
+];
+
+const editTexts = (edit: Edit) => [
+  edit.replacement,
+  edit.explanation,
+  ...edit.evidenceGaps,
+];
 
 /**
  * The model copies quotes but cannot count UTF-16 offsets, so positions are
@@ -175,15 +217,16 @@ export async function generateOutline(
   deps?: DeepSeekDeps,
   samples: StyleSample[] = [],
   memories: ConfirmedMemory[] = [],
+  reference: ReferenceText | null = null,
 ): Promise<Generated<Outline>> {
   const mode = requireMode();
-  if (mode === "mock")
-    return {
-      output: framework
-        ? createMockFrameworkOutline(brief, sources, framework)
-        : createMockOutline(brief, sources),
-      meta: { mode, usage: null },
-    };
+  if (mode === "mock") {
+    const output = framework
+      ? createMockFrameworkOutline(brief, sources, framework)
+      : createMockOutline(brief, sources);
+    refuseReferenceCopy(reference, outlineTexts(output));
+    return { output, meta: { mode, usage: null } };
+  }
   const { data, usage } = await generateJson(
     "outline_generation",
     withProfile(
@@ -202,7 +245,11 @@ export async function generateOutline(
       memories,
     ),
     avoidingBannedWords(
-      (value) => asParse(validateOutline(value, sources, framework)),
+      withoutReferenceCopy(
+        (value) => asParse(validateOutline(value, sources, framework)),
+        reference,
+        outlineTexts,
+      ),
       profile,
       (outline) => [
         outline.workingTitle,
@@ -224,15 +271,23 @@ export async function generateDraft(
   deps?: DeepSeekDeps,
   samples: StyleSample[] = [],
   memories: ConfirmedMemory[] = [],
+  reference: ReferenceText | null = null,
 ): Promise<Generated<Draft>> {
   const mode = requireMode();
-  if (mode === "mock")
-    return { output: createMockDraft(context), meta: { mode, usage: null } };
+  if (mode === "mock") {
+    const output = createMockDraft(context);
+    refuseReferenceCopy(reference, draftTexts(output));
+    return { output, meta: { mode, usage: null } };
+  }
   const { data, usage } = await generateJson(
     "draft_generation",
     withProfile(draftMessages(context), profile, samples, memories),
     avoidingBannedWords(
-      (value) => asParse(validateDraft(value, context.sources)),
+      withoutReferenceCopy(
+        (value) => asParse(validateDraft(value, context.sources)),
+        reference,
+        draftTexts,
+      ),
       profile,
       (draft) => [draft.title, draft.markdown],
     ),
@@ -268,15 +323,26 @@ export async function generateEdit(
   samples: StyleSample[] = [],
   profile: AuthorProfile | null = null,
   memories: ConfirmedMemory[] = [],
+  reference: ReferenceText | null = null,
 ): Promise<Generated<Edit>> {
   const mode = requireMode();
-  if (mode === "mock")
-    return { output: createMockEdit(context), meta: { mode, usage: null } };
+  // Runs already in the selection are the author's own text, not the model's doing.
+  const own = [context.selectionText];
+  if (mode === "mock") {
+    const output = createMockEdit(context);
+    refuseReferenceCopy(reference, editTexts(output), own);
+    return { output, meta: { mode, usage: null } };
+  }
   const { data, usage } = await generateJson(
     "edit_suggestion",
     withProfile(editMessages(context), profile, samples, memories),
     avoidingBannedWords(
-      (value) => asParse(validateEdit(value, context.selectionText)),
+      withoutReferenceCopy(
+        (value) => asParse(validateEdit(value, context.selectionText)),
+        reference,
+        editTexts,
+        own,
+      ),
       profile,
       (edit) => [edit.replacement],
     ),

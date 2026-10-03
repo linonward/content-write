@@ -17,6 +17,7 @@
     "auth:create-admin": "node --env-file-if-exists=../../.env.local node_modules/auth/dist/index.mjs create-admin --config src/modules/identity/auth.ts",
     "smoke:deepseek": "node --env-file-if-exists=../../.env.local ../../node_modules/vitest/vitest.mjs run tests/smoke/deepseek.smoke.test.ts",
     "eval:breakdown": "node --env-file-if-exists=../../.env.local ../../node_modules/vitest/vitest.mjs run tests/smoke/breakdown-eval.smoke.test.ts",
+    "eval:reference-copy": "node --env-file-if-exists=../../.env.local ../../node_modules/vitest/vitest.mjs run tests/smoke/reference-copy-eval.smoke.test.ts",
     "smoke:framework": "node --env-file-if-exists=../../.env.local ../../node_modules/vitest/vitest.mjs run tests/smoke/framework.smoke.test.ts",
     "smoke:profile": "node --env-file-if-exists=../../.env.local ../../node_modules/vitest/vitest.mjs run tests/smoke/profile.smoke.test.ts",
     "smoke:link-fetch": "node ../../node_modules/vitest/vitest.mjs run tests/smoke/link-fetch.smoke.test.ts"

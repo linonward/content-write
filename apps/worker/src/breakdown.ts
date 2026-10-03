@@ -1,5 +1,6 @@
 import type { BreakdownResult } from "@content-write/db/schema";
 import { z } from "zod";
+import { COPY_RUN_CHARS, sharedRun } from "./reference-copy";
 
 const MAX_QUOTE_CHARS = 120;
 const text = (max: number) => z.string().trim().min(1).max(max);
@@ -46,16 +47,11 @@ export const breakdownSchema = z.strictObject({
 });
 
 /**
- * Descriptive fields must describe, not reproduce: a run this long copied from
- * the original means the model is carrying the text over instead of citing a span.
+ * First descriptive field that copies a run of the original verbatim, with the
+ * copied run. Descriptions must describe, not reproduce: they go on to guide the
+ * author's own article, so they are held to the same limit as generated text.
  */
-export const COPY_RUN_CHARS = 20;
-
-const squash = (value: string) => value.replace(/\s+/g, "");
-
-/** First descriptive field that copies a run of the original verbatim, with the copied run. */
 export function copiedField(content: string, result: BreakdownResult) {
-  const source = squash(content);
   const fields: [string, string][] = [
     ["titlePattern", result.titlePattern],
     ["audience", result.audience],
@@ -77,12 +73,8 @@ export function copiedField(content: string, result: BreakdownResult) {
   ];
   for (const [name, value] of fields) {
     // Each line is checked on its own so joined fields cannot form a false run.
-    for (const line of value.split("\n").map(squash)) {
-      for (let at = 0; at + COPY_RUN_CHARS <= line.length; at++) {
-        const run = line.slice(at, at + COPY_RUN_CHARS);
-        if (source.includes(run)) return { name, run };
-      }
-    }
+    const run = sharedRun([content], value.split("\n"), COPY_RUN_CHARS);
+    if (run) return { name, run };
   }
   return null;
 }

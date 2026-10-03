@@ -143,3 +143,9 @@ T018 新增（记录手动发布；需要会话，写操作需可信 Origin，�
 - `POST /api/memories/extract`（`Idempotency-Key`，需模型同意）→ 202 `{ jobId, status: "queued", mode }`，任务 `memory_extraction`。没有启用的历史文章 422 `SAMPLES_REQUIRED`；已有 50 条 409 `MEMORY_LIMIT`；已有进行中的提取 409 `MEMORY_JOB_ACTIVE`；同键不同输入 409 `IDEMPOTENCY_CONFLICT`；每日/并发 429；未配置模型 503 `AI_NOT_CONFIGURED`；未同意 428。任务状态用 `GET /api/jobs/:id` 轮询，候选通过 `GET /api/memories` 读取（`jobId` 指向产生它的任务）。
 - 所有接口要求会话，写操作检查 Origin；其他用户或不存在的 ID 均 404 `MEMORY_NOT_FOUND`；无效 JSON 400，请求过大（>4 KB）413。
 - 选题、大纲、初稿与 AI 修改入队时按添加时间降序选最多 20 条 `confirmed` 记忆，ID/版本写入 `ai_jobs.memories` 并纳入输入 hash；没有已确认记忆时 hash 形状不变。
+
+## 参考原文复制检查（T038）
+
+- 没有新增接口。文章绑定了拆解（`breakdownId` 不为空）时，`outline_generation`、`draft_generation`、`edit_suggestion` 任务的结果在 worker 提交前对照该拆解版本的参考文章原文检查（规则见 `.ai/contracts/ai.md`）。
+- 修复一次后仍带出原文，任务 `failed`，`GET /api/jobs/:id` 与各页面的 `latestJob.errorCode` 为 `REFERENCE_COPIED`；大纲、初稿候选与修改建议都不写入，文章版本不变。任务不自动重试，作者在文章页重新生成。
+- 页面对 `REFERENCE_COPIED` 显示专门的原因说明；其他失败码沿用原提示。

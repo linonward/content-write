@@ -8,6 +8,14 @@ export const applyHref = `mailto:${APPLY_EMAIL}?subject=${encodeURIComponent(
   "申请试用拆写",
 )}&body=${encodeURIComponent("你好，我想申请试用拆写。\n\n我常写的主题：\n我的公众号（可选）：\n")}`;
 
+// 对外主张（docs/product.md 第 1 节）：证据来源与原文不进稿子在前，出处标注是支撑点。
+// 落地页、登录页与站点描述共用，避免各处说法不一。
+export const claim =
+  "证据只来自你自己的素材；参考文章只留下结构，原文不会进你的稿子。";
+
+// 与 apps/worker/src/reference-copy.ts 的 COPY_RUN_CHARS 一致，由 content.test.ts 校验。
+export const copyRunChars = 12;
+
 export type StepStatus = "done" | "in-progress" | "not-started";
 
 export const statusLabels: Record<StepStatus, string> = {
@@ -59,7 +67,7 @@ export const principles = [
   },
   {
     title: "只取结构，不搬文字",
-    body: "拆解只提取爆款的结构与写法；原文仅你可见，不会进入你的大纲、初稿或导出。",
+    body: `拆解只提取爆款的结构与写法，原文仅你可见，写作时模型拿不到它。生成的大纲、初稿和 AI 修改还会对照原文检查，与原文连续 ${copyRunChars} 个字相同的结果不会保存。`,
   },
   {
     title: "进草稿箱，由你发布",
@@ -96,7 +104,7 @@ export const faqs = [
   {
     question: "这算不算洗稿？",
     answer:
-      "不算。拆解只提取结构与写法，原文不会进入你的稿子；论据只来自你自己的素材，并标注出处。平台禁止的是脱离真实创作者的改写、拼接和搬运。",
+      "不算。拆解只提取结构与写法，写作时模型拿到的只有这份结构，看不到原文；生成的大纲、初稿和 AI 修改还会对照原文检查，带出原文的结果不会保存。论据只来自你自己的素材，并标注出处。平台禁止的是脱离真实创作者的改写、拼接和搬运。",
     open: true,
   },
   {

@@ -99,10 +99,28 @@ test("writes from a breakdown's framework through to a draft", async ({
     page.getByText("参考文章不会作为证据出现", { exact: false }),
   ).toBeVisible();
 
-  // Drafting continues unchanged.
-  await page.getByRole("button", { name: "确认大纲" }).click();
-  await expect(page.getByText("大纲已确认，可以生成初稿。")).toBeVisible();
-  await page.getByRole("button", { name: "根据大纲生成初稿" }).click();
+  // The author types a sentence of the reference into the outline. A draft that
+  // carries it is not saved, and the author is told why.
+  const points = page.getByLabel("要点（每行一条）").first();
+  const own = await points.inputValue();
+  const confirmAndDraft = async (keyPoints: string) => {
+    await points.fill(keyPoints);
+    await page.getByRole("button", { name: "保存大纲" }).click();
+    await expect(page.getByText(/^大纲已保存/)).toBeVisible();
+    await page.getByRole("button", { name: "确认大纲" }).click();
+    await expect(page.getByText("大纲已确认，可以生成初稿。")).toBeVisible();
+    await page.getByRole("button", { name: "根据大纲生成初稿" }).click();
+  };
+  await confirmAndDraft(reference.split("\n\n")[1]);
+  await untilVisible(
+    page.getByText(/生成结果里出现了参考文章的原文，这次结果没有保存/),
+  );
+  await expect(
+    page.getByRole("heading", { name: "最近应用的初稿" }),
+  ).toHaveCount(0);
+
+  // With the author's own wording back, drafting continues unchanged.
+  await confirmAndDraft(own);
   await untilVisible(page.getByRole("heading", { name: "最近应用的初稿" }));
 
   // The tag leads back to the breakdown.
